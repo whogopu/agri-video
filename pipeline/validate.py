@@ -24,6 +24,7 @@ from pydantic import ValidationError
 from pipeline.common import (
     format_config, load_config, voice_preset, resolve_episode_dir, save_episode, setup_logging, stage_timer,
 )
+from pipeline.prosody import strip_markup
 from pipeline.schema import Episode, Scene, Status
 
 VERIFY_RE = re.compile(r"\[\s*VERIFY", re.IGNORECASE)
@@ -58,8 +59,8 @@ class Report:
 
 
 def count_words(text: str) -> int:
-    """Whitespace tokens that contain at least one letter or digit (skips '।', '-', etc.)."""
-    return sum(1 for tok in text.split() if any(ch.isalnum() for ch in tok))
+    """Whitespace tokens that contain at least one letter or digit (skips '।', '-', | and {style} marks)."""
+    return sum(1 for tok in strip_markup(text).split() if any(ch.isalnum() for ch in tok))
 
 
 def _source_path(ep_dir: Path, ref: str) -> Path:
@@ -102,7 +103,7 @@ def _check_script(ep: Episode, ep_dir: Path, cfg: dict, rep: Report) -> None:
     if ep.scenes[-1].purpose != "cta":
         rep.warn(f"scene {ep.scenes[-1].id}: last scene should be the CTA (is {ep.scenes[-1].purpose!r})")
     cta = cfg["script"].get("cta_hi", "").strip()
-    if cta and not any(cta in s.narration_display for s in ep.scenes if s.purpose == "cta"):
+    if cta and not any(cta in strip_markup(s.narration_display) for s in ep.scenes if s.purpose == "cta"):
         rep.warn("no cta scene contains the CTA line from config.yaml")
 
     factual = set(cfg["script"].get("factual_purposes", []))
@@ -144,7 +145,7 @@ def _check_spoken(ep: Episode, rep: Report) -> None:
             rep.error(f"scene {s.id}: narration_spoken is empty (run text normalization)")
         elif DIGIT_RE.search(s.narration_spoken):
             rep.error(f"scene {s.id}: narration_spoken still contains digits")
-        elif re.search(r"[A-Za-z]", s.narration_spoken):
+        elif re.search(r"[A-Za-z]", strip_markup(s.narration_spoken)):
             rep.warn(f"scene {s.id}: narration_spoken has Latin letters; TTS may mispronounce them "
                      "(add a pronunciation.yaml entry)")
 

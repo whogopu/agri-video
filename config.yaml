@@ -1,5 +1,10 @@
 # All tunable settings and backend choices. Stages read this; nothing else is hard-coded.
-video: { fps: 30, scene_padding_sec: 0.35 }
+# Scene change = padding after the narration (the 0.33 s crossfade sits at its end) + lead-in of the new
+# scene (picture first, then voice). Audible gap ≈ padding − crossfade + lead-in + ~0.13 s of take room
+# ≈ 1.0 s: longer than any pause inside a scene (sentence ≈ 0.45 s, || ≈ 0.78 s), so a new scene is heard
+# as a new idea. Lead-in > crossfade, so the new picture is fully in before the narrator speaks.
+# (Was padding 0.35, no lead-in: only ~0.15 s between scenes; user feedback 2026-11-19.)
+video: { fps: 30, scene_padding_sec: 0.8, scene_lead_in_sec: 0.4 }
 
 # Chosen per episode with `new_episode --format long|short` (stored in episode.json "format").
 # long  = landscape 16:9 YouTube video, 3–5 min
@@ -32,7 +37,7 @@ tts:
   # {speaker} in a description is filled in from `speaker`. "very clear audio" is the model card's quality tip.
   # Other Hindi speakers on the model card: Divya (recommended), Rani. For a slower pace, use
   # "speaking at a slightly slow speed with a moderate pitch, like a patient teacher" (~150–160 wpm).
-  default_voice: rohit
+  default_voice: maya_vasant   # chosen 2026-11-19: maya_vasant (male), veena_varun (female); see docs/ARCHITECTURE.md D22
   voices:
     rohit:
       speaker: Rohit
@@ -42,11 +47,100 @@ tts:
       speaker: Aman
       wpm: 191
       description: "{speaker}'s voice is calm and clear, with a moderate speed and pitch. The recording is very close-sounding with no background noise. very clear audio."
+    # --- other open models (comparison 2026-11-19), all via mlx-audio in the tts-mlx/ env ---
+    # Maya2 Native (Apache-2.0; Mimi codec CC-BY-4.0, attribution): 20 built-in voices, no reference audio.
+    maya_vasant:   # PRODUCTION male voice
+      backend: mlx_audio
+      model: maya-research/maya2-native
+      speaker: Vasant
+      lang: hi
+      wpm: 174
+      params: { normalize: false }
+      # respellings sent only to this voice (pronunciation.yaml is for all voices); test each with Whisper:
+      # जांच → जाञ्च: heard right 3/4 vs 0/4, and the user confirmed it sounds better (2026-11-19). Veena gets worse with it, so not global.
+      pronunciation: { "जांच": "जाञ्च", "जाँच": "जाञ्च" }
+    maya_satvik: { backend: mlx_audio, model: maya-research/maya2-native, speaker: Satvik, lang: hi, wpm: 171 }
+    maya_abhay:  { backend: mlx_audio, model: maya-research/maya2-native, speaker: Abhay,  lang: hi, wpm: 171 }
+    # Chatterbox Multilingual v3 (MIT, PerTh watermark): copies the voice of a reference clip. Only SYNTHETIC
+    # references (our own Parler takes), never a real person: CLAUDE.md, user decision 2026-11-19.
+    chatterbox_rohit:
+      backend: mlx_audio
+      model: mlx-community/chatterbox-multilingual-v3
+      family: chatterbox
+      speaker: ""
+      lang: hi
+      wpm: 171
+      ref_audio: assets/voices/rohit-ref.wav     # Parler Rohit, demo episode scene 18
+      ref_text: "तीसरी गलती, नमूने के लिए खाद या दवा की पुरानी बोरी इस्तेमाल करना। हमेशा साफ़ बाल्टी और साफ़ थैली ही इस्तेमाल करें।"
+      params: { exaggeration: 0.5, cfg_weight: 0.5, temperature: 0.8 }
+    # Indic-Speak (Bodhan AI; Indic Open Model License v1.0 + Llama 3.2): built-in voices, style tags.
+    # Community MLX bf16 conversion, run by our own worker (no repo code executed).
+    indic_speak_amit:
+      backend: mlx_audio
+      worker: snac_lm_worker.py
+      flavor: indic_speak
+      model: iniquitous/indic-speak-mlx-bf16
+      family: indic_speak
+      speaker: Amit
+      lang: hi
+      wpm: 171
+      params: { temperature: 0.6 }
+    # Veena (Maya Research, Apache-2.0): 4 built-in voices (agastya = male), no style control.
+    veena_agastya:
+      backend: mlx_audio
+      worker: snac_lm_worker.py
+      flavor: veena
+      model: maya-research/Veena
+      family: veena
+      speaker: agastya
+      lang: hi
+      wpm: 171
+    veena_varun:   # PRODUCTION female voice. Despite the name, female (~230 Hz).
+      backend: mlx_audio
+      worker: snac_lm_worker.py
+      flavor: veena
+      model: maya-research/Veena
+      family: veena
+      speaker: varun
+      lang: hi
+      wpm: 176
+      takes: 6     # ~1 take in 5 drifts to a different (lower) voice; scoring rejects those, more takes = safer
   seed: 42
   device: mps
   out_sample_rate: 48000
 
 audio: { target_lufs: -14, true_peak_db: -1.5 }
+
+# How narration is produced (pipeline/narration.py, pipeline/prosody.py, pipeline/take_scoring.py).
+narration:
+  # segments: one TTS call per sentence / pause mark, several takes each, best take picked by score,
+  #           joined with controlled pauses. scene: v0 behaviour, one TTS call per scene.
+  mode: segments
+  takes: 4                 # takes per segment (seed = voice seed + take index); more = better odds, slower
+  # silence inserted after a segment, by what ends it. Each segment also keeps ~60 ms of its own
+  # room on both sides after trimming, so the audible gap is about this + 0.12 s.
+  pauses_sec: { short: 0.12, sentence: 0.32, exclaim: 0.38, question: 0.50, long: 0.65, end: 0.0 }
+  room_tone_db: -66        # steady, very quiet pink noise under the narration (null = digital silence)
+  # Delivery styles: Parler voice descriptions ({speaker} is filled in). `params.<family>` = generate()
+  # options for other models, where family = the voice preset's `family` (e.g. chatterbox: exaggeration
+  # 0.25–2, higher = more expressive). Maya2 has no style control (speed fixed; pauses still apply). 'neutral' = the episode
+  # voice's own description. Parler understands pitch, speed, expressivity ("monotone" ↔
+  # "expressive and animated"), recording quality. Keep the speaker name so the voice stays the same.
+  styles:
+    question: { description: "{speaker}'s voice is clear and slightly expressive and animated, with a moderate speed and a slightly high pitch. The recording is very close-sounding with no background noise. very clear audio.", params: { chatterbox: { exaggeration: 0.65 } } }
+    slow:     { description: "{speaker}'s voice is calm and clear, speaking at a slightly slow speed with a moderate pitch, like a patient teacher. The recording is very close-sounding with no background noise. very clear audio.", tempo: 0.97 }
+    warm:     { description: "{speaker}'s voice is warm, friendly and slightly expressive, with a moderate speed and pitch. The recording is very close-sounding with no background noise. very clear audio.", params: { chatterbox: { exaggeration: 0.6 } } }
+    firm:     { description: "{speaker}'s voice is clear and firm, slightly expressive, with a moderate speed and a slightly low pitch. The recording is very close-sounding with no background noise. very clear audio." }
+  # automatic style when a segment has no {style} mark
+  auto_style:
+    question: question     # segment ends with '?'
+    digits: slow           # what the viewer sees has a number in it
+    purpose: { cta: warm, mistake: firm }
+  asr:
+    backend: whisper       # whisper (asr/ env, mlx-whisper) | none (lengths only; tests)
+    model: mlx-community/whisper-large-v3-turbo
+    language: hi
+  score_weights: {}        # override pipeline/take_scoring.py DEFAULT_WEIGHTS
 
 images:
   backend: mflux

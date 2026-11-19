@@ -73,8 +73,10 @@ agri-video/
 │   ├── new_episode.py       create an episode folder from templates/
 │   ├── validate.py          schema + [VERIFY] + sources + length + stage-completeness gates
 │   ├── text_normalize.py    narration_display → narration_spoken (numbers, units, pronunciations)
+│   ├── prosody.py           delivery markup (| || {style}), sentence segments, automatic styles
+│   ├── take_scoring.py      Whisper + pitch metrics → score and rank TTS takes
 │   ├── tts_backends.py      TTS backend interface: parler (subprocess), stub
-│   ├── narration.py         TTS per scene → trim → loudness → durations + captions
+│   ├── narration.py         TTS per sentence × N takes → pick best → join with pauses → loudness → captions
 │   ├── captions.py          caption chunking + timing
 │   ├── audio.py             ffmpeg/ffprobe helpers (duration, trim, loudness, gain)
 │   ├── tts_try.py           voice auditions / TTS smoke tests outside an episode
@@ -84,9 +86,15 @@ agri-video/
 │   ├── review.py            contact sheets + automated checks → review/review.md
 │   └── package.py           thumbnail (Remotion still) + youtube.md
 │
+├── tts-mlx/                 ISOLATED env for the production voices (mlx-audio, mlx-lm, snac)
+│   ├── mlx_worker.py        any mlx-audio model (Maya2 Native, Chatterbox) — JSON in/out like parler_worker
+│   ├── snac_lm_worker.py    Llama + SNAC-token models mlx-audio lacks (Veena; Indic-Speak with vocos_decoder.py)
+│   └── vocos_decoder.py     vendored Indic-Speak decoder, loaded weights-only
 ├── tts/                     ISOLATED env for Parler-TTS (pins transformers==4.46.1)
 │   ├── pyproject.toml
 │   └── parler_worker.py     reads jobs as JSON on stdin, loads model once, writes WAVs
+├── asr/                     ISOLATED env for take scoring (mlx-whisper, librosa)
+│   └── asr_worker.py        transcribes takes, measures pitch range / end rise / gaps
 │
 ├── remotion/                TypeScript video compositions (Remotion 4.0.545, React 19)
 │   ├── src/Root.tsx         compositions: Episode, EpisodeShort (preview), FontTest, Thumbnail
@@ -116,12 +124,14 @@ agri-video/
 └── tests/                   pytest suite (65 tests) + fixtures/sample-episode
 ```
 
-### 3.1 Four runtimes, deliberately separated
+### 3.1 Five runtimes, deliberately separated
 
 | Runtime | Where | Why separate |
 |---|---|---|
 | Main Python env (3.12) | `.venv` via `uv sync` | Pipeline logic; light dependencies (pydantic, pyyaml, pillow). |
+| TTS MLX env (3.12) | `tts-mlx/.venv` via `uv sync` in `tts-mlx/` | Production voices on Apple Silicon (MLX). mlx-audio pins a recent transformers; separate from Parler's pinned one. |
 | TTS Python env (3.12) | `tts/.venv` via `uv sync` in `tts/` | `parler-tts` pins `transformers==4.46.1` and pulls torch; keeping it isolated stops it from constraining the main env. Called as a **subprocess** with JSON in and out. |
+| ASR Python env (3.12) | `asr/.venv` via `uv sync` in `asr/` | mlx-whisper pulls torch, numba and MLX; only needed to score narration takes. Subprocess, JSON in and out. |
 | mflux | `uv tool install mflux==0.24.0` (per user, `~/.local/bin`) | A CLI tool with its own MLX/torch stack, called as a subprocess. |
 | Node / Remotion | `remotion/node_modules` | Rendering in headless Chrome; TypeScript compositions. |
 
@@ -157,7 +167,8 @@ Defined in `pipeline/schema.py` (pydantic v2, `extra="forbid"` so typos in hand-
       "notes": null
     },
     "sources": ["sources/shc-faq-english.pdf#how-can-a-farmer-use-SHC"],
-    "audio": { "file": "audio/scene-07.wav", "duration_sec": 12.102 },
+    "audio": { "file": "audio/scene-07.wav", "duration_sec": 12.102,
+               "segments": [{ "text": "…", "start": 0.06, "end": 4.9, "style": "neutral" }] },  // per sentence
     "captions": [{ "text": "रिपोर्ट में लिखा होता है कि", "start": 0.0, "end": 1.9 }],
     "image_file": "images/scene-07.png"
   }],
@@ -181,9 +192,12 @@ episodes/2026-11-19-mitti-ki-jaanch/
 ├── script.md            readable table for checkpoint 1 (generated from episode.json)
 ├── episode.json         single source of truth
 ├── audio/
-│   ├── raw/scene-XX.wav + .json   raw TTS output + sidecar (hash of text+voice → cache key)
-│   ├── work/scene-XX.wav          48 kHz, trimmed, compressed (float32)
-│   └── scene-XX.wav               final, loudness-normalized (16-bit)
+│   ├── takes/<hash>.wav + .json   every TTS take (hash of text+style+seed) + metrics (what Whisper heard, pitch, gaps)
+│   ├── segments/scene-XX.json     per scene: segments, style, all take scores, auto pick, manual override
+│   ├── takes.md                   readable report of every take and score
+│   ├── raw/scene-XX.wav + .json   scene mode (v0) only: one TTS call per scene
+│   ├── work/scene-XX.wav          48 kHz, trimmed, compressed, segments joined with pauses (float32)
+│   └── scene-XX.wav               final, loudness-normalized + room tone (16-bit)
 ├── images/
 │   ├── scene-XX-aN.png            every attempt kept
 │   ├── scene-XX.png               current pick (what is rendered)
@@ -273,30 +287,37 @@ Creates `episodes/<date>-<slug>/` with subfolders, `brief.md` (from `templates/e
 0–99 use an explicit table, because Hindi number words are irregular. `--text "…"` normalizes a single string, which is handy when checking a new pronunciation.
 
 ### 7.4 `narration`
+Two modes (`config.yaml: narration.mode`). **`segments`** (default since 2026-11-19) aims at delivery that sounds like a person explaining, not a model reading a paragraph. **`scene`** is the v0 path (one TTS call per scene), kept for A/B comparison.
+
 ```mermaid
 sequenceDiagram
     participant N as narration.py
-    participant B as tts_backends.ParlerBackend
-    participant W as tts/parler_worker.py (isolated env)
+    participant P as prosody.py
+    participant W as tts/parler_worker.py
+    participant A as asr/asr_worker.py
     participant F as ffmpeg
-    N->>N: voice cfg = config.tts ∪ preset ∪ episode.voice
-    N->>N: skip scenes whose raw sidecar hash matches
-    N->>B: synthesize_many(jobs)
-    B->>W: uv run --project tts … (JSON on stdin)
-    W->>W: load model once (MPS, CPU fallback), per job: set_seed, generate
-    W-->>B: one JSON line per WAV (sec_audio, sec_compute, device)
-    N->>F: per scene: trim silence, 3:1 compressor, resample 48 kHz
-    N->>F: measure integrated LUFS over all scenes back to back
-    N->>F: apply ONE gain to every scene (+ limiter if TP > ceiling), repeat ≤3× until within 0.5 LU
-    N->>N: duration_sec + captions → episode.json
+    N->>P: split display + spoken into segments (। ? ! | ||), pair them 1:1
+    P-->>N: segments + pause after each + style (explicit {style} or auto)
+    N->>W: N takes per segment (seed = voice seed + k, description = style), cached by hash
+    N->>A: unscored takes → what Whisper heard, pitch range, end rise, longest gap
+    N->>N: take_scoring: rank takes per segment; --pick overrides (kept while text unchanged)
+    N->>F: picked takes: trim, compress, fade, tempo; join with pauses_sec
+    N->>F: ONE episode gain (+ limiter) and quiet pink room tone
+    N->>N: duration, audio.segments, per-segment captions → episode.json; takes.md report
 ```
-- **Backend contract:** `synthesize(text, voice_cfg, out_path) -> duration_sec`, plus optional `synthesize_many` so the model loads once per run. Backends: `parler` (default), `stub` (sine tone ∝ word count, for tests and offline work). Adding ElevenLabs, Sarvam or IndicF5 means adding one class to `BACKENDS`.
-- **Why one gain for the whole episode?** Per-scene normalization would make quiet scenes as loud as emphatic ones. One gain keeps relative levels natural while hitting −14 LUFS (YouTube's target).
-- **Why the compressor?** Parler output is peaky. Without it the true-peak limiter ate ~1.4 LU (−15.4 instead of −14). With the compressor and a top-up loop, results land at −14.2 to −14.4 LUFS.
-- After running, it lists the files to check by ear: scenes 1–2 plus any scene with numbers or English terms. Nothing plays automatically.
+
+- **Why sentences?** Parler flattens and rushes long inputs and invents its own pause lengths. Short inputs are cleaner, and we control the gaps: comma pauses stay with the model; sentence, question, `|` and `||` pauses come from `narration.pauses_sec`.
+- **Delivery markup** in the script (`hindi-script` skill): `|` breath, `||` long pause, `{slow|warm|firm|question}`. Stripped for captions, word counts and validate checks. Automatic styles: questions → `question`, numbers on screen → `slow` (and tempo 0.97), CTA → `warm`, mistakes → `firm`. After a `|` the sentence keeps its style. Styles are Parler descriptions that keep the speaker name. The model card lists pitch, speed, expressivity and recording quality as controllable; emotions are untested for Hindi.
+- **Best of N takes.** Different seeds give different prosody, and occasionally a wrong word or babble at the end. Scores rank takes **within one segment** (`take_scoring.py`): character error vs. the script after normalizing both (numbers → words, `pronunciation.yaml`, no nukta or punctuation, so Whisper's spelling quirks cost every take equally), length far from the takes' median (babble or skipped words), pitch range in semitones (monotone loses, capped), mid-sentence gaps, the end rise for questions, **register**: distance from the typical pitch of the take's style (questions are meant to sit higher, e.g. 167 Hz vs. 130 Hz neutral for Parler; a style may sit at most 3 semitones from the voice), and **identity**: distance from the episode's overall voice pitch beyond 4 semitones, heavily penalized, because that is effectively another speaker (Veena drifts from ~230 Hz to ~120 Hz in about 1 take in 5). Accuracy outweighs every pitch preference except identity. Picks with error > 0.12 are listed to listen to.
+- **Clean joins** (`audio.clean_take`): TTS takes end (and sometimes start) with a short non-speech burst (Maya2/Mimi: 20–30 ms at about −40 dB after the speech; Parler: a one-window blip). A threshold trim kept it and the join cut it off, so every junction had an audible disturbance. Now speech is found from a 10 ms envelope (within 40 dB of the loudest window). Edge islands are dropped when they are short (< 60 ms), or when they run into the very edge of the file after a gap and are < 200 ms: Maya2 often ends a take with 70–80 ms at about −30 dB, still loud at the last sample, while real speech decays. 40 ms of room is kept before and 90 ms after the speech, **never reaching into a dropped burst**, and raised-cosine fades (15 ms in, 60 ms out) end at true silence. Checked on the v2 soil draft: no blips at any join, and every scene's last word intact (Whisper).
+- **Room tone:** one continuous track (`audio/room-tone.wav`, a 30 s seamless loop of pink noise, 80 Hz–7 kHz, exactly −66 dBFS RMS) played looped under the whole video by `Episode.tsx`, fading in and out with the video. It used to be mixed into each scene file, which switched the hiss on and off at every scene change.
+- **Caching:** takes are keyed by (text, backend, model, description, seed); metrics by the ASR backend. Editing a sentence re-synthesizes only that sentence's takes. Loudness, joins and captions are always recomputed for the whole episode.
+- **Backend contract:** `synthesize(text, voice_cfg, out_path) -> duration_sec`, plus optional `synthesize_many(jobs)`; a `TTSJob` may carry its own `description` and `seed`. Backends: `parler`, `stub` (sine tone; with stub the ASR step is skipped). Other open models will be compared through the same contract.
+- **Why one gain for the whole episode?** Per-scene normalization would make quiet scenes as loud as emphatic ones. One gain keeps relative levels natural while hitting −14 LUFS. The 3:1 compressor stops Parler's peaks from making the limiter eat loudness.
+- After running, it lists scenes to check by ear plus flagged segments, and writes `audio/takes.md`. Nothing plays automatically.
 
 ### 7.5 `captions`
-Chunks come from `narration_display` (what is shown), timed across the scene's audio **in proportion to character count**:
+Chunks come from `narration_display` (what is shown, markup removed). In segments mode each sentence's chunks are timed **inside that sentence's real audio span**, and a caption stays up through the following pause. In scene mode they are spread across the scene. Within a span, timing is **in proportion to character count**:
 1. split at clause punctuation `। ? ! , ; : —`
 2. split clauses longer than `max_words` (6 for long, 4 for Shorts) at the **best boundary**, scored as: closeness to an even split, +3 if the chunk ends on a postposition, auxiliary or conjunction (में से के है और …), +2 if the next chunk starts with a phrase opener (और कि कौन …), −5 if it ends on a phrase opener (कौन, बिना, हर …), −4 if the next word is a postposition
 3. fold 1–2-word fragments into a neighbour; a lone word may push a chunk to `max_words + 1`, so lists like "ज़िंक, आयरन, कॉपर," never flash a single word
@@ -328,8 +349,8 @@ The library lives in `assets/broll/`. `broll index` probes new clips (duration, 
 5. Compare the output duration with `common.episode_frames` (warn if off by >0.15 s).
 
 **Timing model** (implemented twice, kept in sync: `remotion/src/timing.ts` and `pipeline/common.py`):
-`scene_frames = max(round((audio_sec + scene_padding_sec) × fps), 2×crossfade+1)` and
-`episode_frames = Σ scene_frames − crossfade × (n−1)`, with `crossfade = 10` frames (`config.yaml: render.crossfade_frames` = `TRANSITION_FRAMES` in `theme.ts`). The 0.35 s padding is longer than the 10-frame (0.33 s) crossfade, so narration never overlaps between scenes.
+`scene_frames = max(round((scene_lead_in_sec + audio_sec + scene_padding_sec) × fps), 2×crossfade+1)` and
+`episode_frames = Σ scene_frames − crossfade × (n−1)`, with `crossfade = 10` frames (`config.yaml: render.crossfade_frames` = `TRANSITION_FRAMES` in `theme.ts`). In `Episode.tsx` the scene's audio and captions sit in a `<Sequence from={leadIn}>`, so **the new picture lands before the voice**. With padding 0.8 s and lead-in 0.4 s, a scene change is ≈1.0 s of silence (measured on the v2 soil draft: 0.91–1.01 s), against a median 0.35 s and max 0.60 s inside scenes. Before (padding 0.35 s, no lead-in) it was ~0.15 s, shorter than a full stop, and scenes ran together (user feedback, D24).
 
 ### 7.9 Remotion compositions
 - **Episode** (`Episode.tsx`): a `TransitionSeries` of scenes with `fade()` transitions. Each scene renders its **visual** (`KenBurnsImage`, `BrollClip`, or a graphic: `TitleCard`, `KeyPoints`, `BigNumber`, with a "pending" title card fallback), then `OnScreenText` (top-left tag), `Captions` (bottom, ≤2 lines with a clamp safety net), and its `<Audio>`. The `Watermark` sits on top for the whole video. Width, height and duration come from props via `calculateMetadata`, so **one composition renders both 16:9 and 9:16**.
@@ -375,12 +396,13 @@ Claude-specific judgement steps (cannot be scripted): writing Hindi copy, resolv
 
 | Key | Meaning |
 |---|---|
-| `video.fps`, `video.scene_padding_sec` | 30 fps; silence after each scene's audio (0.35 s) |
+| `video.fps`, `video.scene_padding_sec`, `video.scene_lead_in_sec` | 30 fps; silence after each scene's narration (0.8 s, the crossfade sits at its end); picture-before-voice at the start of each scene (0.4 s) |
 | `formats.{long,short}` | `width/height`, `target_sec` (length range), `image_size`, `max_sec` (Shorts), `caption_max_words` (Shorts: 4) |
 | `script.cta_hi`, `script.factual_purposes` | CTA line validate looks for; scene purposes that require sources |
 | `tts.backend/model/seed/device/out_sample_rate` | Parler on MPS, seed 42, 48 kHz output |
 | `tts.default_voice`, `tts.voices.<preset>` | presets with `speaker`, `wpm` (measured), `description` (`{speaker}` placeholder) |
 | `audio.target_lufs/true_peak_db` | −14 LUFS, −1.5 dBTP |
+| `narration.*` | `mode` (segments/scene), `takes` (a voice preset may override, e.g. Veena 6), `pauses_sec` per pause kind, `room_tone_db`, `styles` (Parler descriptions + tempo), `auto_style` rules, `asr` (whisper model), `score_weights` |
 | `images.*` | backend, command, model, base_model, steps, guidance, quantize, `style_suffix`, `max_attempts`, **`inspection_checklist`** |
 | `captions.max_words_per_chunk`, `captions.font_size_px` | 6 words per chunk (long default); caption size per format `{long: 56, short: 64}` px at full resolution, passed by `render.py` as the `captionFontSize` prop (falls back to the theme) |
 | `render.*` | draft scale 0.5, concurrency 4, hardware acceleration, crossfade frames (must match `theme.ts`) |
@@ -396,7 +418,7 @@ Claude-specific judgement steps (cannot be scripted): writing Hindi copy, resolv
 | `new_episode <slug>` | `--format long|short`, `--voice <preset>`, `--date`, `--topic`, `--title-hi`, `--force` |
 | `validate <ep>` | `--as <status>` (check only), `--set-status <status>` (check, then advance) |
 | `text_normalize <ep>` | `--scene N`, `--force`; or `--text "…"` |
-| `narration <ep>` | `--scene N`, `--force`, `--backend stub`, `--allow-unapproved` (tests only) |
+| `narration <ep>` | `--scene N`, `--force`, `--takes N`, `--pick SCENE:SEG:TAKE`, `--mode segments|scene`, `--asr whisper|none`, `--rescore`, `--backend stub`, `--allow-unapproved` (tests only) |
 | `tts_try` | `--voices <presets…>` or `--speakers <names…>`, `--text` (repeatable), `--description`, `--tag`, `--backend`, `--out` |
 | `images <ep>` | `--scene N`, `--force`, `--retry`, `--prompt`, `--seed`, `--extra-attempt` (user-requested only), `--use-attempt N`, `--crops`, `--inspect pass|fail --notes`, `--checklist`; one-off: `--prompt --out --format` |
 | `broll` | `index`, `check`, `list [--tag] [--orientation]` |
@@ -433,6 +455,12 @@ Decisions made during the v0 build, with what was considered.
 | D17 | Thumbnail title ≤46% width, shadow not stroke | 62% width; text stroke | The title covered the farmer's chin; the stroke drew artifacts inside Devanagari glyphs. |
 | D18 | Claude fetches official sources when the user has none | Leave `[VERIFY]`; trust user notes | User request (option B). Sources are saved with a README of URLs and **conflicts** (₹190 vs. ₹300; 2 vs. 3 years; 5 vs. 10–15 spots). Claims not found officially (e.g. "20–30 days before sowing") were dropped. |
 | D19 | Caption size and prompt suffix aligned with config and the text rule (2026-11-19) | Leave `font_size_px` unused; keep "no text" | The config value was silently ignored, and "no text" contradicted D9. Both are now wired and tested (`test_phase5.py`). |
+| D20 | **Sentence-level narration, N takes, Whisper-scored** (2026-11-19) | One TTS call per scene (v0); paid/expressive TTS; voice actor | User wants natural, human delivery and accepts long machine time; no paid APIs or actors. Splitting gives controlled pauses, per-sentence style and exact caption timing; takes trade compute for quality; Whisper catches slips (e.g. "खेट" for खेत) that a quick listen misses. Scores only rank takes of one sentence; the ear has the last word (`--pick`). |
+| D21 | Isolated `asr/` env for scoring | Add mlx-whisper to the main or `tts/` env | It pulls torch, numba, MLX; the main env stays light and `tts/` keeps its pins. |
+| D22 | **Production voices: Maya2 Native "Vasant" (male, default) and Veena "varun" (female)** (2026-11-19) | Parler Rohit (v0), Chatterbox Multilingual cloning a synthetic Rohit, Indic-Speak "Amit", other Maya2/Veena voices | User's choice after listening to the same 4 scenes from 5 models through the segments pipeline (`samples/narration-compare/`). Measured on the pilot: Maya2 0.9–1.0× realtime, mean take error 0.021 (best of all), ~174 wpm; Veena 4.7× realtime, mean take error 0.068 with voice drift handled by the identity score and 6 takes. Indic-Speak was the most accurate after picking (9/10) but 5.3× realtime and under a custom licence; Chatterbox needs a reference clip (synthetic only, CLAUDE.md). Excluded: Voxtral TTS, XTTS-v2, MMS (non-commercial), VibeVoice-Hindi-7B (community fine-tune, research-only advice, too big). Licences: `docs/licenses.md`. |
+| D23 | Artifact-aware take trimming + long smooth fades (2026-11-19) | ffmpeg `silenceremove` + 8 ms fades | The user heard a disturbance at every sentence join; measurement showed codec bursts at take edges that the threshold trim kept and then cut abruptly. |
+| D24 | Scene change ≈1 s: padding 0.8 s + 0.4 s picture-first lead-in (2026-11-19) | Only longer padding; a sound cue | The user couldn't hear where one scene ended and the next began. The longest pause should mark the biggest change of idea; showing the new picture before the voice is how editors signal a new topic. +~20 s per 4-minute episode. |
+| D25 | Room tone as one continuous Remotion track; edge bursts cut even when long (2026-11-19) | Room tone per scene file; island length rule only | The user still heard disturbances at some joins in the v2 draft: per-scene room tone stepped from digital silence at each scene edge, and Maya2's 70–80 ms end-of-file bursts passed the 60 ms rule (and the 90 ms post-roll re-added shorter ones). |
 
 ---
 
@@ -451,11 +479,12 @@ Decisions made during the v0 build, with what was considered.
 
 ## 12. Testing
 
-`uv run pytest -q`: 65 tests, about 2 s, no models needed:
+`uv run pytest -q`: 74 tests, about 10 s, no models needed:
 
 - `test_phase1.py`: episode creation, formats, voice presets, validation rules (`[VERIFY]` in either file, sources, number-needs-source, schema errors, orientation, wpm-based targets)
 - `test_phase3.py`: Hindi number words (0–99 table, Indian grouping, colloquial fractions), normalization cases, caption chunking regressions, narration end to end with the **stub** backend (including the approval gate)
 - `test_phase4.py`: B-roll index, check and list on generated clips; image helpers; **inspection gate** (uninspected → failed → passed → image changed); crops
+- `test_narration_segments.py`: markup parsing and pairing, automatic styles, error-rate normalization (Whisper quirks), take ranking, per-segment captions, segments mode end to end with the stub backend (including `--pick` persistence)
 - `test_phase5.py`: timing parity with a real Remotion render, package checks, `youtube.md` content and the Shorts title suffix, caption size from config, prompt suffix allows incidental text
 
 The Remotion side is checked with `npx tsc --noEmit`, the `FontTest` still, and the 20 s component test render (`npm run test-assets` + `EpisodeShort`/`Episode` with default props).

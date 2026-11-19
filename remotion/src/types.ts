@@ -26,7 +26,11 @@ export type Scene = {
   on_screen_text?: string | null;
   visual: Visual;
   sources?: string[];
-  audio?: { file: string; duration_sec: number } | null;
+  audio?: {
+    file: string;
+    duration_sec: number;
+    segments?: { text: string; start: number; end: number; style: string }[];
+  } | null;
   captions: Caption[];
   image_file?: string | null;
 };
@@ -52,8 +56,12 @@ export type EpisodeProps = {
   brollBase: string;
   /** broll_id → file name inside brollBase (from assets/broll/index.json) */
   brollFiles: Record<string, string>;
-  /** config.yaml video.scene_padding_sec */
+  /** config.yaml video.scene_padding_sec: silence after a scene's narration (the crossfade sits in it) */
   paddingSec: number;
+  /** config.yaml video.scene_lead_in_sec: the new picture shows this long before the narration starts */
+  leadInSec?: number;
+  /** looped room-tone file under the whole video (episode audio/room-tone.wav), or null */
+  roomTone?: string | null;
   /** logo path under remotion/public, or null to hide the watermark */
   logo: string | null;
   /** caption font size in px at full resolution (config.yaml captions.font_size_px); theme default if absent */

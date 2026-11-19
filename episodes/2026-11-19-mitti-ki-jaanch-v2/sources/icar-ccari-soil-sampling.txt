@@ -1,0 +1,74 @@
+SHM ICAR RC GOA
+STFR ICAR CCARI GOA
+Home
+Acknowledgement
+Contact Us
+ICAR - Central Coastal Agricultural Research Institute Soil Test Based Fertilizer Recommendations 
+How to take soil sample
+ Place of soil sampling
+1. One soil sample per 0.5 hectare (5000 square meter) is ideal.
+2. Do not take soil sample from – recently fertilized plots, bunds, channels, marshy tracts, near area trees, wells, compost piles, border areas etc.
+3. Zig-zag method of soil sampling (shown in picture below)
+Picture - 1 – Zig-zag method of soil sampling
+Depth of sampling:
+Sr. No.
+Type of situation/crop
+Depth of sampling
+1.
+Cereals, vegetables, seasonal crops etc.
+(Shallow rooted crops)
+0-15 cm 
+Furrow slice layer
+2.
+Deep rooted crops with longer duration (Cotton, sugarcane, banana, tapioca, vegetables etc.)
+Plantation or fruit crops
+Samples should be collected from different depth depending on situation
+3.
+Plantation or fruit crops
+0-30 cm
+30-60 cm
+60-90 cm
+4-5 pits dug in 0.5 ha area
+4.
+Saline-alkali soils, salt crust (if visible) etc.
+0-15 cm
+5.
+Grasses and grassland
+5 cm
+ Procedure of V shaped method of soil sampling (15 cm soil sampling depth)
+ 1. Remove the surface litter, grass, debris, etc., from the sampling point
+2. Drive the auger to a plough depth of 15 cm and draw the soil sample
+3. Collect at least 10 to 15 samples from each sampling unit and place in a bucket or tray
+4. If auger is not available, make a ‘V’ shaped cut to a depth of 15 cm in the sampling spot using spade
+5. Remove thick slice of soil from top to bottom of exposed face (2.5-3 cm) of the ‘V’ shaped cut and place in a clean container
+Picture - 2 – V shaped method of soil sampling
+6. Collect the soil at one place - mix thoroughly with hands - spread on a paper or clean plastic sheet and make four quarter. Remove the opposite two quarters and retain the other two. Repeat the same process till the soil is reduced approximately 500 grams.
+Picture - 3 – Quarter method of soil sampling
+Picture - 4 – Quarter method of soil sampling
+7. Dry the soil in shade
+8. Put the soil sample in the plastic bag, label it properly and submit it for analysis
+STFR ICAR CCARI
+Software/Packages
+STFR Goa Annual Crops Targeted yield
+STFR Goa Annual Crops Adhoc
+STFR Goa per tree/plant Adhoc
+Foliar Spraying Goa
+Foliar Spraying India
+Manual on using the Software
+Fertilizer Calc.
+India
+Global
+Lime Requirement Calculator
+Knowledge links
+Android Apps developed by ICAR - CCARI
+How to take Soil Samples
+Where to analyse your soil samples
+Fertilizer dealers in Goa
+Videos
+Warning: session_start(): Session cannot be started after headers have already been sent in /var/www/html/soilgoa/sidebar.php on line 71
+Fatal error: Uncaught ValueError: fread(): Argument #2 ($length) must be greater than 0 in /var/www/html/soilgoa/sidebar.php:83
+Stack trace:
+#0 /var/www/html/soilgoa/sidebar.php(83): fread(Resource id #2, 0)
+#1 /var/www/html/soilgoa/soilsample.php(205): include('/var/www/html/s...')
+#2 {main}
+ thrown in /var/www/html/soilgoa/sidebar.php on line 83

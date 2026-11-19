@@ -152,15 +152,17 @@ def stage_timer(ep_dir: Path, stage: str) -> Iterator[StageRun]:
 FALLBACK_SCENE_SEC = 4.0
 
 
-def scene_frames(audio_sec: float | None, fps: int, padding_sec: float, crossfade: int) -> int:
-    sec = (audio_sec if audio_sec is not None else FALLBACK_SCENE_SEC) + padding_sec
+def scene_frames(audio_sec: float | None, fps: int, padding_sec: float, crossfade: int, lead_in_sec: float = 0.0) -> int:
+    """Scene = lead-in (new picture before the voice) + narration + padding (silence after it)."""
+    sec = lead_in_sec + (audio_sec if audio_sec is not None else FALLBACK_SCENE_SEC) + padding_sec
     return max(int(sec * fps + 0.5), crossfade * 2 + 1)  # JS Math.round for positive numbers
 
 
 def episode_frames(episode: Episode, cfg: dict[str, Any]) -> int:
     fps, pad = episode.video.fps, float(cfg["video"]["scene_padding_sec"])
+    lead = float(cfg["video"].get("scene_lead_in_sec", 0.0))
     xf = int(cfg["render"]["crossfade_frames"])
-    total = sum(scene_frames(s.audio.duration_sec if s.audio else None, fps, pad, xf) for s in episode.scenes)
+    total = sum(scene_frames(s.audio.duration_sec if s.audio else None, fps, pad, xf, lead) for s in episode.scenes)
     return max(1, total - xf * max(0, len(episode.scenes) - 1))
 
 

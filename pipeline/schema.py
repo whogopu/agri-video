@@ -91,9 +91,18 @@ class Visual(_Model):
         return self
 
 
+class AudioSegment(_Model):
+    """One spoken segment (sentence or pause-marked phrase) inside a scene's audio."""
+    text: str                 # as shown (narration_display, markup removed)
+    start: float = Field(ge=0)  # speech start/end within the scene audio, seconds
+    end: float
+    style: str = "neutral"    # delivery style used (config narration.styles)
+
+
 class Audio(_Model):
     file: str
     duration_sec: float = Field(gt=0)
+    segments: list[AudioSegment] = Field(default_factory=list)  # empty for scene-mode narration
 
 
 class Caption(_Model):

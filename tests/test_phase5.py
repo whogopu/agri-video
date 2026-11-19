@@ -17,6 +17,7 @@ def sample() -> Episode:
 
 def test_episode_frames_matches_remotion_formula():
     ep, cfg = sample(), load_config()
+    cfg["video"].update(scene_padding_sec=0.35, scene_lead_in_sec=0.0)  # the settings of that real render
     durs = [7.343, 8.337, 7.705, 6.782]  # phase5-test narration; Remotion rendered 30.61 s
     for s, d in zip(ep.scenes, durs):
         s.audio = Audio(file="x.wav", duration_sec=d)

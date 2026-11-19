@@ -69,12 +69,18 @@ def sync_assets(ep: Episode, ep_dir: Path) -> dict:
             link_or_copy(LIBRARY / "clips" / f, PUBLIC / "broll" / f)
             broll_files[bid] = f
 
+    room_tone = None  # one continuous track under the whole video (pipeline.narration writes it)
+    if (ep_dir / "audio" / "room-tone.wav").exists():
+        link_or_copy(ep_dir / "audio" / "room-tone.wav", dst_root / "audio" / "room-tone.wav")
+        room_tone = f"episodes/{ep.id}/audio/room-tone.wav"
+
     logo = None
     if BRAND_LOGO.exists():
         link_or_copy(BRAND_LOGO, PUBLIC / "brand" / "logo.png")
         logo = "brand/logo.png"
 
-    return {"assetBase": f"episodes/{ep.id}", "brollBase": "broll", "brollFiles": broll_files, "logo": logo}
+    return {"assetBase": f"episodes/{ep.id}", "brollBase": "broll", "brollFiles": broll_files, "logo": logo,
+            "roomTone": room_tone}
 
 
 def caption_font_size(cfg: dict, fmt: str) -> int | None:
@@ -123,6 +129,7 @@ def main() -> None:
             return
 
         props = {"episode": ep.model_dump(mode="json"), "paddingSec": cfg["video"]["scene_padding_sec"],
+                 "leadInSec": float(cfg["video"].get("scene_lead_in_sec", 0.0)),
                  "captionFontSize": caption_font_size(cfg, ep.format), **sync_assets(ep, ep_dir)}
         props_path = ep_dir / "render" / "props.json"
         write_json(props_path, props)

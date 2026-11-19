@@ -1,0 +1,16 @@
+[project]
+name = "agri-video-tts-mlx"
+version = "0.1.0"
+description = "Isolated env for MLX-native TTS models (mlx-audio: Maya2 Native, ...). Called as a subprocess by pipeline/tts_backends.py."
+requires-python = ">=3.11,<3.13"
+dependencies = [
+    "huggingface-hub>=2.4.0",
+    "mlx-audio",
+    "mlx-lm>=0.32.2",
+    "snac>=1.2.1",
+    "soundfile>=0.12",
+    "torch>=2.15.0",
+]
+
+[tool.uv]
+package = false

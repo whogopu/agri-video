@@ -50,3 +50,28 @@ Episode `2026-11-19-mitti-ki-jaanch`: long 16:9, Rohit voice, 23 scenes (15 imag
 - Narration and images are the bottlenecks (~14 of the ~18 min). Both run on the GPU, so run them one at a time.
 - Each draft re-render costs ~1 min 45 s. Batch checkpoint-2 notes before re-rendering.
 - No thermal throttling was visible: per-unit times stayed flat across 8.5 min of continuous TTS and 5.5 min of image generation.
+
+## Narration, segments mode (pilot, 2026-11-19)
+
+4 scenes (1, 9, 16, 23) of the soil episode, 10 segments × 5 takes, Parler on MPS:
+
+| Step | Time |
+|---|---|
+| TTS, 50 takes (211.9 s of audio) | 413 s compute (2.0× realtime) + model load; stage total 460 s |
+| Whisper large-v3-turbo + pitch, per take | ~0.5–0.7 s (first run also downloads ~1.6 GB) |
+| Re-pick + assemble + loudness (cached takes) | ~2 s |
+
+Estimate for a 4-minute episode with 5 takes: ≈ 40–50 min TTS + ~2 min scoring.
+Scenes got ~0–2 s longer from controlled pauses and the slower number style (scene 9: 10.1 → 12.2 s).
+
+## Narration model comparison (2026-11-19)
+
+Same 4 pilot scenes, 10 segments × 5 takes, scored by Whisper large-v3-turbo. Compute per second of audio on this Mac:
+
+| Model / voice | Runtime | s compute per s audio | Model load | Peak RSS | Mean take error | Picked takes word-perfect |
+|---|---|---|---|---|---|---|
+| Parler Rohit | torch MPS | 2.0 | ~20 s | — | 0.041 | 6/10 |
+| **Maya2 Native Vasant** (production, male) | mlx-audio | 0.9–1.0 | ~2 min first time | — | 0.021 | 7/10 |
+| Chatterbox Multilingual (synthetic Rohit ref) | mlx-audio | 1.0 | — | — | 0.034 | 7/10 |
+| Indic-Speak Amit | mlx-lm bf16 + torch decode | 5.3 | 129 s | 3.3 GB | 0.039 | 9/10 |
+| **Veena varun** (production, female) | mlx-lm bf16 + SNAC | 4.7 | 124 s | 4.1 GB | 0.068 | 6/10 (after identity fix) |

@@ -19,6 +19,13 @@ description: Write the Hindi narration script (script.md + episode.json scenes) 
 - `on_screen_text`: optional, 1–4 words.
 - Suggest a `visual.type` per scene (graphic for numbers/lists/titles). The visuals stage finalizes it.
 
+## Writing for the ear (delivery markup)
+Narration is spoken one sentence at a time, so write how a good कृषि सलाहकार talks: short sentences, a question to the farmer, a beat before the key fact, the key number repeated in the recap. Light markup in `narration_display` shapes the delivery (stripped from captions and word counts; `pipeline/prosody.py`):
+- `||` long pause: after the opening question, after "अब कुछ आम गलतियां।", before the key point.
+- `|` short breath inside a long sentence. Use rarely; each part should still be ≥ 3 words, because Parler handles very short text badly.
+- `{slow}` `{warm}` `{firm}` `{question}` at the start of a sentence: override the automatic style (questions → question, numbers → slow, CTA → warm, mistakes → firm). Usually not needed.
+- Don't put markup inside a number, unit or the CTA line. `text_normalize` keeps the markup in `narration_spoken`; both must have the same marks.
+
 ## Steps
 1. Fill `episode.json` scenes (`narration_display`, `purpose`, `on_screen_text`, `visual.type`, `sources`) and `title_hi`.
 2. Build `narration_spoken`: `uv run python -m pipeline.text_normalize episodes/<id>` (numbers → Hindi words, units, `pronunciation.yaml`). Read the output; fix odd readings with a `pronunciation.yaml` entry and rerun with `--force`.

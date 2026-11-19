@@ -132,8 +132,11 @@ def test_voice_presets(tmp_path: Path):
     default = create_episode("a", date(2026, 11, 20), root=tmp_path)
     aman = create_episode("b", date(2026, 11, 20), root=tmp_path, voice="aman")
     load = lambda d: Episode.model_validate_json((d / "episode.json").read_text(encoding="utf-8"))  # noqa: E731
-    assert (load(default).voice.preset, load(default).voice.speaker) == ("rohit", "Rohit")
-    assert (load(aman).voice.preset, load(aman).voice.speaker) == ("aman", "Aman")
+    female = create_episode("d", date(2026, 11, 20), root=tmp_path, voice="veena_varun")
+    assert (load(default).voice.preset, load(default).voice.speaker) == ("maya_vasant", "Vasant")
+    assert load(default).voice.backend == "mlx_audio"  # the preset's backend, not the global tts.backend
+    assert (load(female).voice.preset, load(female).voice.speaker, load(female).voice.backend) == ("veena_varun", "varun", "mlx_audio")
+    assert (load(aman).voice.preset, load(aman).voice.speaker, load(aman).voice.backend) == ("aman", "Aman", "parler")
     assert load(aman).voice.wpm and load(aman).voice.wpm > load(default).voice.wpm
     with pytest.raises(SystemExit):
         create_episode("c", date(2026, 11, 20), root=tmp_path, voice="nobody")

@@ -91,10 +91,11 @@ def detect_issues(video: Path) -> dict[str, list]:
 
 def scene_starts(ep: Episode, cfg: dict) -> list[tuple[int, float, str]]:
     fps, pad, xf = ep.video.fps, float(cfg["video"]["scene_padding_sec"]), int(cfg["render"]["crossfade_frames"])
+    lead = float(cfg["video"].get("scene_lead_in_sec", 0.0))
     out, f = [], 0
     for s in ep.scenes:
         out.append((s.id, f / fps, s.visual.type or "?"))
-        f += scene_frames(s.audio.duration_sec if s.audio else None, fps, pad, xf) - xf
+        f += scene_frames(s.audio.duration_sec if s.audio else None, fps, pad, xf, lead) - xf
     return out
 
 

@@ -4,7 +4,7 @@
 
 Request (stdin, JSON):
     {"model": "ai4bharat/indic-parler-tts", "device": "mps", "seed": 42,
-     "jobs": [{"text": "...", "description": "...", "out": "/abs/path.wav"}]}
+     "jobs": [{"text": "...", "description": "...", "out": "/abs/path.wav", "seed": 7}]}   # job seed optional
 
 The model loads once per request. For each job, writes a mono WAV at the model's
 native sample rate and prints one JSON line to stdout:
@@ -71,15 +71,16 @@ def main() -> None:
     sr = model.config.sampling_rate
     for i, job in enumerate(req["jobs"], 1):
         t0 = time.monotonic()
+        seed = job.get("seed", req.get("seed", 42))
         try:
-            audio = generate(model, tok, desc_tok, device, job["text"], job["description"], req.get("seed", 42))
+            audio = generate(model, tok, desc_tok, device, job["text"], job["description"], seed)
         except RuntimeError as e:
             if device != "mps":
                 raise
             log(f"MPS failed ({e}); retrying job {i} on CPU")
             device = "cpu"
             model = model.to("cpu")
-            audio = generate(model, tok, desc_tok, device, job["text"], job["description"], req.get("seed", 42))
+            audio = generate(model, tok, desc_tok, device, job["text"], job["description"], seed)
         sf.write(job["out"], audio, sr)
         res = {"out": job["out"], "sec_audio": round(len(audio) / sr, 3),
                "sec_compute": round(time.monotonic() - t0, 2), "device": device, "sample_rate": sr}

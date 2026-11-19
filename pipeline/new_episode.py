@@ -50,8 +50,8 @@ def create_episode(slug: str, on: date, topic: str = "", title_hi: str = "",
             title_hi=title_hi,
             format=fmt,
             video=VideoSpec(width=f["width"], height=f["height"], fps=cfg["video"]["fps"]),
-            voice=VoiceSpec(preset=vp["preset"], backend=t["backend"], speaker=vp["speaker"],
-                            description=vp["description"], seed=t.get("seed"), wpm=vp.get("wpm")),
+            voice=VoiceSpec(preset=vp["preset"], backend=vp.get("backend", t["backend"]), speaker=vp["speaker"],
+                            description=vp.get("description", ""), seed=t.get("seed"), wpm=vp.get("wpm")),
         )
         save_episode(ep_dir, episode)
         created.append("episode.json")

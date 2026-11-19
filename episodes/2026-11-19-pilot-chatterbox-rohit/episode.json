@@ -1,0 +1,320 @@
+{
+  "schema_version": 1,
+  "id": "2026-11-19-pilot-chatterbox-rohit",
+  "title_hi": "नैरेशन पायलट (टेस्ट)",
+  "status": "draft",
+  "format": "long",
+  "video": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30
+  },
+  "voice": {
+    "preset": "chatterbox_rohit",
+    "backend": "mlx_audio",
+    "speaker": "",
+    "description": "",
+    "seed": 42,
+    "wpm": 171.0
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "purpose": "hook",
+      "narration_display": "क्या आप हर साल अंदाज़े से खाद डालते हैं? || हो सकता है | आपके खेत को उतनी खाद की ज़रूरत ही न हो, और आपका पैसा मिट्टी में बेकार जा रहा हो।",
+      "narration_spoken": "क्या आप हर साल अंदाज़े से खाद डालते हैं? || हो सकता है | आपके खेत को उतनी खाद की ज़रूरत ही न हो, और आपका पैसा मिट्टी में बेकार जा रहा हो।",
+      "on_screen_text": null,
+      "visual": {
+        "type": null,
+        "image_prompt": null,
+        "seed": null,
+        "attempts": 0,
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": null,
+        "props": null,
+        "inspection": null,
+        "notes": null
+      },
+      "sources": [],
+      "audio": {
+        "file": "audio/scene-01.wav",
+        "duration_sec": 11.751,
+        "segments": [
+          {
+            "text": "क्या आप हर साल अंदाज़े से खाद डालते हैं?",
+            "start": 0.0,
+            "end": 3.196,
+            "style": "question"
+          },
+          {
+            "text": "हो सकता है",
+            "start": 3.846,
+            "end": 5.323,
+            "style": "neutral"
+          },
+          {
+            "text": "आपके खेत को उतनी खाद की ज़रूरत ही न हो, और आपका पैसा मिट्टी में बेकार जा रहा हो।",
+            "start": 5.443,
+            "end": 11.751,
+            "style": "neutral"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "क्या आप हर साल अंदाज़े से",
+          "start": 0.0,
+          "end": 2.404
+        },
+        {
+          "text": "खाद डालते हैं?",
+          "start": 2.404,
+          "end": 3.846
+        },
+        {
+          "text": "हो सकता है",
+          "start": 3.846,
+          "end": 5.443
+        },
+        {
+          "text": "आपके खेत को उतनी खाद की",
+          "start": 5.443,
+          "end": 7.274
+        },
+        {
+          "text": "ज़रूरत ही न हो,",
+          "start": 7.274,
+          "end": 8.495
+        },
+        {
+          "text": "और आपका पैसा मिट्टी में",
+          "start": 8.495,
+          "end": 10.428
+        },
+        {
+          "text": "बेकार जा रहा हो।",
+          "start": 10.428,
+          "end": 11.751
+        }
+      ],
+      "image_file": null
+    },
+    {
+      "id": 9,
+      "purpose": "step",
+      "narration_display": "अब नमूना लेने का तरीका। || खेत में टेढ़े-मेढ़े चलते हुए 10 से 15 अलग-अलग जगहें चुनें, ताकि पूरे खेत की सही तस्वीर मिल सके।",
+      "narration_spoken": "अब नमूना लेने का तरीका। || खेत में टेढ़े-मेढ़े चलते हुए दस से पंद्रह अलग-अलग जगहें चुनें, ताकि पूरे खेत की सही तस्वीर मिल सके।",
+      "on_screen_text": null,
+      "visual": {
+        "type": null,
+        "image_prompt": null,
+        "seed": null,
+        "attempts": 0,
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": null,
+        "props": null,
+        "inspection": null,
+        "notes": null
+      },
+      "sources": [
+        "sources/icar-ccari-soil-sampling.html#procedure-3"
+      ],
+      "audio": {
+        "file": "audio/scene-09.wav",
+        "duration_sec": 10.245,
+        "segments": [
+          {
+            "text": "अब नमूना लेने का तरीका।",
+            "start": 0.0,
+            "end": 2.033,
+            "style": "neutral"
+          },
+          {
+            "text": "खेत में टेढ़े-मेढ़े चलते हुए 10 से 15 अलग-अलग जगहें चुनें, ताकि पूरे खेत की सही तस्वीर मिल सके।",
+            "start": 2.683,
+            "end": 10.245,
+            "style": "slow"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "अब नमूना लेने का तरीका।",
+          "start": 0.0,
+          "end": 2.683
+        },
+        {
+          "text": "खेत में टेढ़े-मेढ़े चलते हुए",
+          "start": 2.683,
+          "end": 5.04
+        },
+        {
+          "text": "10 से 15 अलग-अलग जगहें चुनें,",
+          "start": 5.04,
+          "end": 7.397
+        },
+        {
+          "text": "ताकि पूरे खेत की",
+          "start": 7.397,
+          "end": 8.674
+        },
+        {
+          "text": "सही तस्वीर मिल सके।",
+          "start": 8.674,
+          "end": 10.245
+        }
+      ],
+      "image_file": null
+    },
+    {
+      "id": 16,
+      "purpose": "mistake",
+      "narration_display": "अब कुछ आम गलतियां। || पहली गलती, खेत के एक ही कोने से नमूना लेना। तब रिपोर्ट पूरे खेत की नहीं, बस उस कोने की होगी।",
+      "narration_spoken": "अब कुछ आम गलतियां। || पहली गलती, खेत के एक ही कोने से नमूना लेना। तब रिपोर्ट पूरे खेत की नहीं, बस उस कोने की होगी।",
+      "on_screen_text": null,
+      "visual": {
+        "type": null,
+        "image_prompt": null,
+        "seed": null,
+        "attempts": 0,
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": null,
+        "props": null,
+        "inspection": null,
+        "notes": null
+      },
+      "sources": [
+        "sources/icar-ccari-soil-sampling.html#procedure-3"
+      ],
+      "audio": {
+        "file": "audio/scene-16.wav",
+        "duration_sec": 9.852,
+        "segments": [
+          {
+            "text": "अब कुछ आम गलतियां।",
+            "start": 0.0,
+            "end": 1.501,
+            "style": "firm"
+          },
+          {
+            "text": "पहली गलती, खेत के एक ही कोने से नमूना लेना।",
+            "start": 2.151,
+            "end": 5.975,
+            "style": "firm"
+          },
+          {
+            "text": "तब रिपोर्ट पूरे खेत की नहीं, बस उस कोने की होगी।",
+            "start": 6.295,
+            "end": 9.852,
+            "style": "firm"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "अब कुछ आम गलतियां।",
+          "start": 0.0,
+          "end": 2.151
+        },
+        {
+          "text": "पहली गलती, खेत के एक ही",
+          "start": 2.151,
+          "end": 4.345
+        },
+        {
+          "text": "कोने से नमूना लेना।",
+          "start": 4.345,
+          "end": 6.295
+        },
+        {
+          "text": "तब रिपोर्ट पूरे खेत की नहीं,",
+          "start": 6.295,
+          "end": 8.448
+        },
+        {
+          "text": "बस उस कोने की होगी।",
+          "start": 8.448,
+          "end": 9.852
+        }
+      ],
+      "image_file": null
+    },
+    {
+      "id": 23,
+      "purpose": "cta",
+      "narration_display": "जांच से खाद सही लगती है, और मिट्टी सेहतमंद रहती है। || ऐसी और जानकारी के लिए चैनल को सब्सक्राइब करें।",
+      "narration_spoken": "जांच से खाद सही लगती है, और मिट्टी सेहतमंद रहती है। || ऐसी और जानकारी के लिए चैनल को सब्सक्राइब करें।",
+      "on_screen_text": null,
+      "visual": {
+        "type": null,
+        "image_prompt": null,
+        "seed": null,
+        "attempts": 0,
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": null,
+        "props": null,
+        "inspection": null,
+        "notes": null
+      },
+      "sources": [],
+      "audio": {
+        "file": "audio/scene-23.wav",
+        "duration_sec": 8.113,
+        "segments": [
+          {
+            "text": "जांच से खाद सही लगती है, और मिट्टी सेहतमंद रहती है।",
+            "start": 0.0,
+            "end": 4.004,
+            "style": "warm"
+          },
+          {
+            "text": "ऐसी और जानकारी के लिए चैनल को सब्सक्राइब करें।",
+            "start": 4.654,
+            "end": 8.113,
+            "style": "warm"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "जांच से खाद सही लगती है,",
+          "start": 0.0,
+          "end": 2.157
+        },
+        {
+          "text": "और मिट्टी सेहतमंद रहती है।",
+          "start": 2.157,
+          "end": 4.654
+        },
+        {
+          "text": "ऐसी और जानकारी के लिए",
+          "start": 4.654,
+          "end": 6.201
+        },
+        {
+          "text": "चैनल को सब्सक्राइब करें।",
+          "start": 6.201,
+          "end": 8.113
+        }
+      ],
+      "image_file": null
+    }
+  ],
+  "package": {
+    "youtube_title": "",
+    "description_hi": "",
+    "tags": [],
+    "thumbnail_text": "",
+    "thumbnail_image": null,
+    "synthetic_content": null,
+    "sources_list": []
+  }
+}

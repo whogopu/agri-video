@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, Audio, staticFile } from "remotion";
+import { AbsoluteFill, Audio, Sequence, interpolate, staticFile, useVideoConfig } from "remotion";
 import { TransitionSeries, linearTiming } from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";
 import "./fonts";
@@ -53,19 +53,31 @@ const SceneVisual: React.FC<{ scene: Scene; props: EpisodeProps; durationInFrame
 export const Episode: React.FC<EpisodeProps> = (props) => {
   const { episode, paddingSec } = props;
   const fps = episode.video.fps;
+  const leadIn = Math.round((props.leadInSec ?? 0) * fps);
+  const { durationInFrames } = useVideoConfig();
+  const toneFade = Math.min(fps, Math.floor(durationInFrames / 3));
+  // continuous room tone under everything: fades in/out with the video, never steps at scene changes
+  const roomToneVolume = (f: number) =>
+    interpolate(f, [0, toneFade, durationInFrames - toneFade, durationInFrames], [0, 1, 1, 0], {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    });
 
   return (
     <AbsoluteFill style={{ backgroundColor: theme.colors.background }}>
       <TransitionSeries>
         {episode.scenes.map((scene, i) => {
-          const dur = sceneFrames(scene, fps, paddingSec);
+          const dur = sceneFrames(scene, fps, paddingSec, props.leadInSec ?? 0);
           return (
             <React.Fragment key={scene.id}>
               <TransitionSeries.Sequence durationInFrames={dur} name={`scene ${scene.id} (${scene.purpose})`}>
                 <SceneVisual scene={scene} props={props} durationInFrames={dur} />
                 {scene.on_screen_text ? <OnScreenText text={scene.on_screen_text} /> : null}
-                <Captions captions={scene.captions} fontSize={props.captionFontSize} />
-                {scene.audio ? <Audio src={asset(props.assetBase, scene.audio.file)} /> : null}
+                {/* narration and its captions start after the lead-in, so the new picture lands first */}
+                <Sequence from={leadIn} layout="none" name="narration">
+                  <Captions captions={scene.captions} fontSize={props.captionFontSize} />
+                  {scene.audio ? <Audio src={asset(props.assetBase, scene.audio.file)} /> : null}
+                </Sequence>
               </TransitionSeries.Sequence>
               {i < episode.scenes.length - 1 ? (
                 <TransitionSeries.Transition
@@ -77,6 +89,7 @@ export const Episode: React.FC<EpisodeProps> = (props) => {
           );
         })}
       </TransitionSeries>
+      {props.roomTone ? <Audio src={staticFile(props.roomTone)} loop volume={roomToneVolume} /> : null}
       {props.logo ? <Watermark src={staticFile(props.logo)} /> : null}
     </AbsoluteFill>
   );
