@@ -1,0 +1,61 @@
+// Mirrors pipeline/schema.py (episode.json). Keep the two in sync.
+
+export type Caption = { text: string; start: number; end: number };
+
+export type GraphicTemplate = "TitleCard" | "KeyPoints" | "BigNumber";
+
+export type Visual = {
+  type: "image" | "broll" | "graphic" | null;
+  image_prompt?: string | null;
+  seed?: number | null;
+  attempts?: number;
+  inspection?: { file_sha1: string; passed: boolean; notes?: string; inspected_at?: string } | null;
+  broll_id?: string | null;
+  in_sec?: number | null;
+  out_sec?: number | null;
+  template?: GraphicTemplate | null;
+  props?: Record<string, unknown> | null;
+  notes?: string | null;
+};
+
+export type Scene = {
+  id: number;
+  purpose: string;
+  narration_display: string;
+  narration_spoken?: string;
+  on_screen_text?: string | null;
+  visual: Visual;
+  sources?: string[];
+  audio?: { file: string; duration_sec: number } | null;
+  captions: Caption[];
+  image_file?: string | null;
+};
+
+export type Episode = {
+  schema_version?: number;
+  id: string;
+  title_hi: string;
+  status?: string;
+  format?: "long" | "short";
+  video: { width: number; height: number; fps: number };
+  voice?: Record<string, unknown>;
+  scenes: Scene[];
+  package?: Record<string, unknown>;
+};
+
+// Input props for the Episode composition. render.py builds these.
+export type EpisodeProps = {
+  episode: Episode;
+  /** folder under remotion/public holding this episode's assets, e.g. "episodes/<id>" */
+  assetBase: string;
+  /** folder under remotion/public holding B-roll clips */
+  brollBase: string;
+  /** broll_id → file name inside brollBase (from assets/broll/index.json) */
+  brollFiles: Record<string, string>;
+  /** config.yaml video.scene_padding_sec */
+  paddingSec: number;
+  /** logo path under remotion/public, or null to hide the watermark */
+  logo: string | null;
+  /** caption font size in px at full resolution (config.yaml captions.font_size_px); theme default if absent */
+  captionFontSize?: number;
+};

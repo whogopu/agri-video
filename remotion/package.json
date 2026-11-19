@@ -1,0 +1,23 @@
+{
+  "name": "agri-video-remotion",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "studio": "remotion studio",
+    "test-assets": "bash scripts/make-test-assets.sh",
+    "render:test": "remotion render Episode out/test.mp4",
+    "still:fonts": "remotion still FontTest out/font-test.png",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.545",
+    "@remotion/transitions": "4.0.545",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "remotion": "4.0.545"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.0",
+    "typescript": "7.0.2"
+  }
+}

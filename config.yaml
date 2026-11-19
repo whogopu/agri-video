@@ -1,0 +1,94 @@
+# All tunable settings and backend choices. Stages read this; nothing else is hard-coded.
+video: { fps: 30, scene_padding_sec: 0.35 }
+
+# Chosen per episode with `new_episode --format long|short` (stored in episode.json "format").
+# long  = landscape 16:9 YouTube video, 3–5 min
+# short = vertical 9:16 YouTube Short, 30–60 s (stand-alone; re-cutting a long episode is v1)
+formats:
+  long:
+    width: 1920
+    height: 1080
+    target_sec: [180, 300]   # 3–5 min; word target = target_sec × voice wpm
+    image_size: [1344, 768]
+  short:
+    width: 1080
+    height: 1920
+    target_sec: [30, 60]
+    image_size: [768, 1344]
+    max_sec: 60
+    caption_max_words: 4   # narrower frame → shorter caption chunks
+
+script:
+  cta_hi: "ऐसी और जानकारी के लिए चैनल को सब्सक्राइब करें।"
+  # Scene purposes whose claims must be backed by a file in sources/.
+  # Any scene containing a digit also needs a source, whatever its purpose.
+  factual_purposes: [problem, explain, step, mistake]
+
+tts:
+  backend: parler
+  model: ai4bharat/indic-parler-tts
+  # Voice presets. Pick one per episode: `new_episode <slug> --voice aman` (default below).
+  # `wpm` is the measured pace on this Mac (phase 3 auditions); validate uses it to estimate length.
+  # {speaker} in a description is filled in from `speaker`. "very clear audio" is the model card's quality tip.
+  # Other Hindi speakers on the model card: Divya (recommended), Rani. For a slower pace, use
+  # "speaking at a slightly slow speed with a moderate pitch, like a patient teacher" (~150–160 wpm).
+  default_voice: rohit
+  voices:
+    rohit:
+      speaker: Rohit
+      wpm: 171
+      description: "{speaker}'s voice is calm and clear, with a moderate speed and pitch. The recording is very close-sounding with no background noise. very clear audio."
+    aman:
+      speaker: Aman
+      wpm: 191
+      description: "{speaker}'s voice is calm and clear, with a moderate speed and pitch. The recording is very close-sounding with no background noise. very clear audio."
+  seed: 42
+  device: mps
+  out_sample_rate: 48000
+
+audio: { target_lufs: -14, true_peak_db: -1.5 }
+
+images:
+  backend: mflux
+  # FLUX.2 [klein] 4B, pre-quantized 4-bit (Apache-2.0, 4.6 GB, peak ~3.7 GB RAM).
+  # The brief's FLUX.1 schnell q8 is 18 GB and doesn't fit 16 GB RAM; schnell q4 (9.6 GB) is the fallback:
+  #   command: mflux-generate, model: mflux-community/flux-1-schnell-mflux-q4, base_model: schnell, guidance: null
+  command: mflux-generate-flux2
+  model: mflux-community/flux2-klein-4b-mflux-q4
+  base_model: flux2-klein-4b
+  steps: 4
+  guidance: 1.0
+  quantize: null          # weights are already quantized
+  # image size comes from formats.<format>.image_size (multiples of 16)
+  style_suffix: "photorealistic, rural India, natural daylight, documentary photography, no readable signs, no captions, no watermark"  # illegible incidental text is fine (see inspection_checklist)
+  max_attempts: 3
+  # Checked for EVERY generated image, at full size + zoomed crops (`images --crops`), person by person.
+  # Recorded with `images --inspect pass|fail`; validate blocks visuals_ready until each image passes.
+  # Shown by images.py, written into review.md, and used for rendered frames in the review stage.
+  inspection_checklist:
+    - "Hands & arms: every person has exactly 2 arms and 2 hands, each hand connected to its own arm; no extra, missing or floating hands. Both hands should normally be VISIBLE and doing something natural; a person whose second arm is hidden behind the body or clothing looks one-armed and fails (exception: the person is cropped by the frame edge or it's a close-up of hands only)"
+    - "Separate people: hands, arms and bodies of different people never merge or fuse. Where people touch or pass an object (a hand-over, a handshake), every hand is complete and clearly separate, with a visible gap or the object between them; you can tell whose hand is whose by following each arm"
+    - "Fingers: every visible hand has 5 fingers (or fewer only when naturally hidden), natural joints, no fused, extra or melted fingers"
+    - "Legs & feet: every person has exactly 2 legs and 2 feet, connected and the right size"
+    - "Posture: physically possible — knees, elbows and feet bend the right way, squatting/standing/walking pose is balanced, head and neck natural"
+    - "Dress: correct and consistent for rural India and the role (kurta-pyjama, dhoti, saree/salwar, turban; officer in a plain shirt), no garment merging into skin, ground or objects"
+    - "Tools & objects: one tool = one blade and one handle, held the right way by hands that belong to the person (spade blade in soil, bucket by its handle, paper by its edges); no tools fused to each other or to buckets"
+    - "Faces & people: natural faces, no duplicated or merged people, no stray limbs from out-of-frame people"
+    - "Context: Indian rural setting and the right crop/stage for the narration"
+    - "Text: no READABLE words, numbers, brand names or logos. Illegible text where real objects have it is GOOD and looks realistic — keep it: notice boards, wall charts and posters in labs/offices/KVKs/shops, labels on sacks or bags, and documents people hold (a soil report should look like a printed report with tables/lines, not a blank sheet). Blank paper or bare institutional walls look fake"
+
+captions:
+  max_words_per_chunk: 6                 # long format; Shorts use formats.short.caption_max_words
+  font_size_px: { long: 56, short: 64 }  # caption text size at full resolution; render.py passes it to Remotion
+
+render:
+  draft_scale: 0.5                     # 540p drafts (1080×1920 Shorts → 540×960)
+  concurrency: 4                       # fanless Mac: moderate; frame rendering is the bottleneck
+  hardware_acceleration: if-possible   # VideoToolbox H.264: same speed, ~half the CPU/heat
+  crossfade_frames: 10                 # must match TRANSITION_FRAMES in remotion/src/theme.ts
+
+review: { frame_interval_sec: 2, frames_per_sheet: 12 }
+
+package:
+  thumbnail_size: { long: [1280, 720], short: [1080, 1920] }
+  disclaimer_hi: "यह वीडियो सामान्य जानकारी के लिए है। किसी भी खाद, दवा या योजना से जुड़ा फैसला लेने से पहले उत्पाद का लेबल पढ़ें और अपने नज़दीकी कृषि विज्ञान केंद्र (KVK) या कृषि अधिकारी से सलाह लें।"

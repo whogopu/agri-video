@@ -1,0 +1,26 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
+.env
+
+# Remotion
+remotion/node_modules/
+remotion/out/
+remotion/public/episodes/
+
+# Large media stays out of git; episode folders keep text files only
+episodes/*/audio/
+episodes/*/images/
+episodes/*/render/
+episodes/*/review/*.png
+assets/broll/clips/*
+!assets/broll/clips/.gitkeep
+assets/music/*
+!assets/music/.gitkeep
+remotion/public/test/
+remotion/public/brand/
+samples/
+tts/.venv/
+episodes/*/images/inspect/

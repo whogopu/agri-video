@@ -1,0 +1,15 @@
+{
+  "video": "render/video.mp4",
+  "duration_sec": 30.61,
+  "expected_sec": 30.6,
+  "duration_ok": true,
+  "lufs": -14.54,
+  "true_peak": -4.86,
+  "loudness_ok": true,
+  "black_segments": [],
+  "static_segments": [],
+  "sheets": [
+    "sheet-01.png",
+    "sheet-02.png"
+  ]
+}

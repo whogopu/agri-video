@@ -1,0 +1,17 @@
+[project]
+name = "agri-video-tts"
+version = "0.1.0"
+description = "Isolated env for Indic Parler-TTS (pins transformers==4.46.1). Called as a subprocess by pipeline/narration.py."
+requires-python = ">=3.11,<3.13"
+dependencies = [
+    # pinned commit of huggingface/parler-tts main (2024-12-10)
+    "parler-tts @ git+https://github.com/huggingface/parler-tts.git@d108732cd57788ec86bc857d99a6cabd66663d68",
+    "torch>=2.4",
+    "soundfile>=0.12",
+    "numpy<2.3",
+    # 0.2.1+ ships protobuf-5 generated code; descript-audiotools caps protobuf <5
+    "sentencepiece==0.2.0",
+]
+
+[tool.uv]
+package = false

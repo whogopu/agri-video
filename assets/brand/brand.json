@@ -1,0 +1,11 @@
+{
+  "name": "AgriGate",
+  "logo": "logo.png",
+  "logo_size_px": [420, 164],
+  "logo_note": "Dark-green wordmark on transparent background: place on a light surface (it disappears on dark footage).",
+  "colors": {
+    "primary": "#3fb660",
+    "primary_dark": "#0a6132",
+    "source": "sampled from logo.png on 2026-11-19"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "id": "2026-11-20-sample-mitti-ki-jaanch",
+  "title_hi": "मिट्टी की जांच क्यों ज़रूरी है",
+  "status": "draft",
+  "video": { "width": 1920, "height": 1080, "fps": 30 },
+  "voice": { "backend": "parler", "speaker": "", "description": "", "seed": 42 },
+  "scenes": [
+    {
+      "id": 1,
+      "purpose": "hook",
+      "narration_display": "क्या आप हर साल बिना जांच के खाद डालते हैं? हो सकता है आपका पैसा और मेहनत दोनों बेकार जा रहे हों।",
+      "on_screen_text": "मिट्टी की जांच",
+      "visual": {
+        "type": "image",
+        "image_prompt": "Indian farmer spreading fertilizer by hand in a wheat field, early morning",
+        "seed": 1234
+      },
+      "sources": []
+    },
+    {
+      "id": 2,
+      "purpose": "explain",
+      "narration_display": "मिट्टी की जांच से पता चलता है कि आपके खेत में कौन सा पोषक तत्व कम है और कौन सा पहले से काफ़ी है।",
+      "visual": { "type": "graphic", "template": "TitleCard", "props": { "title": "मिट्टी की जांच" } },
+      "sources": ["sources/fixture-notes.md"]
+    },
+    {
+      "id": 3,
+      "purpose": "step",
+      "narration_display": "नमूना खेत की कई जगहों से लें, लगभग 15 सेंटीमीटर गहराई से, और सबको अच्छी तरह मिला लें।",
+      "on_screen_text": "15 सेमी गहराई",
+      "visual": { "type": "graphic", "template": "BigNumber", "props": { "number": "15", "unit": "सेमी" } },
+      "sources": ["sources/fixture-notes.md#depth"]
+    },
+    {
+      "id": 4,
+      "purpose": "cta",
+      "narration_display": "अपने नज़दीकी केंद्र से संपर्क करें। ऐसी और जानकारी के लिए चैनल को सब्सक्राइब करें।",
+      "visual": { "type": "graphic", "template": "TitleCard", "props": { "title": "सब्सक्राइब करें" } },
+      "sources": []
+    }
+  ]
+}

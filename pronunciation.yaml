@@ -1,0 +1,11 @@
+# Word → spoken-form fixes applied when building narration_spoken (see pipeline/text_normalize.py).
+# Keys are matched as whole words in narration_display. Add entries when the TTS mispronounces something.
+# Example entries (adjust after hearing Parler samples in phase 3):
+DAP: "डी ए पी"
+NPK: "एन पी के"
+KVK: "के वी के"
+MSP: "एम एस पी"
+PM-KISAN: "पी एम किसान"
+pH: "पी एच"
+V: "वी"
+EC: "ई सी"
