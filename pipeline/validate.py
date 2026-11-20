@@ -21,6 +21,7 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
+from pipeline.cues import scene_cues
 from pipeline.common import (
     format_config, load_config, voice_preset, resolve_episode_dir, save_episode, setup_logging, stage_timer,
 )
@@ -167,6 +168,9 @@ def _check_narrated(ep: Episode, ep_dir: Path, rep: Report) -> None:
             rep.error(f"{tag}: captions run past audio end ({s.captions[-1].end:.2f}s > {s.audio.duration_sec:.2f}s)")
         if s.audio.segments and not all(c.words for c in s.captions):
             rep.warn(f"{tag}: captions are not word-timed (no highlight); run `pipeline.narration <ep> --align-only`")
+        cues = scene_cues(s)
+        for level, msg in (cues.problems if cues else []):
+            (rep.error if level == "error" else rep.warn)(f"{tag} {s.visual.template}: {msg}")
 
 
 def _check_cast(ep: Episode, rep: Report, need_reference: bool) -> None:

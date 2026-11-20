@@ -23,6 +23,7 @@ from pipeline.common import (
     REPO_ROOT, episode_frames, load_config, load_episode, resolve_episode_dir, setup_logging,
     stage_parser, stage_timer, write_json,
 )
+from pipeline.cues import scene_cues
 from pipeline.schema import Episode, Status
 from pipeline.validate import validate
 
@@ -83,6 +84,16 @@ def sync_assets(ep: Episode, ep_dir: Path) -> dict:
             "roomTone": room_tone}
 
 
+def graphic_cues(ep: Episode) -> dict[str, list[float | None]]:
+    """scene id → cue times (scene audio seconds) for KeyPoints points / the BigNumber number."""
+    out = {}
+    for s in ep.scenes:
+        c = scene_cues(s)
+        if c is not None:
+            out[str(s.id)] = c.times
+    return out
+
+
 def caption_font_size(cfg: dict, fmt: str) -> int | None:
     """config captions.font_size_px: a number, or {long: .., short: ..}. None → Remotion theme default."""
     v = cfg.get("captions", {}).get("font_size_px")
@@ -133,6 +144,8 @@ def main() -> None:
                  "captionFontSize": caption_font_size(cfg, ep.format),
                  "captionHighlight": bool(cfg.get("captions", {}).get("highlight_words", True)),
                  "captionHoldSec": float(cfg.get("captions", {}).get("highlight_hold_sec", 0.25)),
+                 "graphicCues": graphic_cues(ep),
+                 "cueLeadSec": float((cfg.get("graphics") or {}).get("cue_lead_sec", 0.15)),
                  **sync_assets(ep, ep_dir)}
         props_path = ep_dir / "render" / "props.json"
         write_json(props_path, props)

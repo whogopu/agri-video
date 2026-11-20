@@ -4,14 +4,17 @@ import { fontFamily, useTheme } from "../theme";
 import { GraphicBackground } from "./GraphicBackground";
 
 // `number` is a string so ranges like "10-12" or "₹2,500" work as written in the script.
-export type BigNumberProps = { number: string; unit?: string; label?: string };
+// cue: optional phrase (as in the narration) at which the number pops; resolved in pipeline/cues.py.
+export type BigNumberProps = { number: string; unit?: string; label?: string; cue?: string | null };
 
-export const BigNumber: React.FC<BigNumberProps> = ({ number, unit, label }) => {
+// revealFrame: the number pops when it is spoken; until then the label alone says what is coming
+// (its space is reserved, so nothing moves). revealFrame 0 = old behaviour (number first, label after).
+export const BigNumber: React.FC<BigNumberProps & { revealFrame?: number }> = ({ number, unit, label, revealFrame = 0 }) => {
   const theme = useTheme();
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const pop = spring({ frame, fps, config: { damping: 12, stiffness: 120 } });
-  const labelIn = spring({ frame: frame - 10, fps, config: { damping: 200 } });
+  const pop = spring({ frame: frame - revealFrame, fps, config: { damping: 12, stiffness: 120 } });
+  const labelIn = spring({ frame: frame - (revealFrame > 0 ? 6 : 10), fps, config: { damping: 200 } });
   const g = theme.graphics;
 
   return (

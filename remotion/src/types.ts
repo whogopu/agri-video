@@ -87,4 +87,8 @@ export type EpisodeProps = {
   captionHighlight?: boolean;
   /** config.yaml captions.highlight_hold_sec: a word stays lit at most this long after it ends */
   captionHoldSec?: number;
+  /** scene id → cue times (scene audio seconds; null = old timing) for KeyPoints points / the BigNumber number (pipeline/cues.py) */
+  graphicCues?: Record<string, (number | null)[]>;
+  /** config.yaml graphics.cue_lead_sec: a cued element starts animating this long before its word */
+  cueLeadSec?: number;
 };

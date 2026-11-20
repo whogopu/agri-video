@@ -3,21 +3,34 @@ import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } fr
 import { fontFamily, useTheme } from "../theme";
 import { GraphicBackground } from "./GraphicBackground";
 
-export type KeyPointsProps = { title?: string; points: string[] };
+/** cues: optional phrase per point (as in the narration) that makes it appear; resolved in pipeline/cues.py */
+export type KeyPointsProps = { title?: string; points: string[]; cues?: (string | null)[] };
 
-// Points appear one by one across the first 60% of the scene.
-export const KeyPoints: React.FC<KeyPointsProps & { durationInFrames: number }> = ({
+/** Frame each point appears: its cue frame (when the narrator starts on it), else the old even
+ * schedule over the first 60% of the scene; never earlier than the point before. */
+export const pointRevealFrames = (n: number, durationInFrames: number, cueFrames: (number | null)[] = []): number[] => {
+  const step = n > 1 ? (durationInFrames * 0.6) / n : 0;
+  const out: number[] = [];
+  for (let i = 0; i < n; i++) {
+    const f = cueFrames[i] ?? Math.round(i * step);
+    out.push(i > 0 ? Math.max(f, out[i - 1]) : f);
+  }
+  return out;
+};
+
+// The title shows at once; each point slides in when the narration reaches it.
+export const KeyPoints: React.FC<KeyPointsProps & { durationInFrames: number; revealFrames?: (number | null)[] }> = ({
   title,
   points,
   durationInFrames,
+  revealFrames,
 }) => {
   const theme = useTheme();
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const g = theme.graphics;
   const inset = theme.orientation === "portrait" ? 0 : 80;
-  const revealSpan = durationInFrames * 0.6;
-  const step = points.length > 1 ? revealSpan / points.length : 0;
+  const at = pointRevealFrames(points.length, durationInFrames, revealFrames);
 
   return (
     <GraphicBackground>
@@ -45,7 +58,7 @@ export const KeyPoints: React.FC<KeyPointsProps & { durationInFrames: number }> 
           </div>
         ) : null}
         {points.map((pt, i) => {
-          const s = spring({ frame: frame - Math.round(i * step), fps, config: { damping: 200 } });
+          const s = spring({ frame: frame - at[i], fps, config: { damping: 200 } });
           return (
             <div
               key={i}

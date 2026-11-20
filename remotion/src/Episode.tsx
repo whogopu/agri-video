@@ -66,6 +66,7 @@ const SceneVisual: React.FC<{ scene: Scene; props: EpisodeProps; durationInFrame
   durationInFrames,
 }) => {
   const v = scene.visual;
+  const fps = props.episode.video.fps;
   if (v.type === "image" && (v.shots ?? []).some((sh) => sh.image_file)) {
     return <ImageShots scene={scene} props={props} durationInFrames={durationInFrames} />;
   }
@@ -80,13 +81,17 @@ const SceneVisual: React.FC<{ scene: Scene; props: EpisodeProps; durationInFrame
     );
   }
   if (v.type === "graphic" && v.template && v.props) {
+    // cue times are narration seconds; the scene's picture starts leadInSec earlier
+    const cueFrames = (props.graphicCues?.[String(scene.id)] ?? []).map((t) =>
+      t == null ? null : Math.max(0, Math.round(((props.leadInSec ?? 0) + t - (props.cueLeadSec ?? 0.15)) * fps)),
+    );
     switch (v.template) {
       case "TitleCard":
         return <TitleCard {...(v.props as TitleCardProps)} />;
       case "KeyPoints":
-        return <KeyPoints {...(v.props as KeyPointsProps)} durationInFrames={durationInFrames} />;
+        return <KeyPoints {...(v.props as KeyPointsProps)} durationInFrames={durationInFrames} revealFrames={cueFrames} />;
       case "BigNumber":
-        return <BigNumber {...(v.props as BigNumberProps)} />;
+        return <BigNumber {...(v.props as BigNumberProps)} revealFrame={cueFrames[0] ?? 0} />;
     }
   }
   // Visual not ready yet: plain brand card with the scene number, so previews still work.

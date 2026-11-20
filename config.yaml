@@ -197,6 +197,9 @@ captions:
   highlight_words: true                  # the word being spoken turns brand green (needs word timings; user choice 2026-11-20)
   highlight_hold_sec: 0.25               # after a word ends, keep it lit at most this long while the next one hasn't started (bridges short gaps, not pauses)
 
+graphics:
+  cue_lead_sec: 0.15   # a KeyPoints point / BigNumber number starts animating this long before its cue word (pipeline/cues.py)
+
 render:
   draft_scale: 0.5                     # 540p drafts (1080×1920 Shorts → 540×960)
   concurrency: 4                       # fanless Mac: moderate; frame rendering is the bottleneck

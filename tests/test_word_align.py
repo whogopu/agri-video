@@ -87,3 +87,51 @@ def test_word_captions_refuse_mismatched_text():
     texts = ["मिट्टी की जांच कराएं।"]
     words = _words(["मिट्टी की जांच करवाएं।"], [(0.0, 2.0)])  # narration edited after word timing
     assert word_captions(texts, words, 2.0, 6) is None
+
+
+# ---------- graphic cues (phase B3) ----------
+
+from pipeline.cues import find_phrase, scene_cues  # noqa: E402
+from pipeline.schema import Scene  # noqa: E402
+
+
+def _scene(narration, template, props):
+    words = _words([narration], [(0.0, 10.0)])
+    return Scene.model_validate({
+        "id": 1, "purpose": "step", "narration_display": narration,
+        "visual": {"type": "graphic", "template": template, "props": props},
+        "audio": {"file": "audio/scene-01.wav", "duration_sec": 10.0,
+                  "segments": [{"text": narration, "start": 0.0, "end": 10.0}],
+                  "words": [w.model_dump() for w in words]}})
+
+
+def test_keypoint_cues_follow_order_not_repeated_words():
+    s = _scene("मेड़ या नाली के पास, पेड़ या कुएं के पास, पानी भरी जगह से, या जहां हाल ही में खाद डाली हो।",
+               "KeyPoints", {"points": ["मेड़ और नाली के पास", "पेड़ और कुएं के पास", "पानी भरी जगह", "हाल में खाद डाली जगह"]})
+    c = scene_cues(s)
+    texts = [next(w.text for w in s.audio.words if w.start == t) for t in c.times]
+    assert texts == ["मेड़", "पेड़", "पानी", "हाल"] and not c.problems
+
+
+def test_numbers_match_their_spoken_form_and_paraphrases_match_stems():
+    s = _scene("सॉइल हेल्थ कार्ड तीन साल के चक्र में बनता है।", "BigNumber", {"number": "3", "unit": "साल"})
+    assert next(w.text for w in s.audio.words if w.start == scene_cues(s).times[0]) == "तीन"
+    words = _words(["इस मिट्टी को छाया में सुखाकर थैली में भरें।"], [(0.0, 5.0)])
+    idx, got, need = find_phrase(words, "छाया में सुखाएं")
+    assert words[idx].text == "छाया" and got == need == 2
+
+
+def test_explicit_cue_overrides_and_missing_cue_is_an_error():
+    s = _scene("खेत की कई जगहों से लें, फिर साफ़ थैली में भरें।", "KeyPoints",
+               {"points": ["10–15 जगहों से मिट्टी", "साफ़ थैली"], "cues": ["खेत की कई", None]})
+    c = scene_cues(s)
+    assert next(w.text for w in s.audio.words if w.start == c.times[0]) == "खेत"
+    bad = _scene("खेत की कई जगहों से लें।", "BigNumber", {"number": "15", "cue": "पंद्रह सेंटीमीटर"})
+    assert scene_cues(bad).problems[0][0] == "error"
+
+
+def test_unmatched_point_falls_back_with_warning():
+    s = _scene("मिट्टी की जांच कराएं।", "KeyPoints", {"points": ["मिट्टी की जांच", "बीज उपचार"]})
+    c = scene_cues(s)
+    assert c.times[0] is not None and c.times[1] is None
+    assert c.problems[0][0] == "warning"

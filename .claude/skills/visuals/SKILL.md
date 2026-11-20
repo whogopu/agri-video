@@ -13,6 +13,7 @@ Default: **generated images + graphics**. B-roll is optional; the library is usu
 - **B-roll** (only if usable clips exist) when a library clip really fits (`uv run python -m pipeline.broll list --tag <crop>`). Only use clips that `broll check` reports as complete; they need a license. Set `broll_id`, `in_sec` and `out_sec`. The segment should be at least the scene's `audio.duration_sec` + 0.35 s; Remotion slows a shorter one down to at most 0.5×. Prefer `usable_segments`. Never reuse the same clip segment in one episode.
 - **Image** for anything that needs to show a real scene (most scenes).
 - **Graphic** for numbers, lists and titles. Hindi text, short.
+  - Graphics appear **on cue** (`pipeline/cues.py`): each KeyPoints point slides in when the narrator starts on it, a BigNumber's number pops when it is spoken (its label shows first). Cues are found automatically from the point's words (in order; numbers match their spoken form). Write points with words the narration actually uses. If `validate` warns that a point didn't match, or a cue lands on the wrong word, set `props.cues` (KeyPoints: one phrase or null per point) or `props.cue` (BigNumber), copied from `narration_display`.
 
 ## Format
 Shorts (`format: short`) are 9:16. Images are generated portrait (`config.yaml: formats.short.image_size`). Prefer B-roll whose subject stays in the centre third, since landscape clips are center-cropped. Keep the key subject in the upper two thirds; the Shorts UI covers the bottom.
