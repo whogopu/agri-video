@@ -1,6 +1,6 @@
 # Review — 2026-11-20-mitti-ki-jaanch-v3
 
-Video: `render/draft.mp4` · 1920x1080 · long
+Video: `render/video.mp4` · 1920x1080 · long
 
 ## Automated checks
 
@@ -32,10 +32,10 @@ Video: `render/draft.mp4` · 1920x1080 · long
 
 | Check | Result | Timestamps / notes |
 |---|---|---|
-| Devanagari renders correctly (no broken conjuncts, no dotted circles ◌) | PASS | all 10 sheets; word spans split only at spaces, conjuncts intact (प्रयोगशाला, सूक्ष्म, ज़िंक) |
-| Captions readable, max 2 lines, inside safe margins | PASS | one line throughout; green spoken-word highlight readable on photos and graphics (phase B2) |
-| Text never covers the key part of an image | PASS | same layout as the approved phase-A draft |
-| Visuals match the narration | PASS | key points and big numbers now appear on their spoken word (phase B3): 0:56 नाइट्रोजन, 1:00 ज़िंक, 1:06 pH, 1:46 15 सेमी, 1:54 2.5–3 सेमी, 2:54–3:00 the five places, 3:38 3 साल, 3:44–3:50 recap. NOTE: before its number, a BigNumber shows only its label: 1:39–1:45 "गड्ढे की गहराई", 1:49–1:53 "मोटी परत काटें", 3:31–3:37 "का एक चक्र" (a fragment that reads oddly alone). Design question for the user |
+| Devanagari renders correctly (no broken conjuncts, no dotted circles ◌) | PASS | all 10 sheets (प्रयोगशाला, सूक्ष्म, ज़िंक, सब्सक्राइब) |
+| Captions readable, max 2 lines, inside safe margins | PASS | one line throughout; green spoken-word highlight readable on photos and graphics |
+| Text never covers the key part of an image | PASS | same layout as the approved drafts |
+| Visuals match the narration | PASS | key points appear on their spoken words (0:56–1:06, 2:16–2:22, 2:54–3:00, 3:44–3:50); big numbers faint until spoken, then bright: 15 सेमी 1:40→1:46, 2.5–3 सेमी 1:50→1:54, 3 साल 3:32→3:38 (option 2, user 2026-11-20) |
 | No black or frozen frames (beyond intentional graphic holds) | PASS | automated check: none |
 | Watermark present throughout | PASS | top-right on every frame |
 | Indian rural context everywhere; no garbled text inside images | TODO | |
