@@ -1,0 +1,23 @@
+{
+  "video": "render/draft.mp4",
+  "duration_sec": 238.93,
+  "expected_sec": 238.93,
+  "duration_ok": true,
+  "lufs": -14.26,
+  "true_peak": -4.74,
+  "loudness_ok": true,
+  "black_segments": [],
+  "static_segments": [],
+  "sheets": [
+    "sheet-01.png",
+    "sheet-02.png",
+    "sheet-03.png",
+    "sheet-04.png",
+    "sheet-05.png",
+    "sheet-06.png",
+    "sheet-07.png",
+    "sheet-08.png",
+    "sheet-09.png",
+    "sheet-10.png"
+  ]
+}

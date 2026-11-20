@@ -7,14 +7,24 @@ import { GraphicBackground } from "./GraphicBackground";
 // cue: optional phrase (as in the narration) at which the number pops; resolved in pipeline/cues.py.
 export type BigNumberProps = { number: string; unit?: string; label?: string; cue?: string | null };
 
-// revealFrame: the number pops when it is spoken; until then the label alone says what is coming
-// (its space is reserved, so nothing moves). revealFrame 0 = old behaviour (number first, label after).
+/** brightness of a cued number before it is spoken (user choice 2026-11-20: faint, never an empty screen) */
+export const FAINT_OPACITY = 0.3;
+
+// revealFrame > 0 (a cue): number, unit and label fade in together at the scene start, the number
+// faint; when it is spoken it brightens and pops (a short swell above full size and back), so the
+// screen is never empty and the label always reads with its number ("3 साल का एक चक्र").
+// revealFrame 0 = old behaviour (the number springs in at once, the label after).
 export const BigNumber: React.FC<BigNumberProps & { revealFrame?: number }> = ({ number, unit, label, revealFrame = 0 }) => {
   const theme = useTheme();
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const pop = spring({ frame: frame - revealFrame, fps, config: { damping: 12, stiffness: 120 } });
-  const labelIn = spring({ frame: frame - (revealFrame > 0 ? 6 : 10), fps, config: { damping: 200 } });
+  const cued = revealFrame > 0;
+  const intro = spring({ frame: frame - 4, fps, config: { damping: 200 } });
+  const hit = spring({ frame: frame - revealFrame, fps, config: { damping: 12, stiffness: 120 } });
+  // cued: scale 1 → ~1.12 → 1 around the cue; brightness FAINT → 1
+  const swell = cued ? 1 + 0.12 * Math.sin(Math.PI * Math.min(1, Math.max(0, (frame - revealFrame) / (0.45 * fps)))) : hit;
+  const numberOpacity = cued ? intro * interpolate(hit, [0, 1], [FAINT_OPACITY, 1], { extrapolateRight: "clamp" }) : 1;
+  const labelIn = cued ? intro : spring({ frame: frame - 10, fps, config: { damping: 200 } });
   const g = theme.graphics;
 
   return (
@@ -28,7 +38,9 @@ export const BigNumber: React.FC<BigNumberProps & { revealFrame?: number }> = ({
           textAlign: "center",
         }}
       >
-        <div style={{ display: "flex", alignItems: "baseline", gap: 28, transform: `scale(${pop})` }}>
+        <div
+          style={{ display: "flex", alignItems: "baseline", gap: 28, transform: `scale(${swell})`, opacity: numberOpacity }}
+        >
           <span style={{ fontSize: g.bigNumberSize, fontWeight: 800, lineHeight: 1.1, color: theme.colors.primary }}>
             {number}
           </span>

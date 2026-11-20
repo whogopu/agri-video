@@ -636,3 +636,14 @@ Copy of 2026-11-19-mitti-ki-jaanch-v2: script (approved at checkpoint 1) and May
 - duration: 0.0s
 - outcome: ok
 - PASS as current status: 0 errors, 4 warnings
+
+## render (draft) — 2026-11-20 11:11:38
+- duration: 99.7s
+- outcome: ok
+- rendering draft.mp4: 1920x1080 × 0.5, expected 238.93s
+- episodes/2026-11-20-mitti-ki-jaanch-v3/render/draft.mp4: 238.93s (107.3 MB)
+
+## review — 2026-11-20 11:13:26
+- duration: 11.9s
+- outcome: ok
+- 10 sheet(s) from 120 frames; duration PASS, loudness -14.3 LUFS, black segments 0
