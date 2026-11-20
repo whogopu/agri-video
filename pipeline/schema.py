@@ -125,10 +125,20 @@ class AudioSegment(_Model):
     style: str = "neutral"    # delivery style used (config narration.styles)
 
 
+class AudioWord(_Model):
+    """One displayed word and when it is spoken (pipeline/word_align.py)."""
+    text: str                 # narration_display spelling, punctuation kept
+    start: float = Field(ge=0)
+    end: float
+    segment: int = Field(ge=0)  # index into Audio.segments
+    timed: bool = True        # False = no reliable Whisper match; spread by letter count inside its span
+
+
 class Audio(_Model):
     file: str
     duration_sec: float = Field(gt=0)
     segments: list[AudioSegment] = Field(default_factory=list)  # empty for scene-mode narration
+    words: list[AudioWord] = Field(default_factory=list)        # empty until word timing has run
 
 
 class Caption(_Model):

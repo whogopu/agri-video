@@ -141,6 +141,13 @@ narration:
     model: mlx-community/whisper-large-v3-turbo
     language: hi
   score_weights: {}        # override pipeline/take_scoring.py DEFAULT_WEIGHTS
+  word_timing:             # when each word is spoken → audio.words (pipeline/word_align.py); captions/graphics cue on it
+    enabled: true
+    prompt_script: true    # give Whisper the script as a hint: spelling closer to the script → better alignment (timing only, never scoring)
+    silence_db: 35         # a frame this many dB below the loudest is silence
+    silence_min_sec: 0.08  # shorter quiet runs are ignored
+    snap_tol_sec: 0.05     # Whisper starts words after a pause too early; starts in (or this close before) a silence move to its end
+    min_segment_match: 0.6 # share of a sentence's letters matched; below this its words are spread by letter count
 
 images:
   backend: mflux

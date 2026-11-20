@@ -3,6 +3,7 @@
     uv run python -m pipeline.narration episodes/<id> [--scene N] [--force] [--takes N]
     uv run python -m pipeline.narration episodes/<id> --pick 9:2:3      # scene 9, segment 2 → take 3
     uv run python -m pipeline.narration episodes/<id> --mode scene       # v0: one TTS call per scene
+    uv run python -m pipeline.narration episodes/<id> --align-only       # word timings only, no TTS
 
 Mode `segments` (default, config narration.mode):
   1. Each scene is split into segments at sentence marks (। ? !) and pause marks (| ||), see
@@ -19,6 +20,11 @@ Mode `scene` (v0): one TTS call per scene → audio/raw/scene-XX.wav → audio/w
 
 Both modes: ONE loudness gain for the whole episode (+ limiter if needed) and a very quiet room
 tone → audio/scene-XX.wav; duration_sec, segments and captions go into episode.json.
+
+Word timing (segments mode, config narration.word_timing): Whisper word timestamps on each final
+scene wav, aligned to the script's words (pipeline/word_align.py) → audio.words in episode.json.
+`--align-only` redoes just this step from the existing audio (e.g. for episodes narrated before
+word timing existed).
 """
 
 from __future__ import annotations
@@ -40,6 +46,7 @@ from pipeline.schema import Audio, AudioSegment, Caption, Episode, Scene, Status
 from pipeline.take_scoring import TakeMetrics, cer, measure, score_takes
 from pipeline.text_normalize import apply_pronunciations
 from pipeline.tts_backends import TTSJob, get_backend, voice_description
+from pipeline.word_align import time_scene_words, word_timing_config
 
 LATIN_OR_DIGIT = re.compile(r"[A-Za-z0-9०-९]")
 CHECK_CER = 0.12  # in the listen list: picked takes whose transcription differs more than this
@@ -314,6 +321,30 @@ def segment_captions(display_segments: list[str], spans: list[tuple[float, float
     return out
 
 
+# ---------- word timing ----------
+
+def add_word_timings(ep: Episode, ep_dir: Path, cfg: dict, run, asr_backend: str | None = None,
+                     force: bool = False) -> None:
+    wt = word_timing_config(cfg)
+    if not wt["enabled"]:
+        run.note("word timing off (narration.word_timing.enabled)")
+        return
+    asr_cfg = dict(cfg.get("narration", {}).get("asr", {}) or {})
+    if asr_backend:
+        asr_cfg["backend"] = asr_backend
+    res = time_scene_words(ep_dir, ep.scenes, asr_cfg, wt, force=force)
+    weak = []
+    for s in ep.scenes:
+        if s.id in res:
+            words, ratios = res[s.id]
+            s.audio.words = words
+            weak += [f"{s.id}:{i + 1} ({r:.0%})" for i, r in enumerate(ratios) if r < float(wt["min_segment_match"])]
+    n = sum(len(s.audio.words) for s in ep.scenes if s.audio)
+    timed = sum(w.timed for s in ep.scenes if s.audio for w in s.audio.words)
+    run.note(f"word timing: {timed}/{n} words matched to Whisper ({asr_cfg.get('backend', 'whisper')})"
+             + (f"; proportional fallback for segments {', '.join(weak)}" if weak else ""))
+
+
 # ---------- main ----------
 
 def main() -> None:
@@ -324,6 +355,8 @@ def main() -> None:
     p.add_argument("--asr", choices=["whisper", "none"], help="override take scoring backend")
     p.add_argument("--rescore", action="store_true", help="re-measure every take (e.g. after changing the asr model)")
     p.add_argument("--pick", action="append", metavar="SCENE:SEG:TAKE", help="use this take (repeatable)")
+    p.add_argument("--align-only", action="store_true",
+                   help="only (re)compute word timings from the existing scene audio; no TTS, no loudness pass")
     p.add_argument("--allow-unapproved", action="store_true",
                    help="testing only: narrate a script that hasn't passed checkpoint 1")
     args = p.parse_args()
@@ -340,6 +373,14 @@ def main() -> None:
         empty = [s.id for s in ep.scenes if not s.narration_spoken.strip()]
         if empty:
             raise SystemExit(f"narration_spoken is empty for scenes {empty}; run pipeline.text_normalize first")
+
+        if args.align_only:
+            no_audio = [s.id for s in ep.scenes if not (s.audio and s.audio.segments)]
+            if no_audio:
+                raise SystemExit(f"--align-only needs narrated scenes with segments; missing for {no_audio}")
+            add_word_timings(ep, ep_dir, cfg, run, args.asr, force=args.force)
+            save_episode(ep_dir, ep)
+            return
 
         v = voice_config(cfg, ep)
         if args.backend:
@@ -395,6 +436,8 @@ def main() -> None:
             else:
                 s.audio = Audio(file=f"audio/{scene_name(s)}", duration_sec=dur)
                 s.captions = build_captions(strip_markup(s.narration_display), dur, max_words)
+        if mode == "segments":
+            add_word_timings(ep, ep_dir, cfg, run, "none" if backend.name == "stub" else args.asr)
         save_episode(ep_dir, ep)
         total = sum(s.audio.duration_sec for s in ep.scenes if s.audio)
         run.note(f"{len(ep.scenes)} scenes, narration total {total:.1f}s")

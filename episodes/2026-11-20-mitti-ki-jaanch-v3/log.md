@@ -605,3 +605,18 @@ Copy of 2026-11-19-mitti-ki-jaanch-v2: script (approved at checkpoint 1) and May
 - duration: 0.0s
 - outcome: ok
 - PASS as current status: 0 errors, 4 warnings
+
+## narration — 2026-11-20 10:56:27
+- duration: 29.5s
+- outcome: ok
+- word timing: 637/637 words matched to Whisper (whisper)
+
+## narration — 2026-11-20 10:57:03
+- duration: 0.0s
+- outcome: ok
+- word timing: 637/637 words matched to Whisper (whisper)
+
+## validate — 2026-11-20 10:57:09
+- duration: 0.1s
+- outcome: ok
+- PASS as current status: 0 errors, 4 warnings

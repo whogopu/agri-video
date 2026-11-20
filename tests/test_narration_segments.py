@@ -105,6 +105,13 @@ def test_segment_narration_stub_end_to_end(tmp_path: Path):
     assert (ep / "audio" / "takes.md").exists()
     manifest = json.loads((ep / "audio" / "segments" / "scene-01.json").read_text())
     assert len(manifest) == 3 and all(len(m["takes"]) == 2 for m in manifest)
+    # word timings (stub audio → proportional, inside each segment's span, in order)
+    words = s0["audio"]["words"]
+    assert [w["text"] for w in words] == "क्या आप हर साल खाद डालते हैं? 10 से 15 जगहें चुनें।".split()
+    for w in words:
+        seg = segs[w["segment"]]
+        assert seg["start"] - 1e-6 <= w["start"] < w["end"] <= seg["end"] + 1e-6
+    assert all(a["end"] <= b["start"] + 1e-6 for a, b in zip(words, words[1:]))
 
     # a manual pick sticks across reruns while the segment text is unchanged
     subprocess.run(base + ["--pick", "1:2:2"], check=True, cwd=REPO, capture_output=True)

@@ -125,6 +125,19 @@ def score_takes(reference: str, takes: list[TakeMetrics], weights: dict | None =
 
 # ---------- ASR backend ----------
 
+DEFAULT_ASR_MODEL = "mlx-community/whisper-large-v3-turbo"
+
+
+def run_asr_worker(jobs: list[dict], asr_cfg: dict) -> list[dict]:
+    """Run asr/asr_worker.py (isolated env) on `jobs`; one result dict per job."""
+    req = {"model": asr_cfg.get("model", DEFAULT_ASR_MODEL), "language": asr_cfg.get("language", "hi"), "jobs": jobs}
+    cmd = ["uv", "run", "--project", str(ASR_PROJECT), "python", str(ASR_PROJECT / "asr_worker.py")]
+    proc = subprocess.run(cmd, input=json.dumps(req, ensure_ascii=False), stdout=subprocess.PIPE, stderr=None, text=True)
+    if proc.returncode != 0:
+        raise RuntimeError(f"asr worker failed (exit {proc.returncode}); see messages above")
+    return [json.loads(line) for line in proc.stdout.splitlines() if line.startswith("{")]
+
+
 def measure(wavs: list[Path], asr_cfg: dict) -> dict[Path, TakeMetrics]:
     """Transcribe + measure takes. backend 'whisper' (asr/ env) or 'none' (lengths only; for tests)."""
     backend = asr_cfg.get("backend", "whisper")
@@ -135,21 +148,12 @@ def measure(wavs: list[Path], asr_cfg: dict) -> dict[Path, TakeMetrics]:
         return {w: TakeMetrics(speech_sec=duration(w)) for w in wavs}
     if backend != "whisper":
         raise SystemExit(f"unknown narration.asr.backend {backend!r} (whisper | none)")
-    req = {"model": asr_cfg.get("model", "mlx-community/whisper-large-v3-turbo"),
-           "language": asr_cfg.get("language", "hi"),
-           "jobs": [{"wav": str(w)} for w in wavs]}
-    cmd = ["uv", "run", "--project", str(ASR_PROJECT), "python", str(ASR_PROJECT / "asr_worker.py")]
-    log.info("scoring %d take(s) with %s", len(wavs), req["model"])
-    proc = subprocess.run(cmd, input=json.dumps(req), stdout=subprocess.PIPE, stderr=None, text=True)
-    if proc.returncode != 0:
-        raise RuntimeError(f"asr worker failed (exit {proc.returncode}); see messages above")
+    log.info("scoring %d take(s) with %s", len(wavs), asr_cfg.get("model", DEFAULT_ASR_MODEL))
     out: dict[Path, TakeMetrics] = {}
-    for line in proc.stdout.splitlines():
-        if line.startswith("{"):
-            d = json.loads(line)
-            out[Path(d["wav"])] = TakeMetrics(heard=d["text"], speech_sec=d["speech_sec"],
-                                              f0_range_st=d["f0_range_st"], end_rise_st=d["end_rise_st"],
-                                              max_gap_sec=d["max_gap_sec"], f0_median_hz=d.get("f0_median_hz", 0.0))
+    for d in run_asr_worker([{"wav": str(w)} for w in wavs], asr_cfg):
+        out[Path(d["wav"])] = TakeMetrics(heard=d["text"], speech_sec=d["speech_sec"],
+                                          f0_range_st=d["f0_range_st"], end_rise_st=d["end_rise_st"],
+                                          max_gap_sec=d["max_gap_sec"], f0_median_hz=d.get("f0_median_hz", 0.0))
     missing = [w for w in wavs if w not in out]
     if missing:
         raise RuntimeError(f"asr worker returned no result for {len(missing)} take(s)")

@@ -174,7 +174,8 @@ Defined in `pipeline/schema.py` (pydantic v2, `extra="forbid"` so typos in hand-
     },
     "sources": ["sources/shc-faq-english.pdf#how-can-a-farmer-use-SHC"],
     "audio": { "file": "audio/scene-07.wav", "duration_sec": 12.102,
-               "segments": [{ "text": "…", "start": 0.06, "end": 4.9, "style": "neutral" }] },  // per sentence
+               "segments": [{ "text": "…", "start": 0.06, "end": 4.9, "style": "neutral" }],   // per sentence
+               "words": [{ "text": "रिपोर्ट", "start": 0.06, "end": 0.48, "segment": 0, "timed": true }] },  // per displayed word (§7.4a)
     "captions": [{ "text": "रिपोर्ट में लिखा होता है कि", "start": 0.0, "end": 1.9 }]
   }],
   "package": { "youtube_title": "…", "description_hi": "…", "tags": [], "thumbnail_text": "…",
@@ -321,13 +322,23 @@ sequenceDiagram
 - **Why one gain for the whole episode?** Per-scene normalization would make quiet scenes as loud as emphatic ones. One gain keeps relative levels natural while hitting −14 LUFS. The 3:1 compressor stops Parler's peaks from making the limiter eat loudness.
 - After running, it lists scenes to check by ear plus flagged segments, and writes `audio/takes.md`. Nothing plays automatically.
 
+### 7.4a Word timing (`pipeline/word_align.py`, 2026-11-20, visual upgrade phase B1)
+After the loudness pass, each final scene wav goes to the `asr/` worker with `words: true`: Whisper large-v3-turbo with word timestamps, **the script as `initial_prompt`** (so it spells words the way the script does; scoring jobs never get a prompt, so slips are still caught), plus the wav's silent runs (≥ 80 ms, 35 dB below the loudest frame). Raw output is cached in `audio/words/scene-XX.json`, keyed by the wav bytes, prompt and settings. `narration --align-only` redoes just this step for an already narrated episode (~30 s for a 4-min episode; a cached re-run is instant).
+
+Then, in the main env:
+1. **Snap to speech.** Whisper starts a word that follows a pause inside the silence (measured 0.2–0.3 s early after commas) and lets words run into the next pause. A start inside a silence, or up to 50 ms before one, moves to where speech resumes; an end inside one moves to where it began.
+2. **Align letters, not words.** Script words and heard words are reduced to `canon()` letters (as in take scoring: numbers → words, nukta and nasal marks unified) and aligned with difflib. A script word takes Whisper's time if ≥ 40% and ≥ 2 of its letters matched, using the heard word's own edges unless another script word shares that heard word. Unmatched words are spread by letter count between their timed neighbours.
+3. **Clamp to the sentence span.** Each word stays inside its segment's speech span, which the narration stage knows exactly because it joined the takes. A segment with < 60% of its letters matched falls back to proportional timing (`timed: false`).
+
+Measured on `2026-11-20-mitti-ki-jaanch-v3` (23 scenes, 44 sentences, 637 words): all words matched (without the prompt, two sentences dropped to 66%); sentence starts median 0 ms / p90 70 ms off the known span; at the 70 pauses inside sentences, the next word starts within one frame (40 ms) of the voice resuming in 61 cases (11 before snapping), p90 122 ms, max 0.4 s. Most of the remaining cases are a consonant closure inside a word (इस्तेमाल, कितनी), not a pause. Settings: `config.yaml: narration.word_timing`.
+
 ### 7.5 `captions`
 Chunks come from `narration_display` (what is shown, markup removed). In segments mode each sentence's chunks are timed **inside that sentence's real audio span**, and a caption stays up through the following pause. In scene mode they are spread across the scene. Within a span, timing is **in proportion to character count**:
 1. split at clause punctuation `। ? ! , ; : —`
 2. split clauses longer than `max_words` (6 for long, 4 for Shorts) at the **best boundary**, scored as: closeness to an even split, +3 if the chunk ends on a postposition, auxiliary or conjunction (में से के है और …), +2 if the next chunk starts with a phrase opener (और कि कौन …), −5 if it ends on a phrase opener (कौन, बिना, हर …), −4 if the next word is a postposition
 3. fold 1–2-word fragments into a neighbour; a lone word may push a chunk to `max_words + 1`, so lists like "ज़िंक, आयरन, कॉपर," never flash a single word
 
-These heuristics came from real defects ("कौन | सा", "बिना | जांच", "पोषक | तत्व", a lone "कॉपर,"), each now a regression test. Word-level alignment is a v1 item.
+These heuristics came from real defects ("कौन | सा", "बिना | जांच", "पोषक | तत्व", a lone "कॉपर,"), each now a regression test. Word timings now exist (§7.4a); captions switch to them in phase B2.
 
 ### 7.6 `images` (and the inspection gate)
 - **Backend:** `mflux-generate-flux2` running **FLUX.2 [klein] 4B, pre-quantized 4-bit** (`mflux-community/flux2-klein-4b-mflux-q4`), 4 steps, guidance 1.0. About 18–22 s per image including model load; peak ≈3.7 GB RAM.
@@ -477,6 +488,7 @@ Decisions made during the v0 build, with what was considered.
 | D26 | **Several shots per image scene**, cut on sentence boundaries (schema v2) (2026-11-19) | One image per scene with a longer Ken Burns move | A still held 10–17 s felt static; editors change the picture every 3–5 s. Sentence timings already exist from narration, so cuts fall in natural pauses. Roughly doubles image time. |
 | D27 | **Recurring synthetic cast with user-approved references; FLUX.2 klein edit mode** (2026-11-19) | New random people per shot; character LoRA; face swap | User: the farmer on screen must look the same in every shot (the v2 soil video showed a different face and build each time). Edit mode needs no new model or licence and worked in tests; LoRA is the fallback; face-swap stacks are non-commercial. |
 | D28 | **Informative narration; cast is visual only** (2026-11-20, replaces a story-led version of 2026-11-19) | Story-led: the narrator tells रमेश जी's story | The story-led pilot (82 s) dropped most of the content of the informative v2 episode (soil card parameters, quartering, labelling, all four mistakes, 3-year cycle). User: the goal was only consistent faces; the explainer format is what helps farmers. The narrator addresses the viewer; cast members demonstrate on screen and are not named. |
+| D30 | **Word timing = Whisper word timestamps aligned to the script by letters, snapped to silences, clamped to sentence spans** (2026-11-20) | Forced alignment model (MMS/wav2vec2 CTC); trust Whisper's words directly; keep proportional timing | No new model or licence (mlx-whisper is already in `asr/`); measured accurate enough on v3 (§7.4a). The script is the truth for *what* was said, Whisper only for *when*; the known sentence spans bound any error. A CTC forced aligner stays the fallback if a voice or episode measures worse. |
 | D29 | **Action & physics check on every image, enforced in code** (2026-11-20) | Limb/finger checklist only | At checkpoint 2 the user found a passed shot where khaad poured out of a closed fist gripping an upright bucket. User: make it a rule so it never repeats. The re-check of all 26 shots then caught a water-filled sampling bucket, steam from cold flasks, an oversized sample pit and a dirty 'clean bag'. |
 
 ---
@@ -486,7 +498,8 @@ Decisions made during the v0 build, with what was considered.
 - **VS Code's video preview plays no AAC audio.** Renders look silent there; use QuickTime or VLC.
 - **Image models struggle with two people interacting.** Hand-overs are the riskiest shot (fused or missing hands). Prefer compositions where people don't touch: a farmer placing a bag on a table in front of a seated technician, rather than handing it over.
 - **Hand-synced mirrors.** `schema.py` ↔ `types.ts` and `common.episode_frames` ↔ `timing.ts` are kept in sync by hand. `tests/test_phase5.py` checks the timing math against a real render.
-- **Caption timing is proportional to characters, not aligned to speech.** Captions can drift by a fraction of a second within long scenes.
+- **Caption timing is proportional to characters, not aligned to speech** (until phase B2 uses `audio.words`). Captions can drift by a fraction of a second within long scenes.
+- **Word timing edge cases:** a word right after a consonant closure can be timed up to ~0.4 s late; a word Whisper didn't hear is spread by letter count (`timed: false`).
 - **Memory:** FLUX.2 klein loads a Qwen3-4B text encoder besides the image model, and Parler-TTS needs several GB too. Keep only one heavy job running at a time.
 - **Gated model:** Indic Parler-TTS requires accepting its Hugging Face terms and `hf auth login` once per machine.
 - **`--allow-unapproved` and `--extra-attempt` bypass gates.** Use the first only for tests and the second only on explicit user request; both appear in `log.md`.
@@ -496,12 +509,13 @@ Decisions made during the v0 build, with what was considered.
 
 ## 12. Testing
 
-`uv run pytest -q`: 74 tests, about 10 s, no models needed:
+`uv run pytest -q`: 95 tests, about 10 s, no models needed:
 
 - `test_phase1.py`: episode creation, formats, voice presets, validation rules (`[VERIFY]` in either file, sources, number-needs-source, schema errors, orientation, wpm-based targets)
 - `test_phase3.py`: Hindi number words (0–99 table, Indian grouping, colloquial fractions), normalization cases, caption chunking regressions, narration end to end with the **stub** backend (including the approval gate)
 - `test_phase4.py`: B-roll index, check and list on generated clips; image helpers; **inspection gate** (uninspected → failed → passed → image changed); crops
-- `test_narration_segments.py`: markup parsing and pairing, automatic styles, error-rate normalization (Whisper quirks), take ranking, per-segment captions, segments mode end to end with the stub backend (including `--pick` persistence)
+- `test_narration_segments.py`: markup parsing and pairing, automatic styles, error-rate normalization (Whisper quirks), take ranking, per-segment captions, segments mode end to end with the stub backend (including `--pick` persistence and word timings inside segment spans)
+- `test_word_align.py`: word timing: digits and spelling quirks still align, missed words filled between neighbours, words clamped to their sentence span, weak sentences fall back to proportional, starts snapped out of silences (real cases from v3)
 - `test_phase5.py`: timing parity with a real Remotion render, package checks, `youtube.md` content and the Shorts title suffix, caption size from config, prompt suffix allows incidental text
 
 The Remotion side is checked with `npx tsc --noEmit`, the `FontTest` still, and the 20 s component test render (`npm run test-assets` + `EpisodeShort`/`Episode` with default props).

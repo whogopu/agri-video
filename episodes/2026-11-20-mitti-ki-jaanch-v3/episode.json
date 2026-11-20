@@ -92,6 +92,225 @@
             "end": 8.55,
             "style": "neutral"
           }
+        ],
+        "words": [
+          {
+            "text": "क्या",
+            "start": 0.0,
+            "end": 0.24,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "आप",
+            "start": 0.24,
+            "end": 0.42,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "हर",
+            "start": 0.42,
+            "end": 0.76,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "साल",
+            "start": 0.76,
+            "end": 1.06,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "अंदाज़े",
+            "start": 1.06,
+            "end": 1.48,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "से",
+            "start": 1.48,
+            "end": 1.66,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "खाद",
+            "start": 1.66,
+            "end": 1.94,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "डालते",
+            "start": 1.94,
+            "end": 2.32,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "हैं?",
+            "start": 2.32,
+            "end": 2.46,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "हो",
+            "start": 3.06,
+            "end": 3.18,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "सकता",
+            "start": 3.18,
+            "end": 3.5,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "है",
+            "start": 3.5,
+            "end": 3.64,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "आपके",
+            "start": 3.64,
+            "end": 3.98,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "खेत",
+            "start": 3.98,
+            "end": 4.26,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "को",
+            "start": 4.26,
+            "end": 4.4,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "उतनी",
+            "start": 4.4,
+            "end": 4.74,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "खाद",
+            "start": 4.74,
+            "end": 5.08,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "की",
+            "start": 5.08,
+            "end": 5.24,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "ज़रूरत",
+            "start": 5.24,
+            "end": 5.66,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "ही",
+            "start": 5.66,
+            "end": 5.76,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "न",
+            "start": 5.76,
+            "end": 5.86,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "हो,",
+            "start": 5.86,
+            "end": 6.02,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "और",
+            "start": 6.37,
+            "end": 6.5,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "आपका",
+            "start": 6.5,
+            "end": 6.78,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "पैसा",
+            "start": 6.78,
+            "end": 7.1,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "मिट्टी",
+            "start": 7.1,
+            "end": 7.42,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "में",
+            "start": 7.42,
+            "end": 7.56,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "बेकार",
+            "start": 7.56,
+            "end": 7.92,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "जा",
+            "start": 7.92,
+            "end": 8.08,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "रहा",
+            "start": 8.08,
+            "end": 8.32,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "हो।",
+            "start": 8.32,
+            "end": 8.48,
+            "segment": 1,
+            "timed": true
+          }
         ]
       },
       "captions": [
@@ -167,6 +386,162 @@
             "start": 2.67,
             "end": 7.76,
             "style": "neutral"
+          }
+        ],
+        "words": [
+          {
+            "text": "आज",
+            "start": 0.0,
+            "end": 0.28,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "बात",
+            "start": 0.28,
+            "end": 0.56,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "करेंगे",
+            "start": 0.56,
+            "end": 1.0,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "मिट्टी",
+            "start": 1.0,
+            "end": 1.56,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "की",
+            "start": 1.56,
+            "end": 1.74,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "जांच",
+            "start": 1.74,
+            "end": 2.1,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "की।",
+            "start": 2.1,
+            "end": 2.28,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "यह",
+            "start": 2.7,
+            "end": 2.93,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "क्यों",
+            "start": 3.02,
+            "end": 3.26,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "ज़रूरी",
+            "start": 3.26,
+            "end": 3.64,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "है,",
+            "start": 3.64,
+            "end": 3.79,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "नमूना",
+            "start": 4.27,
+            "end": 4.7,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "खुद",
+            "start": 4.7,
+            "end": 4.88,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "कैसे",
+            "start": 4.88,
+            "end": 5.2,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "लें,",
+            "start": 5.2,
+            "end": 5.38,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "और",
+            "start": 5.98,
+            "end": 6.24,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "रिपोर्ट",
+            "start": 6.24,
+            "end": 6.62,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "मिलने",
+            "start": 6.62,
+            "end": 6.92,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "के",
+            "start": 6.92,
+            "end": 7.06,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "बाद",
+            "start": 7.06,
+            "end": 7.24,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "क्या",
+            "start": 7.24,
+            "end": 7.46,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "करें।",
+            "start": 7.46,
+            "end": 7.69,
+            "segment": 1,
+            "timed": true
           }
         ]
       },
@@ -275,6 +650,253 @@
             "start": 7.5,
             "end": 11.74,
             "style": "neutral"
+          }
+        ],
+        "words": [
+          {
+            "text": "ज़्यादातर",
+            "start": 0.0,
+            "end": 0.66,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "किसान",
+            "start": 0.66,
+            "end": 1.1,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "भाई",
+            "start": 1.1,
+            "end": 1.32,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "बिना",
+            "start": 1.32,
+            "end": 1.74,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "जांच",
+            "start": 1.74,
+            "end": 2.06,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "के,",
+            "start": 2.06,
+            "end": 2.34,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "पड़ोसी",
+            "start": 2.77,
+            "end": 3.18,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "को",
+            "start": 3.18,
+            "end": 3.36,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "देखकर",
+            "start": 3.36,
+            "end": 3.92,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "या",
+            "start": 3.92,
+            "end": 4.38,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "पिछले",
+            "start": 4.47,
+            "end": 4.78,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "साल",
+            "start": 4.78,
+            "end": 5.04,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "के",
+            "start": 5.04,
+            "end": 5.18,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "हिसाब",
+            "start": 5.18,
+            "end": 5.52,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "से",
+            "start": 5.52,
+            "end": 5.68,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "यूरिया",
+            "start": 5.68,
+            "end": 6.12,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "और",
+            "start": 6.12,
+            "end": 6.28,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "DAP",
+            "start": 6.28,
+            "end": 6.62,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "डालते",
+            "start": 6.62,
+            "end": 7.06,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "हैं।",
+            "start": 7.06,
+            "end": 7.18,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "लेकिन",
+            "start": 7.54,
+            "end": 7.82,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "हर",
+            "start": 7.82,
+            "end": 8.2,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "खेत",
+            "start": 8.2,
+            "end": 8.5,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "की",
+            "start": 8.5,
+            "end": 8.64,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "मिट्टी",
+            "start": 8.64,
+            "end": 8.94,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "अलग",
+            "start": 8.94,
+            "end": 9.22,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "होती",
+            "start": 9.22,
+            "end": 9.48,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "है,",
+            "start": 9.48,
+            "end": 9.64,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "और",
+            "start": 9.95,
+            "end": 10.1,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "उसकी",
+            "start": 10.1,
+            "end": 10.36,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "ज़रूरत",
+            "start": 10.36,
+            "end": 10.84,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "भी",
+            "start": 10.84,
+            "end": 10.98,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "अलग",
+            "start": 10.98,
+            "end": 11.24,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "होती",
+            "start": 11.24,
+            "end": 11.48,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "है।",
+            "start": 11.48,
+            "end": 11.67,
+            "segment": 1,
+            "timed": true
           }
         ]
       },
@@ -394,6 +1016,211 @@
             "end": 8.45,
             "style": "neutral"
           }
+        ],
+        "words": [
+          {
+            "text": "किसी",
+            "start": 0.0,
+            "end": 0.32,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "खेत",
+            "start": 0.32,
+            "end": 0.6,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "में",
+            "start": 0.6,
+            "end": 0.83,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "कोई",
+            "start": 0.92,
+            "end": 1.12,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "पोषक",
+            "start": 1.12,
+            "end": 1.52,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "तत्व",
+            "start": 1.52,
+            "end": 1.82,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "पहले",
+            "start": 1.82,
+            "end": 2.14,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "से",
+            "start": 2.14,
+            "end": 2.28,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "काफ़ी",
+            "start": 2.28,
+            "end": 2.6,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "होता",
+            "start": 2.6,
+            "end": 2.88,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "है,",
+            "start": 2.88,
+            "end": 2.98,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "फिर",
+            "start": 3.37,
+            "end": 3.52,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "भी",
+            "start": 3.52,
+            "end": 3.64,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "हम",
+            "start": 3.64,
+            "end": 3.78,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "वही",
+            "start": 3.78,
+            "end": 4.02,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "खाद",
+            "start": 4.02,
+            "end": 4.34,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "डालते",
+            "start": 4.34,
+            "end": 4.66,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "जाते",
+            "start": 4.66,
+            "end": 4.94,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "हैं।",
+            "start": 4.94,
+            "end": 5.07,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "इससे",
+            "start": 5.5,
+            "end": 5.76,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "खर्च",
+            "start": 5.76,
+            "end": 6.02,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "बढ़ता",
+            "start": 6.02,
+            "end": 6.36,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "है,",
+            "start": 6.36,
+            "end": 6.52,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "और",
+            "start": 6.75,
+            "end": 6.9,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "खाद",
+            "start": 6.9,
+            "end": 7.2,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "का",
+            "start": 7.2,
+            "end": 7.34,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "संतुलन",
+            "start": 7.34,
+            "end": 7.8,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "बिगड़ता",
+            "start": 7.8,
+            "end": 8.24,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "है।",
+            "start": 8.24,
+            "end": 8.37,
+            "segment": 1,
+            "timed": true
+          }
         ]
       },
       "captions": [
@@ -501,6 +1328,239 @@
             "end": 10.27,
             "style": "neutral"
           }
+        ],
+        "words": [
+          {
+            "text": "मिट्टी",
+            "start": 0.0,
+            "end": 0.44,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "की",
+            "start": 0.44,
+            "end": 0.66,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "जांच",
+            "start": 0.66,
+            "end": 1.04,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "एक",
+            "start": 1.17,
+            "end": 1.33,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "तरह",
+            "start": 1.45,
+            "end": 1.66,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "से",
+            "start": 1.66,
+            "end": 1.88,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "खेत",
+            "start": 1.98,
+            "end": 2.3,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "का",
+            "start": 2.3,
+            "end": 2.5,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "खून",
+            "start": 2.5,
+            "end": 2.8,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "टेस्ट",
+            "start": 2.8,
+            "end": 3.16,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "है।",
+            "start": 3.16,
+            "end": 3.38,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "जैसे",
+            "start": 3.74,
+            "end": 4.14,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "डॉक्टर",
+            "start": 4.14,
+            "end": 4.56,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "जांच",
+            "start": 4.56,
+            "end": 4.88,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "देखकर",
+            "start": 4.88,
+            "end": 5.22,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "दवा",
+            "start": 5.22,
+            "end": 5.46,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "लिखते",
+            "start": 5.46,
+            "end": 5.74,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "हैं,",
+            "start": 5.74,
+            "end": 5.83,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "वैसे",
+            "start": 6.14,
+            "end": 6.46,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "ही",
+            "start": 6.46,
+            "end": 6.58,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "जांच",
+            "start": 6.58,
+            "end": 6.88,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "देखकर",
+            "start": 6.88,
+            "end": 7.22,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "तय",
+            "start": 7.22,
+            "end": 7.42,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "होता",
+            "start": 7.42,
+            "end": 7.74,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "है",
+            "start": 7.74,
+            "end": 7.82,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "कि",
+            "start": 8.06,
+            "end": 8.22,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "खेत",
+            "start": 8.22,
+            "end": 8.62,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "को",
+            "start": 8.62,
+            "end": 8.76,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "कौन",
+            "start": 8.76,
+            "end": 9.04,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "सी",
+            "start": 9.04,
+            "end": 9.16,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "खाद",
+            "start": 9.16,
+            "end": 9.44,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "कितनी",
+            "start": 9.61,
+            "end": 9.86,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "चाहिए।",
+            "start": 9.86,
+            "end": 10.2,
+            "segment": 1,
+            "timed": true
+          }
         ]
       },
       "captions": [
@@ -583,6 +1643,239 @@
             "start": 3.871,
             "end": 16.252,
             "style": "neutral"
+          }
+        ],
+        "words": [
+          {
+            "text": "सरकार",
+            "start": 0.0,
+            "end": 0.52,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "के",
+            "start": 0.52,
+            "end": 0.74,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "सॉइल",
+            "start": 0.74,
+            "end": 1.12,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "हेल्थ",
+            "start": 1.12,
+            "end": 1.38,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "कार्ड",
+            "start": 1.38,
+            "end": 1.68,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "में",
+            "start": 1.68,
+            "end": 1.9,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "12",
+            "start": 1.9,
+            "end": 2.24,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "चीज़ें",
+            "start": 2.24,
+            "end": 2.68,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "जांची",
+            "start": 2.68,
+            "end": 3.0,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "जाती",
+            "start": 3.0,
+            "end": 3.28,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "हैं।",
+            "start": 3.28,
+            "end": 3.551,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "नाइट्रोजन,",
+            "start": 3.96,
+            "end": 4.56,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "फॉस्फोरस,",
+            "start": 4.99,
+            "end": 5.66,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "पोटाश",
+            "start": 6.06,
+            "end": 6.58,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "और",
+            "start": 6.58,
+            "end": 7.06,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "सल्फर,",
+            "start": 7.06,
+            "end": 7.5,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "ज़िंक,",
+            "start": 7.85,
+            "end": 8.3,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "आयरन,",
+            "start": 8.69,
+            "end": 9.04,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "कॉपर,",
+            "start": 9.44,
+            "end": 9.8,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "मैंगनीज़",
+            "start": 10.16,
+            "end": 10.81,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "और",
+            "start": 10.89,
+            "end": 11.02,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "बोरॉन",
+            "start": 11.02,
+            "end": 11.44,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "जैसे",
+            "start": 11.71,
+            "end": 12.02,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "सूक्ष्म",
+            "start": 12.02,
+            "end": 12.5,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "तत्व,",
+            "start": 12.5,
+            "end": 12.86,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "और",
+            "start": 12.86,
+            "end": 13.34,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "मिट्टी",
+            "start": 13.34,
+            "end": 13.74,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "का",
+            "start": 13.74,
+            "end": 13.9,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "pH,",
+            "start": 13.9,
+            "end": 14.18,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "EC",
+            "start": 14.7,
+            "end": 14.94,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "और",
+            "start": 14.94,
+            "end": 15.4,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "जैविक",
+            "start": 15.4,
+            "end": 15.76,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "कार्बन।",
+            "start": 15.76,
+            "end": 16.18,
+            "segment": 1,
+            "timed": true
           }
         ]
       },
@@ -690,6 +1983,232 @@
             "start": 6.01,
             "end": 9.94,
             "style": "neutral"
+          }
+        ],
+        "words": [
+          {
+            "text": "रिपोर्ट",
+            "start": 0.0,
+            "end": 0.44,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "में",
+            "start": 0.44,
+            "end": 0.58,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "लिखा",
+            "start": 0.58,
+            "end": 0.84,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "होता",
+            "start": 0.84,
+            "end": 1.12,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "है",
+            "start": 1.12,
+            "end": 1.2,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "कि",
+            "start": 1.2,
+            "end": 1.36,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "कौन",
+            "start": 1.47,
+            "end": 1.72,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "सी",
+            "start": 1.72,
+            "end": 1.92,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "खाद",
+            "start": 1.92,
+            "end": 2.3,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "कितनी",
+            "start": 2.3,
+            "end": 2.68,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "डालनी",
+            "start": 2.68,
+            "end": 3.04,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "है,",
+            "start": 3.04,
+            "end": 3.18,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "और",
+            "start": 3.55,
+            "end": 3.78,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "मिट्टी",
+            "start": 3.78,
+            "end": 4.16,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "सुधारने",
+            "start": 4.16,
+            "end": 4.64,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "के",
+            "start": 4.64,
+            "end": 4.76,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "लिए",
+            "start": 4.76,
+            "end": 4.9,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "क्या",
+            "start": 4.9,
+            "end": 5.18,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "करना",
+            "start": 5.18,
+            "end": 5.48,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "है।",
+            "start": 5.48,
+            "end": 5.62,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "सही",
+            "start": 6.04,
+            "end": 6.38,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "मात्रा",
+            "start": 6.38,
+            "end": 6.76,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "में",
+            "start": 6.76,
+            "end": 6.9,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "खाद",
+            "start": 6.9,
+            "end": 7.2,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "लगे,",
+            "start": 7.2,
+            "end": 7.48,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "तो",
+            "start": 7.9,
+            "end": 8.02,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "फसल",
+            "start": 8.02,
+            "end": 8.44,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "को",
+            "start": 8.44,
+            "end": 8.6,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "संतुलित",
+            "start": 8.6,
+            "end": 9.1,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "पोषण",
+            "start": 9.1,
+            "end": 9.42,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "मिलता",
+            "start": 9.42,
+            "end": 9.74,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "है।",
+            "start": 9.74,
+            "end": 9.87,
+            "segment": 1,
+            "timed": true
           }
         ]
       },
@@ -803,6 +2322,218 @@
             "end": 9.6,
             "style": "neutral"
           }
+        ],
+        "words": [
+          {
+            "text": "नमूना",
+            "start": 0.0,
+            "end": 0.5,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "लेने",
+            "start": 0.5,
+            "end": 0.78,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "का",
+            "start": 0.78,
+            "end": 0.94,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "सही",
+            "start": 0.94,
+            "end": 1.26,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "समय",
+            "start": 1.26,
+            "end": 1.56,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "है",
+            "start": 1.56,
+            "end": 1.7,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "फसल",
+            "start": 1.96,
+            "end": 2.26,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "कटने",
+            "start": 2.26,
+            "end": 2.58,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "के",
+            "start": 2.58,
+            "end": 2.72,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "बाद,",
+            "start": 2.72,
+            "end": 2.95,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "जब",
+            "start": 3.22,
+            "end": 3.44,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "खेत",
+            "start": 3.44,
+            "end": 3.76,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "में",
+            "start": 3.76,
+            "end": 3.9,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "कोई",
+            "start": 3.9,
+            "end": 4.08,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "खड़ी",
+            "start": 4.08,
+            "end": 4.42,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "फसल",
+            "start": 4.42,
+            "end": 4.74,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "न",
+            "start": 4.74,
+            "end": 4.84,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "हो।",
+            "start": 4.84,
+            "end": 5.02,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "यानी",
+            "start": 5.44,
+            "end": 5.76,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "खरीफ़",
+            "start": 5.76,
+            "end": 6.44,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "की",
+            "start": 6.44,
+            "end": 6.56,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "कटाई",
+            "start": 6.56,
+            "end": 6.88,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "के",
+            "start": 6.88,
+            "end": 7.06,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "बाद,",
+            "start": 7.06,
+            "end": 7.42,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "या",
+            "start": 7.83,
+            "end": 8.1,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "रबी",
+            "start": 8.1,
+            "end": 8.62,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "की",
+            "start": 8.62,
+            "end": 8.76,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "कटाई",
+            "start": 8.76,
+            "end": 9.06,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "के",
+            "start": 9.06,
+            "end": 9.24,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "बाद।",
+            "start": 9.24,
+            "end": 9.51,
+            "segment": 1,
+            "timed": true
+          }
         ]
       },
       "captions": [
@@ -910,6 +2641,176 @@
             "end": 8.737,
             "style": "slow"
           }
+        ],
+        "words": [
+          {
+            "text": "अब",
+            "start": 0.0,
+            "end": 0.2,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "नमूना",
+            "start": 0.2,
+            "end": 0.62,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "लेने",
+            "start": 0.62,
+            "end": 0.94,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "का",
+            "start": 0.94,
+            "end": 1.1,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "तरीका।",
+            "start": 1.1,
+            "end": 1.55,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "खेत",
+            "start": 1.97,
+            "end": 2.3,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "में",
+            "start": 2.3,
+            "end": 2.52,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "टेढ़े-मेढ़े",
+            "start": 2.52,
+            "end": 3.14,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "चलते",
+            "start": 3.14,
+            "end": 3.5,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "हुए",
+            "start": 3.5,
+            "end": 3.72,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "10",
+            "start": 3.72,
+            "end": 4.02,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "से",
+            "start": 4.02,
+            "end": 4.22,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "15",
+            "start": 4.22,
+            "end": 4.5,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "अलग-अलग",
+            "start": 4.5,
+            "end": 5.28,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "जगहें",
+            "start": 5.28,
+            "end": 5.64,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "चुनें,",
+            "start": 5.64,
+            "end": 5.94,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "ताकि",
+            "start": 6.32,
+            "end": 6.58,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "पूरे",
+            "start": 6.71,
+            "end": 7.0,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "खेत",
+            "start": 7.0,
+            "end": 7.3,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "की",
+            "start": 7.3,
+            "end": 7.48,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "सही",
+            "start": 7.48,
+            "end": 7.82,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "तस्वीर",
+            "start": 7.82,
+            "end": 8.18,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "मिल",
+            "start": 8.18,
+            "end": 8.36,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "सके।",
+            "start": 8.36,
+            "end": 8.65,
+            "segment": 1,
+            "timed": true
+          }
         ]
       },
       "captions": [
@@ -973,6 +2874,176 @@
             "start": 0.0,
             "end": 8.94,
             "style": "slow"
+          }
+        ],
+        "words": [
+          {
+            "text": "हर",
+            "start": 0.0,
+            "end": 0.26,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "जगह",
+            "start": 0.26,
+            "end": 0.5,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "से",
+            "start": 0.5,
+            "end": 0.7,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "ऊपर",
+            "start": 0.7,
+            "end": 1.04,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "की",
+            "start": 1.04,
+            "end": 1.2,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "घास-फूस",
+            "start": 1.2,
+            "end": 1.74,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "हटाएं,",
+            "start": 1.74,
+            "end": 2.14,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "और",
+            "start": 2.52,
+            "end": 2.72,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "फावड़े",
+            "start": 2.72,
+            "end": 3.32,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "या",
+            "start": 3.32,
+            "end": 3.46,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "खुरपी",
+            "start": 3.46,
+            "end": 3.9,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "से",
+            "start": 3.9,
+            "end": 4.12,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "V",
+            "start": 4.12,
+            "end": 4.36,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "आकार",
+            "start": 4.36,
+            "end": 4.78,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "का",
+            "start": 4.78,
+            "end": 4.92,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "गड्ढा",
+            "start": 4.92,
+            "end": 5.26,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "बनाएं,",
+            "start": 5.26,
+            "end": 5.55,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "लगभग",
+            "start": 5.9,
+            "end": 6.28,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "15",
+            "start": 6.4,
+            "end": 6.64,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "सेंटीमीटर,",
+            "start": 6.64,
+            "end": 7.34,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "यानी",
+            "start": 7.64,
+            "end": 7.94,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "आधा",
+            "start": 7.94,
+            "end": 8.34,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "फुट",
+            "start": 8.34,
+            "end": 8.54,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "गहरा।",
+            "start": 8.54,
+            "end": 8.87,
+            "segment": 0,
+            "timed": true
           }
         ]
       },
@@ -1041,6 +3112,162 @@
             "start": 0.0,
             "end": 7.5,
             "style": "slow"
+          }
+        ],
+        "words": [
+          {
+            "text": "अब",
+            "start": 0.0,
+            "end": 0.2,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "गड्ढे",
+            "start": 0.2,
+            "end": 0.58,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "की",
+            "start": 0.58,
+            "end": 0.76,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "एक",
+            "start": 0.76,
+            "end": 0.92,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "दीवार",
+            "start": 0.92,
+            "end": 1.3,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "से,",
+            "start": 1.3,
+            "end": 1.56,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "ऊपर",
+            "start": 1.78,
+            "end": 2.08,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "से",
+            "start": 2.08,
+            "end": 2.26,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "नीचे",
+            "start": 2.26,
+            "end": 2.6,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "तक,",
+            "start": 2.6,
+            "end": 2.8,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "लगभग",
+            "start": 3.12,
+            "end": 3.52,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "2.5-3",
+            "start": 3.7,
+            "end": 4.36,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "सेंटीमीटर",
+            "start": 4.36,
+            "end": 4.94,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "मोटी",
+            "start": 4.94,
+            "end": 5.26,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "परत",
+            "start": 5.26,
+            "end": 5.5,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "काट",
+            "start": 5.5,
+            "end": 5.74,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "लें,",
+            "start": 5.74,
+            "end": 5.9,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "और",
+            "start": 6.25,
+            "end": 6.4,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "साफ़",
+            "start": 6.4,
+            "end": 6.8,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "बाल्टी",
+            "start": 6.8,
+            "end": 7.06,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "में",
+            "start": 7.06,
+            "end": 7.2,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "डालें।",
+            "start": 7.2,
+            "end": 7.43,
+            "segment": 0,
+            "timed": true
           }
         ]
       },
@@ -1121,6 +3348,113 @@
             "start": 0.0,
             "end": 5.08,
             "style": "neutral"
+          }
+        ],
+        "words": [
+          {
+            "text": "सभी",
+            "start": 0.0,
+            "end": 0.44,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "जगहों",
+            "start": 0.44,
+            "end": 0.84,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "की",
+            "start": 0.84,
+            "end": 1.0,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "मिट्टी",
+            "start": 1.0,
+            "end": 1.44,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "एक",
+            "start": 1.66,
+            "end": 1.9,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "जगह",
+            "start": 1.9,
+            "end": 2.18,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "इकट्ठा",
+            "start": 2.18,
+            "end": 2.62,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "करें,",
+            "start": 2.62,
+            "end": 2.87,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "और",
+            "start": 3.16,
+            "end": 3.42,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "हाथ",
+            "start": 3.42,
+            "end": 3.82,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "से",
+            "start": 3.82,
+            "end": 4.04,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "अच्छी",
+            "start": 4.04,
+            "end": 4.4,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "तरह",
+            "start": 4.4,
+            "end": 4.58,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "मिला",
+            "start": 4.58,
+            "end": 4.88,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "लें।",
+            "start": 4.88,
+            "end": 5.0,
+            "segment": 0,
+            "timed": true
           }
         ]
       },
@@ -1203,6 +3537,239 @@
             "end": 10.88,
             "style": "neutral"
           }
+        ],
+        "words": [
+          {
+            "text": "मिली",
+            "start": 0.0,
+            "end": 0.38,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "हुई",
+            "start": 0.38,
+            "end": 0.58,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "मिट्टी",
+            "start": 0.58,
+            "end": 0.94,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "को",
+            "start": 0.94,
+            "end": 1.14,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "साफ़",
+            "start": 1.14,
+            "end": 1.55,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "कागज़",
+            "start": 1.65,
+            "end": 2.08,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "या",
+            "start": 2.08,
+            "end": 2.25,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "प्लास्टिक",
+            "start": 2.34,
+            "end": 2.76,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "शीट",
+            "start": 2.76,
+            "end": 3.02,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "पर",
+            "start": 3.02,
+            "end": 3.18,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "फैलाकर",
+            "start": 3.18,
+            "end": 3.72,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "चार",
+            "start": 3.91,
+            "end": 4.16,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "हिस्सों",
+            "start": 4.16,
+            "end": 4.5,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "में",
+            "start": 4.5,
+            "end": 4.58,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "बांटें।",
+            "start": 4.58,
+            "end": 4.9,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "आमने-सामने",
+            "start": 5.33,
+            "end": 5.98,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "के",
+            "start": 5.98,
+            "end": 6.14,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "दो",
+            "start": 6.14,
+            "end": 6.32,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "हिस्से",
+            "start": 6.32,
+            "end": 6.66,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "हटा",
+            "start": 6.66,
+            "end": 6.96,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "दें,",
+            "start": 6.96,
+            "end": 7.16,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "और",
+            "start": 7.47,
+            "end": 7.62,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "यही",
+            "start": 7.62,
+            "end": 7.88,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "तब",
+            "start": 7.88,
+            "end": 8.1,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "तक",
+            "start": 8.1,
+            "end": 8.26,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "दोहराएं",
+            "start": 8.26,
+            "end": 8.69,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "जब",
+            "start": 8.84,
+            "end": 9.03,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "तक",
+            "start": 9.11,
+            "end": 9.24,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "लगभग",
+            "start": 9.24,
+            "end": 9.64,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "आधा",
+            "start": 9.64,
+            "end": 10.0,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "किलो",
+            "start": 10.0,
+            "end": 10.24,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "मिट्टी",
+            "start": 10.24,
+            "end": 10.52,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "बचे।",
+            "start": 10.52,
+            "end": 10.8,
+            "segment": 1,
+            "timed": true
+          }
         ]
       },
       "captions": [
@@ -1278,6 +3845,169 @@
             "start": 0.0,
             "end": 8.6,
             "style": "neutral"
+          }
+        ],
+        "words": [
+          {
+            "text": "इस",
+            "start": 0.0,
+            "end": 0.22,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "मिट्टी",
+            "start": 0.22,
+            "end": 0.62,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "को",
+            "start": 0.62,
+            "end": 0.82,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "छाया",
+            "start": 0.82,
+            "end": 1.28,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "में",
+            "start": 1.28,
+            "end": 1.42,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "सुखाकर",
+            "start": 1.42,
+            "end": 2.02,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "साफ़",
+            "start": 2.28,
+            "end": 2.65,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "प्लास्टिक",
+            "start": 2.8,
+            "end": 3.22,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "थैली",
+            "start": 3.22,
+            "end": 3.54,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "में",
+            "start": 3.54,
+            "end": 3.68,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "भरें,",
+            "start": 3.68,
+            "end": 4.0,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "और",
+            "start": 4.3,
+            "end": 4.48,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "थैली",
+            "start": 4.48,
+            "end": 4.88,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "पर",
+            "start": 4.88,
+            "end": 5.08,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "अपना",
+            "start": 5.08,
+            "end": 5.4,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "नाम,",
+            "start": 5.4,
+            "end": 5.7,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "गांव",
+            "start": 6.05,
+            "end": 6.51,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "और",
+            "start": 6.78,
+            "end": 6.92,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "खेत",
+            "start": 6.92,
+            "end": 7.26,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "की",
+            "start": 7.26,
+            "end": 7.4,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "पहचान",
+            "start": 7.4,
+            "end": 7.82,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "लिखकर",
+            "start": 7.82,
+            "end": 8.18,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "लगाएं।",
+            "start": 8.18,
+            "end": 8.53,
+            "segment": 0,
+            "timed": true
           }
         ]
       },
@@ -1394,6 +4124,267 @@
             "end": 13.56,
             "style": "neutral"
           }
+        ],
+        "words": [
+          {
+            "text": "नमूना",
+            "start": 0.0,
+            "end": 0.52,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "जांच",
+            "start": 0.52,
+            "end": 0.82,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "के",
+            "start": 0.82,
+            "end": 1.02,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "लिए",
+            "start": 1.02,
+            "end": 1.22,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "सरकारी",
+            "start": 1.22,
+            "end": 1.84,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "मिट्टी",
+            "start": 1.84,
+            "end": 2.22,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "जांच",
+            "start": 2.74,
+            "end": 3.1,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "प्रयोगशाला",
+            "start": 3.1,
+            "end": 3.84,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "या",
+            "start": 3.84,
+            "end": 4.32,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "कृषि",
+            "start": 4.32,
+            "end": 4.62,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "विज्ञान",
+            "start": 4.62,
+            "end": 5.02,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "केंद्र",
+            "start": 5.02,
+            "end": 5.34,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "में",
+            "start": 5.34,
+            "end": 5.46,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "दिया",
+            "start": 5.46,
+            "end": 5.68,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "जा",
+            "start": 5.68,
+            "end": 5.82,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "सकता",
+            "start": 5.82,
+            "end": 6.14,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "है।",
+            "start": 6.14,
+            "end": 6.26,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "सॉइल",
+            "start": 6.69,
+            "end": 7.1,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "हेल्थ",
+            "start": 7.1,
+            "end": 7.36,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "कार्ड",
+            "start": 7.36,
+            "end": 7.7,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "योजना",
+            "start": 7.7,
+            "end": 8.08,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "में",
+            "start": 8.08,
+            "end": 8.34,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "जांच",
+            "start": 8.47,
+            "end": 8.9,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "का",
+            "start": 8.9,
+            "end": 9.1,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "खर्च",
+            "start": 9.1,
+            "end": 9.46,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "सरकार",
+            "start": 9.46,
+            "end": 9.92,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "उठाती",
+            "start": 9.92,
+            "end": 10.32,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "है।",
+            "start": 10.32,
+            "end": 10.48,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "जानकारी",
+            "start": 10.9,
+            "end": 11.44,
+            "segment": 2,
+            "timed": true
+          },
+          {
+            "text": "के",
+            "start": 11.44,
+            "end": 11.58,
+            "segment": 2,
+            "timed": true
+          },
+          {
+            "text": "लिए",
+            "start": 11.58,
+            "end": 11.74,
+            "segment": 2,
+            "timed": true
+          },
+          {
+            "text": "अपने",
+            "start": 11.74,
+            "end": 12.1,
+            "segment": 2,
+            "timed": true
+          },
+          {
+            "text": "ज़िला",
+            "start": 12.1,
+            "end": 12.38,
+            "segment": 2,
+            "timed": true
+          },
+          {
+            "text": "कृषि",
+            "start": 12.38,
+            "end": 12.7,
+            "segment": 2,
+            "timed": true
+          },
+          {
+            "text": "अधिकारी",
+            "start": 12.7,
+            "end": 13.1,
+            "segment": 2,
+            "timed": true
+          },
+          {
+            "text": "से",
+            "start": 13.1,
+            "end": 13.22,
+            "segment": 2,
+            "timed": true
+          },
+          {
+            "text": "मिलें।",
+            "start": 13.22,
+            "end": 13.48,
+            "segment": 2,
+            "timed": true
+          }
         ]
       },
       "captions": [
@@ -1501,6 +4492,183 @@
             "end": 8.93,
             "style": "firm"
           }
+        ],
+        "words": [
+          {
+            "text": "अब",
+            "start": 0.0,
+            "end": 0.21,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "कुछ",
+            "start": 0.29,
+            "end": 0.48,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "आम",
+            "start": 0.48,
+            "end": 0.82,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "गलतियां।",
+            "start": 0.82,
+            "end": 1.3,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "पहली",
+            "start": 1.73,
+            "end": 2.08,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "गलती,",
+            "start": 2.08,
+            "end": 2.46,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "खेत",
+            "start": 2.82,
+            "end": 3.16,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "के",
+            "start": 3.16,
+            "end": 3.36,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "एक",
+            "start": 3.46,
+            "end": 3.72,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "ही",
+            "start": 3.72,
+            "end": 3.82,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "कोने",
+            "start": 3.82,
+            "end": 4.12,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "से",
+            "start": 4.12,
+            "end": 4.26,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "नमूना",
+            "start": 4.26,
+            "end": 4.6,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "लेना।",
+            "start": 4.6,
+            "end": 4.89,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "तब",
+            "start": 5.33,
+            "end": 5.52,
+            "segment": 2,
+            "timed": true
+          },
+          {
+            "text": "रिपोर्ट",
+            "start": 5.52,
+            "end": 5.94,
+            "segment": 2,
+            "timed": true
+          },
+          {
+            "text": "पूरे",
+            "start": 6.04,
+            "end": 6.32,
+            "segment": 2,
+            "timed": true
+          },
+          {
+            "text": "खेत",
+            "start": 6.32,
+            "end": 6.64,
+            "segment": 2,
+            "timed": true
+          },
+          {
+            "text": "की",
+            "start": 6.64,
+            "end": 6.78,
+            "segment": 2,
+            "timed": true
+          },
+          {
+            "text": "नहीं,",
+            "start": 6.78,
+            "end": 7.08,
+            "segment": 2,
+            "timed": true
+          },
+          {
+            "text": "बस",
+            "start": 7.5,
+            "end": 7.78,
+            "segment": 2,
+            "timed": true
+          },
+          {
+            "text": "उस",
+            "start": 7.9,
+            "end": 8.08,
+            "segment": 2,
+            "timed": true
+          },
+          {
+            "text": "कोने",
+            "start": 8.08,
+            "end": 8.42,
+            "segment": 2,
+            "timed": true
+          },
+          {
+            "text": "की",
+            "start": 8.42,
+            "end": 8.56,
+            "segment": 2,
+            "timed": true
+          },
+          {
+            "text": "होगी।",
+            "start": 8.56,
+            "end": 8.86,
+            "segment": 2,
+            "timed": true
+          }
         ]
       },
       "captions": [
@@ -1575,6 +4743,281 @@
             "start": 3.14,
             "end": 12.83,
             "style": "firm"
+          }
+        ],
+        "words": [
+          {
+            "text": "दूसरी",
+            "start": 0.0,
+            "end": 0.52,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "गलती,",
+            "start": 0.52,
+            "end": 0.9,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "गलत",
+            "start": 1.25,
+            "end": 1.58,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "जगह",
+            "start": 1.58,
+            "end": 1.88,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "से",
+            "start": 1.88,
+            "end": 2.04,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "नमूना",
+            "start": 2.04,
+            "end": 2.44,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "लेना।",
+            "start": 2.44,
+            "end": 2.82,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "मेड़",
+            "start": 3.18,
+            "end": 3.62,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "या",
+            "start": 3.62,
+            "end": 3.7,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "नाली",
+            "start": 3.7,
+            "end": 4.0,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "के",
+            "start": 4.0,
+            "end": 4.16,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "पास,",
+            "start": 4.16,
+            "end": 4.46,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "पेड़",
+            "start": 4.94,
+            "end": 5.24,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "या",
+            "start": 5.24,
+            "end": 5.4,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "कुएं",
+            "start": 5.4,
+            "end": 5.72,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "के",
+            "start": 5.72,
+            "end": 5.88,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "पास,",
+            "start": 5.88,
+            "end": 6.2,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "खाद",
+            "start": 6.59,
+            "end": 6.9,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "के",
+            "start": 6.9,
+            "end": 7.08,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "ढेर",
+            "start": 7.08,
+            "end": 7.36,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "के",
+            "start": 7.36,
+            "end": 7.52,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "पास,",
+            "start": 7.52,
+            "end": 7.82,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "पानी",
+            "start": 8.2,
+            "end": 8.5,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "भरी",
+            "start": 8.5,
+            "end": 8.7,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "जगह",
+            "start": 8.7,
+            "end": 8.98,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "से,",
+            "start": 8.98,
+            "end": 9.21,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "या",
+            "start": 9.53,
+            "end": 9.68,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "जहां",
+            "start": 9.68,
+            "end": 9.94,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "हाल",
+            "start": 9.94,
+            "end": 10.24,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "ही",
+            "start": 10.24,
+            "end": 10.36,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "में",
+            "start": 10.36,
+            "end": 10.52,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "खाद",
+            "start": 10.52,
+            "end": 10.8,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "डाली",
+            "start": 10.8,
+            "end": 11.1,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "हो,",
+            "start": 11.1,
+            "end": 11.24,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "वहां",
+            "start": 11.61,
+            "end": 11.9,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "से",
+            "start": 11.9,
+            "end": 12.02,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "नमूना",
+            "start": 12.02,
+            "end": 12.42,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "न",
+            "start": 12.42,
+            "end": 12.52,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "लें।",
+            "start": 12.52,
+            "end": 12.76,
+            "segment": 1,
+            "timed": true
           }
         ]
       },
@@ -1678,6 +5121,162 @@
             "end": 9.0,
             "style": "firm"
           }
+        ],
+        "words": [
+          {
+            "text": "तीसरी",
+            "start": 0.0,
+            "end": 0.44,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "गलती,",
+            "start": 0.44,
+            "end": 0.78,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "नमूने",
+            "start": 1.16,
+            "end": 1.56,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "के",
+            "start": 1.56,
+            "end": 1.74,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "लिए",
+            "start": 1.74,
+            "end": 1.92,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "खाद",
+            "start": 1.92,
+            "end": 2.5,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "या",
+            "start": 2.5,
+            "end": 2.66,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "दवा",
+            "start": 2.66,
+            "end": 2.96,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "की",
+            "start": 2.96,
+            "end": 3.14,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "पुरानी",
+            "start": 3.14,
+            "end": 3.52,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "बोरी",
+            "start": 3.52,
+            "end": 3.82,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "इस्तेमाल",
+            "start": 3.82,
+            "end": 4.52,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "करना।",
+            "start": 4.52,
+            "end": 4.84,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "हमेशा",
+            "start": 5.26,
+            "end": 5.8,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "साफ़",
+            "start": 5.8,
+            "end": 6.54,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "बाल्टी",
+            "start": 6.54,
+            "end": 7.0,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "और",
+            "start": 7.0,
+            "end": 7.38,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "साफ़",
+            "start": 7.38,
+            "end": 7.74,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "थैली",
+            "start": 7.82,
+            "end": 8.12,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "ही",
+            "start": 8.12,
+            "end": 8.26,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "इस्तेमाल",
+            "start": 8.26,
+            "end": 8.68,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "करें।",
+            "start": 8.68,
+            "end": 8.93,
+            "segment": 1,
+            "timed": true
+          }
         ]
       },
       "captions": [
@@ -1779,6 +5378,169 @@
             "start": 4.68,
             "end": 8.12,
             "style": "firm"
+          }
+        ],
+        "words": [
+          {
+            "text": "और",
+            "start": 0.0,
+            "end": 0.4,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "चौथी",
+            "start": 0.62,
+            "end": 1.02,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "गलती,",
+            "start": 1.02,
+            "end": 1.44,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "रिपोर्ट",
+            "start": 1.82,
+            "end": 2.24,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "मिलने",
+            "start": 2.24,
+            "end": 2.54,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "के",
+            "start": 2.54,
+            "end": 2.68,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "बाद",
+            "start": 2.68,
+            "end": 2.86,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "उसे",
+            "start": 2.86,
+            "end": 3.12,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "संभालकर",
+            "start": 3.12,
+            "end": 3.78,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "रख",
+            "start": 3.78,
+            "end": 3.96,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "देना।",
+            "start": 3.96,
+            "end": 4.29,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "रिपोर्ट",
+            "start": 4.71,
+            "end": 5.08,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "तभी",
+            "start": 5.19,
+            "end": 5.42,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "काम",
+            "start": 5.42,
+            "end": 5.68,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "की",
+            "start": 5.68,
+            "end": 5.82,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "है,",
+            "start": 5.82,
+            "end": 5.99,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "जब",
+            "start": 6.24,
+            "end": 6.44,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "उसके",
+            "start": 6.53,
+            "end": 6.82,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "हिसाब",
+            "start": 6.82,
+            "end": 7.16,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "से",
+            "start": 7.16,
+            "end": 7.3,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "खाद",
+            "start": 7.3,
+            "end": 7.6,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "डाली",
+            "start": 7.6,
+            "end": 7.86,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "जाए।",
+            "start": 7.86,
+            "end": 8.05,
+            "segment": 1,
+            "timed": true
           }
         ]
       },
@@ -1892,6 +5654,204 @@
             "end": 9.3,
             "style": "neutral"
           }
+        ],
+        "words": [
+          {
+            "text": "रिपोर्ट",
+            "start": 0.0,
+            "end": 0.48,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "समझ",
+            "start": 0.48,
+            "end": 0.8,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "न",
+            "start": 0.8,
+            "end": 0.94,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "आए,",
+            "start": 0.94,
+            "end": 1.1,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "तो",
+            "start": 1.49,
+            "end": 1.64,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "अपने",
+            "start": 1.64,
+            "end": 2.04,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "नज़दीकी",
+            "start": 2.04,
+            "end": 2.56,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "कृषि",
+            "start": 2.56,
+            "end": 2.88,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "विज्ञान",
+            "start": 2.88,
+            "end": 3.3,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "केंद्र",
+            "start": 3.3,
+            "end": 3.74,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "या",
+            "start": 4.02,
+            "end": 4.2,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "कृषि",
+            "start": 4.2,
+            "end": 4.52,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "अधिकारी",
+            "start": 4.52,
+            "end": 4.98,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "से",
+            "start": 4.98,
+            "end": 5.12,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "मिलें।",
+            "start": 5.12,
+            "end": 5.38,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "वे",
+            "start": 5.81,
+            "end": 5.96,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "आपकी",
+            "start": 5.96,
+            "end": 6.26,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "फसल",
+            "start": 6.26,
+            "end": 6.58,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "के",
+            "start": 6.58,
+            "end": 6.72,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "हिसाब",
+            "start": 6.72,
+            "end": 7.06,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "से",
+            "start": 7.06,
+            "end": 7.2,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "सही",
+            "start": 7.2,
+            "end": 7.52,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "खाद",
+            "start": 7.52,
+            "end": 7.86,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "और",
+            "start": 7.86,
+            "end": 8.06,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "उसकी",
+            "start": 8.06,
+            "end": 8.26,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "मात्रा",
+            "start": 8.26,
+            "end": 8.58,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "समझा",
+            "start": 8.58,
+            "end": 8.9,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "देंगे।",
+            "start": 8.9,
+            "end": 9.23,
+            "segment": 1,
+            "timed": true
+          }
         ]
       },
       "captions": [
@@ -1966,6 +5926,211 @@
             "start": 2.18,
             "end": 8.87,
             "style": "neutral"
+          }
+        ],
+        "words": [
+          {
+            "text": "हर",
+            "start": 0.0,
+            "end": 0.22,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "साल",
+            "start": 0.22,
+            "end": 0.48,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "जांच",
+            "start": 0.48,
+            "end": 0.84,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "कराना",
+            "start": 0.84,
+            "end": 1.22,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "ज़रूरी",
+            "start": 1.22,
+            "end": 1.58,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "नहीं।",
+            "start": 1.58,
+            "end": 1.79,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "सरकारी",
+            "start": 2.22,
+            "end": 2.72,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "योजना",
+            "start": 2.72,
+            "end": 3.06,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "में",
+            "start": 3.06,
+            "end": 3.4,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "सॉइल",
+            "start": 3.4,
+            "end": 3.72,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "हेल्थ",
+            "start": 3.72,
+            "end": 3.98,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "कार्ड",
+            "start": 3.98,
+            "end": 4.28,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "तीन",
+            "start": 4.46,
+            "end": 4.64,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "साल",
+            "start": 4.64,
+            "end": 4.88,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "के",
+            "start": 4.88,
+            "end": 5.0,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "चक्र",
+            "start": 5.0,
+            "end": 5.26,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "में",
+            "start": 5.26,
+            "end": 5.38,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "बनता",
+            "start": 5.38,
+            "end": 5.68,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "है,",
+            "start": 5.68,
+            "end": 5.79,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "और",
+            "start": 5.98,
+            "end": 6.38,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "अगला",
+            "start": 6.52,
+            "end": 6.8,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "कार्ड",
+            "start": 6.8,
+            "end": 7.0,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "बताता",
+            "start": 7.0,
+            "end": 7.38,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "है",
+            "start": 7.38,
+            "end": 7.5,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "कि",
+            "start": 7.5,
+            "end": 7.76,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "मिट्टी",
+            "start": 7.76,
+            "end": 8.22,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "में",
+            "start": 8.22,
+            "end": 8.34,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "क्या",
+            "start": 8.34,
+            "end": 8.5,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "बदला।",
+            "start": 8.5,
+            "end": 8.8,
+            "segment": 1,
+            "timed": true
           }
         ]
       },
@@ -2043,6 +6208,204 @@
             "end": 8.76,
             "style": "neutral"
           }
+        ],
+        "words": [
+          {
+            "text": "तो",
+            "start": 0.0,
+            "end": 0.2,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "याद",
+            "start": 0.2,
+            "end": 0.66,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "रखें।",
+            "start": 0.66,
+            "end": 1.05,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "कटाई",
+            "start": 1.48,
+            "end": 1.78,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "के",
+            "start": 1.78,
+            "end": 1.96,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "बाद",
+            "start": 1.96,
+            "end": 2.16,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "नमूना",
+            "start": 2.16,
+            "end": 2.58,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "लें,",
+            "start": 2.58,
+            "end": 2.76,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "खेत",
+            "start": 3.12,
+            "end": 3.4,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "की",
+            "start": 3.4,
+            "end": 3.56,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "कई",
+            "start": 3.56,
+            "end": 3.8,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "जगहों",
+            "start": 3.8,
+            "end": 4.18,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "से",
+            "start": 4.18,
+            "end": 4.32,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "लें,",
+            "start": 4.32,
+            "end": 4.47,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "साफ़",
+            "start": 4.8,
+            "end": 5.2,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "थैली",
+            "start": 5.2,
+            "end": 5.46,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "में",
+            "start": 5.46,
+            "end": 5.6,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "भरकर",
+            "start": 5.6,
+            "end": 5.94,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "जमा",
+            "start": 5.94,
+            "end": 6.2,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "करें,",
+            "start": 6.2,
+            "end": 6.46,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "और",
+            "start": 6.8,
+            "end": 6.96,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "रिपोर्ट",
+            "start": 6.96,
+            "end": 7.32,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "के",
+            "start": 7.32,
+            "end": 7.46,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "हिसाब",
+            "start": 7.46,
+            "end": 7.82,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "से",
+            "start": 7.82,
+            "end": 7.98,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "ही",
+            "start": 7.98,
+            "end": 8.1,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "खाद",
+            "start": 8.1,
+            "end": 8.38,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "डालें।",
+            "start": 8.38,
+            "end": 8.69,
+            "segment": 1,
+            "timed": true
+          }
         ]
       },
       "captions": [
@@ -2113,6 +6476,148 @@
             "start": 4.28,
             "end": 6.96,
             "style": "warm"
+          }
+        ],
+        "words": [
+          {
+            "text": "जांच",
+            "start": 0.0,
+            "end": 0.5,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "से",
+            "start": 0.5,
+            "end": 0.7,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "खाद",
+            "start": 0.7,
+            "end": 1.02,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "सही",
+            "start": 1.02,
+            "end": 1.32,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "लगती",
+            "start": 1.32,
+            "end": 1.64,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "है,",
+            "start": 1.64,
+            "end": 1.78,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "और",
+            "start": 2.26,
+            "end": 2.42,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "मिट्टी",
+            "start": 2.42,
+            "end": 2.84,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "सेहतमंद",
+            "start": 2.84,
+            "end": 3.46,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "रहती",
+            "start": 3.46,
+            "end": 3.74,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "है।",
+            "start": 3.74,
+            "end": 3.89,
+            "segment": 0,
+            "timed": true
+          },
+          {
+            "text": "ऐसी",
+            "start": 4.32,
+            "end": 4.62,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "और",
+            "start": 4.62,
+            "end": 4.78,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "जानकारी",
+            "start": 4.78,
+            "end": 5.24,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "के",
+            "start": 5.24,
+            "end": 5.36,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "लिए",
+            "start": 5.36,
+            "end": 5.54,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "चैनल",
+            "start": 5.54,
+            "end": 6.04,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "को",
+            "start": 6.04,
+            "end": 6.18,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "सब्सक्राइब",
+            "start": 6.18,
+            "end": 6.64,
+            "segment": 1,
+            "timed": true
+          },
+          {
+            "text": "करें।",
+            "start": 6.64,
+            "end": 6.89,
+            "segment": 1,
+            "timed": true
           }
         ]
       },

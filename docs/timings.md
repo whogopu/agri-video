@@ -75,3 +75,7 @@ Same 4 pilot scenes, 10 segments × 5 takes, scored by Whisper large-v3-turbo. C
 | Chatterbox Multilingual (synthetic Rohit ref) | mlx-audio | 1.0 | — | — | 0.034 | 7/10 |
 | Indic-Speak Amit | mlx-lm bf16 + torch decode | 5.3 | 129 s | 3.3 GB | 0.039 | 9/10 |
 | **Veena varun** (production, female) | mlx-lm bf16 + SNAC | 4.7 | 124 s | 4.1 GB | 0.068 | 6/10 (after identity fix) |
+
+## Word timing (2026-11-20, phase B1)
+
+`narration --align-only` on 2026-11-20-mitti-ki-jaanch-v3 (23 scene wavs, 3.7 min of narration): Whisper large-v3-turbo with word timestamps + silence detection, **~30 s** total (~1.1–1.3 s per scene); alignment in the main env is instant. A re-run with unchanged audio reads `audio/words/` and takes < 1 s. Accuracy: §7.4a of ARCHITECTURE.md.

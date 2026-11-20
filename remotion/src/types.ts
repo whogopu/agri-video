@@ -2,6 +2,8 @@
 
 export type Caption = { text: string; start: number; end: number };
 
+export type AudioWord = { text: string; start: number; end: number; segment: number; timed: boolean };
+
 export type GraphicTemplate = "TitleCard" | "KeyPoints" | "BigNumber";
 
 export type Shot = {
@@ -40,6 +42,8 @@ export type Scene = {
     file: string;
     duration_sec: number;
     segments?: { text: string; start: number; end: number; style: string }[];
+    /** when each displayed word is spoken (pipeline/word_align.py); empty until word timing has run */
+    words?: AudioWord[];
   } | null;
   captions: Caption[];
 };
