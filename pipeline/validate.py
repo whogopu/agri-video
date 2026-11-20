@@ -165,6 +165,8 @@ def _check_narrated(ep: Episode, ep_dir: Path, rep: Report) -> None:
             rep.error(f"{tag}: no captions")
         elif s.captions[-1].end > s.audio.duration_sec + 0.05:
             rep.error(f"{tag}: captions run past audio end ({s.captions[-1].end:.2f}s > {s.audio.duration_sec:.2f}s)")
+        if s.audio.segments and not all(c.words for c in s.captions):
+            rep.warn(f"{tag}: captions are not word-timed (no highlight); run `pipeline.narration <ep> --align-only`")
 
 
 def _check_cast(ep: Episode, rep: Report, need_reference: bool) -> None:

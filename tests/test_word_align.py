@@ -50,3 +50,40 @@ def test_snap_moves_starts_out_of_silence():
     # a start just before a silence (within tolerance) also moves; one well before does not
     assert snap_to_speech(H(("जैसे", 11.44, 12.02)), [(11.49, 11.71)])[0].start == pytest.approx(11.71)
     assert snap_to_speech(H(("इस", 3.70, 4.52)), [(3.87, 4.12)])[0].start == pytest.approx(3.70)
+
+
+# ---------- word-timed captions (phase B2) ----------
+
+from pipeline.captions import chunk_text, word_captions  # noqa: E402
+from pipeline.schema import AudioWord  # noqa: E402
+
+
+def _words(segment_texts, spans):
+    out = []
+    for i, (text, (a, b)) in enumerate(zip(segment_texts, spans)):
+        ws = text.split()
+        step = (b - a) / len(ws)
+        out += [AudioWord(text=w, start=round(a + k * step, 3), end=round(a + (k + 1) * step - 0.02, 3), segment=i)
+                for k, w in enumerate(ws)]
+    return out
+
+
+def test_word_captions_follow_words_and_carry_them():
+    texts = ["आज बात करेंगे मिट्टी की जांच की।", "यह क्यों ज़रूरी है, नमूना खुद कैसे लें, और रिपोर्ट मिलने के बाद क्या करें।"]
+    spans = [(0.05, 2.35), (2.67, 7.76)]
+    words = _words(texts, spans)
+    caps = word_captions(texts, words, 7.9, max_words=6, lead_sec=0.1)
+    assert [c.text for c in caps] == chunk_text(texts[0], 6) + chunk_text(texts[1], 6)  # same chunking as before
+    assert caps[0].start == 0.0 and caps[-1].end == 7.9
+    assert all(a.end == b.start for a, b in zip(caps, caps[1:]))  # no flicker between chunks
+    for c in caps[1:]:
+        assert c.start == pytest.approx(c.words[0].start - 0.1)  # appears just before its first word
+        assert " ".join(w.text for w in c.words) == c.text
+    second = next(c for c in caps if c.words[0].text == "यह")
+    assert second.start == pytest.approx(2.57)  # waits through the sentence pause
+
+
+def test_word_captions_refuse_mismatched_text():
+    texts = ["मिट्टी की जांच कराएं।"]
+    words = _words(["मिट्टी की जांच करवाएं।"], [(0.0, 2.0)])  # narration edited after word timing
+    assert word_captions(texts, words, 2.0, 6) is None

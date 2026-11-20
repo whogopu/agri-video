@@ -118,7 +118,12 @@ export const Episode: React.FC<EpisodeProps> = (props) => {
                 {scene.on_screen_text ? <OnScreenText text={scene.on_screen_text} /> : null}
                 {/* narration and its captions start after the lead-in, so the new picture lands first */}
                 <Sequence from={leadIn} layout="none" name="narration">
-                  <Captions captions={scene.captions} fontSize={props.captionFontSize} />
+                  <Captions
+                    captions={scene.captions}
+                    fontSize={props.captionFontSize}
+                    highlight={props.captionHighlight ?? true}
+                    holdSec={props.captionHoldSec ?? 0.25}
+                  />
                   {scene.audio ? <Audio src={asset(props.assetBase, scene.audio.file)} /> : null}
                 </Sequence>
               </TransitionSeries.Sequence>

@@ -141,10 +141,18 @@ class Audio(_Model):
     words: list[AudioWord] = Field(default_factory=list)        # empty until word timing has run
 
 
+class CaptionWord(_Model):
+    """A word inside a caption chunk, with when it is spoken (scene seconds); drives the highlight."""
+    text: str
+    start: float = Field(ge=0)
+    end: float
+
+
 class Caption(_Model):
     text: str
     start: float = Field(ge=0)
     end: float
+    words: list[CaptionWord] = Field(default_factory=list)  # empty = no word timing (no highlight)
 
     @model_validator(mode="after")
     def _order(self) -> "Caption":

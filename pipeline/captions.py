@@ -2,8 +2,9 @@
 
 Chunks: break at punctuation first (। ? ! , ; : —), then split long clauses into near-equal
 parts of at most `max_words`, then fold tiny leftovers (1–2 words) into a neighbour.
-Timing: proportional to character length (spaces excluded) across the audio duration.
-Word-level alignment is a v1 feature.
+Timing: from word timings when the scene has them (`word_captions`: a chunk appears just before
+its first word is spoken and stays up until the next chunk, carrying its words for the
+highlight); otherwise proportional to character length across the audio (`build_captions`).
 """
 
 from __future__ import annotations
@@ -11,7 +12,7 @@ from __future__ import annotations
 import math
 import re
 
-from pipeline.schema import Caption
+from pipeline.schema import AudioWord, Caption, CaptionWord
 
 CLAUSE_RE = re.compile(r"(?<=[।?!,;:—])\s+")
 
@@ -79,3 +80,34 @@ def time_chunks(chunks: list[str], duration: float) -> list[Caption]:
 
 def build_captions(text: str, duration: float, max_words: int) -> list[Caption]:
     return time_chunks(chunk_text(text, max_words), duration)
+
+
+def word_captions(segment_texts: list[str], words: list[AudioWord], duration: float, max_words: int,
+                  lead_sec: float = 0.1) -> list[Caption] | None:
+    """Chunk each segment as usual, then time every chunk from its words: it appears `lead_sec`
+    before its first word (never before the previous chunk), and stays up until the next chunk
+    appears (through pauses), the last one until the end of the audio. None if the words don't
+    match the text (e.g. narration edited after word timing ran)."""
+    starts, chunks = [], []
+    for i, text in enumerate(segment_texts):
+        seg_words = [w for w in words if w.segment == i]
+        p = 0
+        for c in chunk_text(text, max_words):
+            n = len(c.split())
+            ws = seg_words[p:p + n]
+            if [w.text for w in ws] != c.split():
+                return None
+            p += n
+            prev = starts[-1] if starts else 0.0
+            starts.append(max(prev, ws[0].start - lead_sec) if starts else 0.0)
+            chunks.append((c, ws))
+        if p != len(seg_words):
+            return None
+    out = []
+    for k, ((c, ws), st) in enumerate(zip(chunks, starts)):
+        end = starts[k + 1] if k + 1 < len(starts) else duration
+        if end <= st:  # two chunks at the same instant (shouldn't happen with real timings)
+            end = st + 0.04
+        out.append(Caption(text=c, start=round(st, 3), end=round(end, 3),
+                           words=[CaptionWord(text=w.text, start=w.start, end=w.end) for w in ws]))
+    return out

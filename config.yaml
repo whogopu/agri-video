@@ -193,6 +193,9 @@ shots:
 captions:
   max_words_per_chunk: 6                 # long format; Shorts use formats.short.caption_max_words
   font_size_px: { long: 56, short: 64 }  # caption text size at full resolution; render.py passes it to Remotion
+  lead_sec: 0.1                          # a word-timed chunk appears this long before its first word (time to start reading)
+  highlight_words: true                  # the word being spoken turns brand green (needs word timings; user choice 2026-11-20)
+  highlight_hold_sec: 0.25               # after a word ends, keep it lit at most this long while the next one hasn't started (bridges short gaps, not pauses)
 
 render:
   draft_scale: 0.5                     # 540p drafts (1080×1920 Shorts → 540×960)

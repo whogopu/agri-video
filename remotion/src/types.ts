@@ -1,6 +1,9 @@
 // Mirrors pipeline/schema.py (episode.json). Keep the two in sync.
 
-export type Caption = { text: string; start: number; end: number };
+export type CaptionWord = { text: string; start: number; end: number };
+
+/** words: when each word is spoken (scene seconds); empty = no word timing, no highlight */
+export type Caption = { text: string; start: number; end: number; words?: CaptionWord[] };
 
 export type AudioWord = { text: string; start: number; end: number; segment: number; timed: boolean };
 
@@ -80,4 +83,8 @@ export type EpisodeProps = {
   logo: string | null;
   /** caption font size in px at full resolution (config.yaml captions.font_size_px); theme default if absent */
   captionFontSize?: number;
+  /** config.yaml captions.highlight_words: the word being spoken turns brand green */
+  captionHighlight?: boolean;
+  /** config.yaml captions.highlight_hold_sec: a word stays lit at most this long after it ends */
+  captionHoldSec?: number;
 };

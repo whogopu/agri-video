@@ -15,6 +15,7 @@ const colors = {
   text: "#ffffff",
   textMuted: "rgba(255,255,255,0.82)",
   captionBg: "rgba(0,0,0,0.62)",
+  captionHighlight: "#3fb660", // the word being spoken (brand primary; ~8:1 contrast on captionBg over dark images)
   background: "#000000",
 };
 

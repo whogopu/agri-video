@@ -112,6 +112,8 @@ def test_segment_narration_stub_end_to_end(tmp_path: Path):
         seg = segs[w["segment"]]
         assert seg["start"] - 1e-6 <= w["start"] < w["end"] <= seg["end"] + 1e-6
     assert all(a["end"] <= b["start"] + 1e-6 for a, b in zip(words, words[1:]))
+    # captions are timed from those words and carry them (for the highlight)
+    assert all(c["words"] and " ".join(w["text"] for w in c["words"]) == c["text"] for c in s0["captions"])
 
     # a manual pick sticks across reruns while the segment text is unchanged
     subprocess.run(base + ["--pick", "1:2:2"], check=True, cwd=REPO, capture_output=True)

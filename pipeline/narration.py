@@ -36,7 +36,7 @@ import statistics
 from pathlib import Path
 
 from pipeline import audio
-from pipeline.captions import build_captions
+from pipeline.captions import build_captions, word_captions
 from pipeline.common import (
     format_config, load_config, voice_preset, load_episode, resolve_episode_dir, save_episode,
     selected_scenes, setup_logging, stage_parser, stage_timer, write_json,
@@ -321,6 +321,23 @@ def segment_captions(display_segments: list[str], spans: list[tuple[float, float
     return out
 
 
+def caption_lead_sec(cfg: dict) -> float:
+    return float(cfg.get("captions", {}).get("lead_sec", 0.1))
+
+
+def word_timed_captions(s: Scene, cfg: dict, max_words: int) -> bool:
+    """Replace a scene's captions with word-timed ones; False (captions untouched) if it has no
+    usable word timings."""
+    if not (s.audio and s.audio.words and s.audio.segments):
+        return False
+    caps = word_captions([g.text for g in s.audio.segments], s.audio.words, s.audio.duration_sec,
+                         max_words, caption_lead_sec(cfg))
+    if caps is None:
+        return False
+    s.captions = caps
+    return True
+
+
 # ---------- word timing ----------
 
 def add_word_timings(ep: Episode, ep_dir: Path, cfg: dict, run, asr_backend: str | None = None,
@@ -343,6 +360,11 @@ def add_word_timings(ep: Episode, ep_dir: Path, cfg: dict, run, asr_backend: str
     timed = sum(w.timed for s in ep.scenes if s.audio for w in s.audio.words)
     run.note(f"word timing: {timed}/{n} words matched to Whisper ({asr_cfg.get('backend', 'whisper')})"
              + (f"; proportional fallback for segments {', '.join(weak)}" if weak else ""))
+    max_words = caption_max_words(cfg, ep.format)
+    done = [s.id for s in ep.scenes if word_timed_captions(s, cfg, max_words)]
+    left = [s.id for s in ep.scenes if s.id not in done]
+    run.note(f"captions timed from words in {len(done)} scene(s)"
+             + (f"; character-proportional in scenes {left}" if left else ""))
 
 
 # ---------- main ----------

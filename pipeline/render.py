@@ -130,7 +130,10 @@ def main() -> None:
 
         props = {"episode": ep.model_dump(mode="json"), "paddingSec": cfg["video"]["scene_padding_sec"],
                  "leadInSec": float(cfg["video"].get("scene_lead_in_sec", 0.0)),
-                 "captionFontSize": caption_font_size(cfg, ep.format), **sync_assets(ep, ep_dir)}
+                 "captionFontSize": caption_font_size(cfg, ep.format),
+                 "captionHighlight": bool(cfg.get("captions", {}).get("highlight_words", True)),
+                 "captionHoldSec": float(cfg.get("captions", {}).get("highlight_hold_sec", 0.25)),
+                 **sync_assets(ep, ep_dir)}
         props_path = ep_dir / "render" / "props.json"
         write_json(props_path, props)
 
