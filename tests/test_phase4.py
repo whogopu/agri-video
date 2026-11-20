@@ -76,7 +76,7 @@ def test_inspection_gate(tmp_path):
     def errors():
         (ep / "episode.json").write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
         rep, _ = validate(ep, Status.visuals_ready)
-        return [e for e in rep.errors if e.startswith("scene 1:")]
+        return [e for e in rep.errors if e.startswith("scene 1 ")]
 
     assert any("not inspected" in e for e in errors())
     sha = hashlib.sha1(img.read_bytes()).hexdigest()

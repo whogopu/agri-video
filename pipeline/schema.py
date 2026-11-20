@@ -12,7 +12,10 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
+# v2 (2026-11-19): an image visual holds several `shots` (cut on sentence boundaries), each of
+# which may show recurring cast members; episodes declare their `cast`. v1 files are migrated on
+# load (the single image becomes shot 1).
 
 
 class Status(str, Enum):
@@ -67,12 +70,24 @@ class ImageInspection(_Model):
     inspected_at: str = ""
 
 
-class Visual(_Model):
-    type: VisualType | None = None
-    # image
+class Shot(_Model):
+    """One still inside an image scene. Shots cut on sentence boundaries of the scene's narration."""
+    at_segment: int = Field(0, ge=0)   # the shot starts with this narration segment (0 = scene start)
     image_prompt: str | None = None
+    characters: list[str] = Field(default_factory=list)  # cast ids shown; their references condition the image
     seed: int | None = None
     attempts: int = 0
+    image_file: str | None = None      # current pick, e.g. images/scene-07-s2.png
+    # cast id → SHA-1 of the reference image used to generate this shot (stale if a reference changes)
+    reference_sha1: dict[str, str] = Field(default_factory=dict)
+    inspection: ImageInspection | None = None
+    notes: str | None = None
+
+
+class Visual(_Model):
+    type: VisualType | None = None
+    # image: one or more shots
+    shots: list[Shot] = Field(default_factory=list)
     # broll
     broll_id: str | None = None
     in_sec: float | None = None
@@ -80,7 +95,6 @@ class Visual(_Model):
     # graphic
     template: GraphicTemplate | None = None
     props: dict[str, Any] | None = None
-    inspection: ImageInspection | None = None
     # free-form note from the visuals stage (why this choice, regeneration history)
     notes: str | None = None
 
@@ -89,6 +103,18 @@ class Visual(_Model):
         if self.in_sec is not None and self.out_sec is not None and self.out_sec <= self.in_sec:
             raise ValueError(f"out_sec ({self.out_sec}) must be greater than in_sec ({self.in_sec})")
         return self
+
+    @model_validator(mode="after")
+    def _shot_order(self) -> "Visual":
+        segs = [sh.at_segment for sh in self.shots]
+        if segs and segs[0] != 0:
+            raise ValueError(f"the first shot must start at segment 0, got {segs}")
+        if any(b <= a for a, b in zip(segs, segs[1:])):
+            raise ValueError(f"shot at_segment values must increase: {segs}")
+        return self
+
+
+_V1_IMAGE_KEYS = ("image_prompt", "seed", "attempts", "inspection")
 
 
 class AudioSegment(_Model):
@@ -127,7 +153,27 @@ class Scene(_Model):
     sources: list[str] = Field(default_factory=list)
     audio: Audio | None = None
     captions: list[Caption] = Field(default_factory=list)
-    image_file: str | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _migrate_v1_image(cls, data: Any) -> Any:
+        """v1: one image per scene (visual.image_prompt/seed/attempts/inspection + scene.image_file)."""
+        if not isinstance(data, dict):
+            return data
+        data = dict(data)
+        image_file = data.pop("image_file", None)
+        v = dict(data.get("visual") or {})
+        shot = {k: v.pop(k) for k in _V1_IMAGE_KEYS if k in v}
+        if image_file is not None:
+            shot["image_file"] = image_file
+        if any(val not in (None, 0) for val in shot.values()) and not v.get("shots"):
+            v["shots"] = [shot]
+        if "visual" in data or shot:
+            data["visual"] = v
+        return data
+
+    def image_files(self) -> list[str]:
+        return [sh.image_file for sh in self.visual.shots if sh.image_file] if self.visual.type == "image" else []
 
 
 class Package(_Model):
@@ -141,6 +187,23 @@ class Package(_Model):
     sources_list: list[str] = Field(default_factory=list)  # readable source names; default: file names
 
 
+class CastMember(_Model):
+    """A recurring character (assets/cast/<id>/character.json). Synthetic people only: never a real
+    person's face or name. The approved reference image keeps the face and clothes the same in every shot."""
+    id: str
+    name_hi: str                      # how the narrator calls him/her, e.g. "रमेश जी"
+    name_en: str                      # used in image prompts, e.g. "Ramesh"
+    role: str                         # e.g. "farmer, main character of the channel"
+    gender: Literal["male", "female"]
+    look: str                         # English prompt text: age, build, face, hair, facial hair, skin
+    wardrobe: str                     # English prompt text: the fixed costume
+    reference: str | None = None      # approved image, relative to the character folder (ref.png)
+    reference_sha1: str | None = None
+    approved_at: str | None = None    # set only by `cast approve`, after the USER picked the face
+    candidate_seeds: list[int] = Field(default_factory=list)
+    notes: str = ""
+
+
 class Episode(_Model):
     schema_version: int = SCHEMA_VERSION
     id: str
@@ -149,8 +212,17 @@ class Episode(_Model):
     format: Format = "long"
     video: VideoSpec = Field(default_factory=VideoSpec)
     voice: VoiceSpec = Field(default_factory=VoiceSpec)
+    # recurring characters (ids in assets/cast/) whose story the narrator tells; main character first
+    cast: list[str] = Field(default_factory=list)
     scenes: list[Scene] = Field(default_factory=list)
     package: Package = Field(default_factory=Package)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _upgrade_version(cls, data: Any) -> Any:
+        if isinstance(data, dict) and data.get("schema_version", SCHEMA_VERSION) < SCHEMA_VERSION:
+            data = {**data, "schema_version": SCHEMA_VERSION}  # scenes migrate themselves
+        return data
 
     @field_validator("scenes")
     @classmethod

@@ -1,0 +1,2171 @@
+{
+  "schema_version": 2,
+  "id": "2026-11-20-mitti-ki-jaanch-v3",
+  "title_hi": "मिट्टी की जांच क्यों और कैसे कराएं",
+  "status": "draft_rendered",
+  "format": "long",
+  "video": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30
+  },
+  "voice": {
+    "preset": "maya_vasant",
+    "backend": "mlx_audio",
+    "speaker": "Vasant",
+    "description": "",
+    "seed": 42,
+    "wpm": 174.0
+  },
+  "cast": [
+    "ramesh",
+    "sunita"
+  ],
+  "scenes": [
+    {
+      "id": 1,
+      "purpose": "hook",
+      "narration_display": "क्या आप हर साल अंदाज़े से खाद डालते हैं? हो सकता है आपके खेत को उतनी खाद की ज़रूरत ही न हो, और आपका पैसा मिट्टी में बेकार जा रहा हो।",
+      "narration_spoken": "क्या आप हर साल अंदाज़े से खाद डालते हैं? हो सकता है आपके खेत को उतनी खाद की ज़रूरत ही न हो, और आपका पैसा मिट्टी में बेकार जा रहा हो।",
+      "on_screen_text": "अंदाज़े से खाद?",
+      "visual": {
+        "type": "image",
+        "shots": [
+          {
+            "at_segment": 0,
+            "image_prompt": "Medium-wide shot: Ramesh walks across a freshly ploughed bare brown field before sowing, no crop at all. A steel bucket full of white fertilizer granules hangs by its handle from his bent left forearm. His right arm is swung out to the side with the hand open, flinging a handful of white granules that fan out in a wide arc through the air and land scattered thinly over a wide area of the soil, no heap. Early morning haze, flat North Indian village farmland with neem trees and plain mud-brick houses in the distance, no palm trees; no wristwatch, no rings, no jewellery",
+            "characters": [
+              "ramesh"
+            ],
+            "seed": 189136,
+            "attempts": 4,
+            "image_file": "images/scene-01-s1.png",
+            "reference_sha1": {
+              "ramesh": "c6b22fb010edc45a07af3309e6dad6e61438340b"
+            },
+            "inspection": {
+              "file_sha1": "c3a07853607abdd7affb0a64cd55456bdb2ee368",
+              "passed": true,
+              "notes": "re-check 2026-11-20: ramesh: 2 arms/2 hands (bucket by handle, other hand open after throw), fingers OK, 2 legs mid-stride, chappals; action: granules leave his open palm, bucket upright and full in other hand, land as a scattered patch (somewhat concentrated); good practice: broadcasting on ploughed field before sowing, fits 'fertilizer by guess'; mud houses, no palms; identity: face/grey beard/hairline/white kurta/green gamchha match ref, no watch, nothing on head",
+              "inspected_at": "2026-11-20 10:28"
+            },
+            "notes": null
+          },
+          {
+            "at_segment": 1,
+            "image_prompt": "Close-up at ground level: white fertilizer granules lying scattered on dark brown soil between rows of small green wheat seedlings, soft morning light, shallow depth of field",
+            "characters": [],
+            "seed": 625026,
+            "attempts": 1,
+            "image_file": "images/scene-01-s2.png",
+            "reference_sha1": {},
+            "inspection": {
+              "file_sha1": "1b8f083366662bd93c006d25a57e2c3dcd203735",
+              "passed": true,
+              "notes": "re-check 2026-11-20: no people; action: static, granules lie in furrow between young wheat seedlings, nothing in motion; good practice: heap of khaad in furrow illustrates the narration 'money wasted in the soil'; crop stage young seedlings; no text",
+              "inspected_at": "2026-11-20 10:28"
+            },
+            "notes": null
+          }
+        ],
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": null,
+        "props": null,
+        "notes": null
+      },
+      "sources": [],
+      "audio": {
+        "file": "audio/scene-01.wav",
+        "duration_sec": 8.55,
+        "segments": [
+          {
+            "text": "क्या आप हर साल अंदाज़े से खाद डालते हैं?",
+            "start": 0.0,
+            "end": 2.54,
+            "style": "question"
+          },
+          {
+            "text": "हो सकता है आपके खेत को उतनी खाद की ज़रूरत ही न हो, और आपका पैसा मिट्टी में बेकार जा रहा हो।",
+            "start": 3.04,
+            "end": 8.55,
+            "style": "neutral"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "क्या आप हर साल अंदाज़े से",
+          "start": 0.0,
+          "end": 1.9
+        },
+        {
+          "text": "खाद डालते हैं?",
+          "start": 1.9,
+          "end": 3.04
+        },
+        {
+          "text": "हो सकता है आपके खेत को",
+          "start": 3.04,
+          "end": 4.378
+        },
+        {
+          "text": "उतनी खाद की",
+          "start": 4.378,
+          "end": 5.087
+        },
+        {
+          "text": "ज़रूरत ही न हो,",
+          "start": 5.087,
+          "end": 6.031
+        },
+        {
+          "text": "और आपका पैसा मिट्टी में",
+          "start": 6.031,
+          "end": 7.527
+        },
+        {
+          "text": "बेकार जा रहा हो।",
+          "start": 7.527,
+          "end": 8.55
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "purpose": "hook",
+      "narration_display": "आज बात करेंगे मिट्टी की जांच की। यह क्यों ज़रूरी है, नमूना खुद कैसे लें, और रिपोर्ट मिलने के बाद क्या करें।",
+      "narration_spoken": "आज बात करेंगे मिट्टी की जांच की। यह क्यों ज़रूरी है, नमूना खुद कैसे लें, और रिपोर्ट मिलने के बाद क्या करें।",
+      "on_screen_text": null,
+      "visual": {
+        "type": "graphic",
+        "shots": [],
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": "TitleCard",
+        "props": {
+          "title": "मिट्टी की जांच",
+          "subtitle": "क्यों और कैसे"
+        },
+        "notes": null
+      },
+      "sources": [],
+      "audio": {
+        "file": "audio/scene-02.wav",
+        "duration_sec": 7.76,
+        "segments": [
+          {
+            "text": "आज बात करेंगे मिट्टी की जांच की।",
+            "start": 0.0,
+            "end": 2.35,
+            "style": "neutral"
+          },
+          {
+            "text": "यह क्यों ज़रूरी है, नमूना खुद कैसे लें, और रिपोर्ट मिलने के बाद क्या करें।",
+            "start": 2.67,
+            "end": 7.76,
+            "style": "neutral"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "आज बात करेंगे मिट्टी की",
+          "start": 0.0,
+          "end": 1.951
+        },
+        {
+          "text": "जांच की।",
+          "start": 1.951,
+          "end": 2.67
+        },
+        {
+          "text": "यह क्यों ज़रूरी है,",
+          "start": 2.67,
+          "end": 4.027
+        },
+        {
+          "text": "नमूना खुद कैसे लें,",
+          "start": 4.027,
+          "end": 5.385
+        },
+        {
+          "text": "और रिपोर्ट मिलने के",
+          "start": 5.385,
+          "end": 6.742
+        },
+        {
+          "text": "बाद क्या करें।",
+          "start": 6.742,
+          "end": 7.76
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "purpose": "problem",
+      "narration_display": "ज़्यादातर किसान भाई बिना जांच के, पड़ोसी को देखकर या पिछले साल के हिसाब से यूरिया और DAP डालते हैं। लेकिन हर खेत की मिट्टी अलग होती है, और उसकी ज़रूरत भी अलग होती है।",
+      "narration_spoken": "ज़्यादातर किसान भाई बिना जांच के, पड़ोसी को देखकर या पिछले साल के हिसाब से यूरिया और डी ए पी डालते हैं। लेकिन हर खेत की मिट्टी अलग होती है, और उसकी ज़रूरत भी अलग होती है।",
+      "on_screen_text": "हर खेत अलग",
+      "visual": {
+        "type": "image",
+        "shots": [
+          {
+            "at_segment": 0,
+            "image_prompt": "Ramesh stands on a low earthen bund between two small farm plots, both hands resting on his hips, looking across at a neighbouring plot in the distance, young wheat seedlings around, soft morning light, flat North Indian village farmland, neem and shisham trees and mud-brick houses in the distance",
+            "characters": [
+              "ramesh"
+            ],
+            "seed": 178177,
+            "attempts": 1,
+            "image_file": "images/scene-03-s1.png",
+            "reference_sha1": {
+              "ramesh": "c6b22fb010edc45a07af3309e6dad6e61438340b"
+            },
+            "inspection": {
+              "file_sha1": "1cb64e4b85d4cf85fb6fbbb53236498512c8b8d3",
+              "passed": true,
+              "notes": "re-check 2026-11-20: ramesh: 2 arms/2 hands on hips, fingers OK, 2 legs/2 feet chappals on the path in front of the bund, standing balanced; action: static, nothing held or moving; good practice: farmer looking at plots with young seedlings fits 'farmers copy neighbours'; identity: face/grey beard/hairline/white kurta/green gamchha match ref, nothing on head",
+              "inspected_at": "2026-11-20 10:28"
+            },
+            "notes": null
+          },
+          {
+            "at_segment": 1,
+            "image_prompt": "Wide view of two neighbouring small farm plots separated by an earthen bund, one plot with lush dark green wheat seedlings and the other with patchy pale yellow seedlings, soft morning light, flat North Indian village farmland, neem and shisham trees and mud-brick houses in the distance",
+            "characters": [],
+            "seed": 122352,
+            "attempts": 1,
+            "image_file": "images/scene-03-s2.png",
+            "reference_sha1": {},
+            "inspection": {
+              "file_sha1": "86f9ddff412eaf14dc1d91c313ce0f5cef4a43c2",
+              "passed": true,
+              "notes": "re-check 2026-11-20: no people except one tiny distant figure by a house; action: static landscape; good practice: two plots side by side, green vs pale seedlings, illustrates 'every field's soil is different'; mud houses, no palms; no text",
+              "inspected_at": "2026-11-20 10:28"
+            },
+            "notes": null
+          }
+        ],
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": null,
+        "props": null,
+        "notes": null
+      },
+      "sources": [
+        "sources/pib-shc-factsheet.html#NPC-study",
+        "sources/shc-faq-english.pdf#what-is-SHC"
+      ],
+      "audio": {
+        "file": "audio/scene-03.wav",
+        "duration_sec": 11.74,
+        "segments": [
+          {
+            "text": "ज़्यादातर किसान भाई बिना जांच के, पड़ोसी को देखकर या पिछले साल के हिसाब से यूरिया और DAP डालते हैं।",
+            "start": 0.0,
+            "end": 7.18,
+            "style": "neutral"
+          },
+          {
+            "text": "लेकिन हर खेत की मिट्टी अलग होती है, और उसकी ज़रूरत भी अलग होती है।",
+            "start": 7.5,
+            "end": 11.74,
+            "style": "neutral"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "ज़्यादातर किसान भाई बिना जांच के,",
+          "start": 0.0,
+          "end": 2.625
+        },
+        {
+          "text": "पड़ोसी को देखकर या",
+          "start": 2.625,
+          "end": 4.031
+        },
+        {
+          "text": "पिछले साल के हिसाब से",
+          "start": 4.031,
+          "end": 5.625
+        },
+        {
+          "text": "यूरिया और DAP डालते हैं।",
+          "start": 5.625,
+          "end": 7.5
+        },
+        {
+          "text": "लेकिन हर खेत की",
+          "start": 7.5,
+          "end": 8.478
+        },
+        {
+          "text": "मिट्टी अलग होती है,",
+          "start": 8.478,
+          "end": 9.783
+        },
+        {
+          "text": "और उसकी ज़रूरत भी",
+          "start": 9.783,
+          "end": 10.925
+        },
+        {
+          "text": "अलग होती है।",
+          "start": 10.925,
+          "end": 11.74
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "purpose": "problem",
+      "narration_display": "किसी खेत में कोई पोषक तत्व पहले से काफ़ी होता है, फिर भी हम वही खाद डालते जाते हैं। इससे खर्च बढ़ता है, और खाद का संतुलन बिगड़ता है।",
+      "narration_spoken": "किसी खेत में कोई पोषक तत्व पहले से काफ़ी होता है, फिर भी हम वही खाद डालते जाते हैं। इससे खर्च बढ़ता है, और खाद का संतुलन बिगड़ता है।",
+      "on_screen_text": null,
+      "visual": {
+        "type": "image",
+        "shots": [
+          {
+            "at_segment": 0,
+            "image_prompt": "A large stack of plain white woven polypropylene fertilizer sacks piled on bare earth at the edge of a green wheat field, no people, soft morning light, flat North Indian village farmland, neem and shisham trees and mud-brick houses in the distance",
+            "characters": [],
+            "seed": 348534,
+            "attempts": 1,
+            "image_file": "images/scene-04-s1.png",
+            "reference_sha1": {},
+            "inspection": {
+              "file_sha1": "818e0eb2e2eed9a1f0b1366841831e0161996001",
+              "passed": true,
+              "notes": "re-check 2026-11-20: no people; action: static, sacks stacked and resting on ground, stack stable; good practice: big pile of khaad sacks fits 'we keep adding the same fertilizer'; sacks a bit pillow-like; no text",
+              "inspected_at": "2026-11-20 10:28"
+            },
+            "notes": null
+          },
+          {
+            "at_segment": 1,
+            "image_prompt": "Medium shot: Ramesh stands beside a tall stack of plain white fertilizer sacks at the edge of his field, his right hand resting on the top sack and his left hand rubbing the back of his neck, a thoughtful worried expression, flat North Indian village farmland, neem and shisham trees and mud-brick houses in the distance",
+            "characters": [
+              "ramesh"
+            ],
+            "seed": 694134,
+            "attempts": 1,
+            "image_file": "images/scene-04-s2.png",
+            "reference_sha1": {
+              "ramesh": "c6b22fb010edc45a07af3309e6dad6e61438340b"
+            },
+            "inspection": {
+              "file_sha1": "b6e7490970b21ad4e6b11f789e19574369c84c33",
+              "passed": true,
+              "notes": "re-check 2026-11-20: ramesh: 2 arms (right hand rests flat on top sack at its real height, left at back of neck), 2 legs chappals; action: static, sack stacks stable on ground, hand rests on top, nothing floating; good practice: worried farmer by many sacks fits 'cost rises'; identity: face/grey beard/hairline/white kurta/green gamchha match ref, nothing on head",
+              "inspected_at": "2026-11-20 10:28"
+            },
+            "notes": null
+          }
+        ],
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": null,
+        "props": null,
+        "notes": null
+      },
+      "sources": [
+        "sources/pib-shc-factsheet-2025-08.pdf#p1-case-study",
+        "sources/pib-shc-factsheet-2025-08.pdf#objectives"
+      ],
+      "audio": {
+        "file": "audio/scene-04.wav",
+        "duration_sec": 8.45,
+        "segments": [
+          {
+            "text": "किसी खेत में कोई पोषक तत्व पहले से काफ़ी होता है, फिर भी हम वही खाद डालते जाते हैं।",
+            "start": 0.0,
+            "end": 5.14,
+            "style": "neutral"
+          },
+          {
+            "text": "इससे खर्च बढ़ता है, और खाद का संतुलन बिगड़ता है।",
+            "start": 5.46,
+            "end": 8.45,
+            "style": "neutral"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "किसी खेत में कोई पोषक तत्व",
+          "start": 0.0,
+          "end": 1.764
+        },
+        {
+          "text": "पहले से काफ़ी होता है,",
+          "start": 1.764,
+          "end": 3.276
+        },
+        {
+          "text": "फिर भी",
+          "start": 3.276,
+          "end": 3.696
+        },
+        {
+          "text": "हम वही खाद डालते जाते हैं।",
+          "start": 3.696,
+          "end": 5.46
+        },
+        {
+          "text": "इससे खर्च बढ़ता है,",
+          "start": 5.46,
+          "end": 6.687
+        },
+        {
+          "text": "और खाद का संतुलन बिगड़ता है।",
+          "start": 6.687,
+          "end": 8.45
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "purpose": "explain",
+      "narration_display": "मिट्टी की जांच एक तरह से खेत का खून टेस्ट है। जैसे डॉक्टर जांच देखकर दवा लिखते हैं, वैसे ही जांच देखकर तय होता है कि खेत को कौन सी खाद कितनी चाहिए।",
+      "narration_spoken": "मिट्टी की जांच एक तरह से खेत का खून टेस्ट है। जैसे डॉक्टर जांच देखकर दवा लिखते हैं, वैसे ही जांच देखकर तय होता है कि खेत को कौन सी खाद कितनी चाहिए।",
+      "on_screen_text": "खेत की सेहत जांच",
+      "visual": {
+        "type": "image",
+        "shots": [
+          {
+            "at_segment": 0,
+            "image_prompt": "Close-up on a laboratory bench in a simple government soil testing laboratory: a rack of glass test tubes with brown soil solution, two conical flasks, a small digital weighing balance, small cloth soil sample bags with paper tags, natural window light, wall charts blurred behind",
+            "characters": [],
+            "seed": 98888,
+            "attempts": 2,
+            "image_file": "images/scene-05-s1.png",
+            "reference_sha1": {},
+            "inspection": {
+              "file_sha1": "fc2b12a7bf3509a876682e0f312d53a5288f6620",
+              "passed": true,
+              "notes": "re-check 2026-11-20 (zoomed rack): no people; action: static, test tubes stand in a two-row rack (overlap at left is a tube in the back row), flasks and balance rest on bench, nothing floating; good practice: soil solutions/balance/sample bags read as a soil lab, fits 'like a blood test'; tag and chart illegible",
+              "inspected_at": "2026-11-20 10:28"
+            },
+            "notes": null
+          },
+          {
+            "at_segment": 1,
+            "image_prompt": "Medium shot: Sunita stands at a laboratory bench in a simple rural government soil testing laboratory, holding a glass beaker of brown soil solution up to the window light with her right hand, her left hand resting on the bench beside a row of glass flasks, no steam, no smoke, no burner, wall charts and a notice board behind her, natural window light; one thin bangle, no rings",
+            "characters": [
+              "sunita"
+            ],
+            "seed": 136187,
+            "attempts": 2,
+            "image_file": "images/scene-05-s2.png",
+            "reference_sha1": {
+              "sunita": "a384633a4a83088c0512483e8829386f98f426ae"
+            },
+            "inspection": {
+              "file_sha1": "f9ed766b25025b17b3c8b396e0ad670acc0c6918",
+              "passed": true,
+              "notes": "attempt 2: sunita: 2 arms/2 hands (right raises beaker upright, liquid level flat; left at side), fingers OK, standing; action: static hold, no steam/smoke, flasks rest on bench; good practice: technician examining soil solution fits lab-test narration; charts illegible; identity: pair checked, face/bun/bindi/blue kameez/white coat/cream dupatta/one bangle match ref",
+              "inspected_at": "2026-11-20 10:29"
+            },
+            "notes": null
+          }
+        ],
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": null,
+        "props": null,
+        "notes": null
+      },
+      "sources": [
+        "sources/shc-faq-english.pdf#how-can-a-farmer-use-SHC"
+      ],
+      "audio": {
+        "file": "audio/scene-05.wav",
+        "duration_sec": 10.27,
+        "segments": [
+          {
+            "text": "मिट्टी की जांच एक तरह से खेत का खून टेस्ट है।",
+            "start": 0.0,
+            "end": 3.38,
+            "style": "neutral"
+          },
+          {
+            "text": "जैसे डॉक्टर जांच देखकर दवा लिखते हैं, वैसे ही जांच देखकर तय होता है कि खेत को कौन सी खाद कितनी चाहिए।",
+            "start": 3.7,
+            "end": 10.27,
+            "style": "neutral"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "मिट्टी की जांच एक तरह से",
+          "start": 0.0,
+          "end": 2.009
+        },
+        {
+          "text": "खेत का खून टेस्ट है।",
+          "start": 2.009,
+          "end": 3.7
+        },
+        {
+          "text": "जैसे डॉक्टर जांच देखकर",
+          "start": 3.7,
+          "end": 5.26
+        },
+        {
+          "text": "दवा लिखते हैं,",
+          "start": 5.26,
+          "end": 6.246
+        },
+        {
+          "text": "वैसे ही जांच देखकर तय",
+          "start": 6.246,
+          "end": 7.642
+        },
+        {
+          "text": "होता है कि खेत को",
+          "start": 7.642,
+          "end": 8.71
+        },
+        {
+          "text": "कौन सी खाद कितनी चाहिए।",
+          "start": 8.71,
+          "end": 10.27
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "purpose": "explain",
+      "narration_display": "सरकार के सॉइल हेल्थ कार्ड में 12 चीज़ें जांची जाती हैं। नाइट्रोजन, फॉस्फोरस, पोटाश और सल्फर, ज़िंक, आयरन, कॉपर, मैंगनीज़ और बोरॉन जैसे सूक्ष्म तत्व, और मिट्टी का pH, EC और जैविक कार्बन।",
+      "narration_spoken": "सरकार के सॉइल हेल्थ कार्ड में बारह चीज़ें जांची जाती हैं। नाइट्रोजन, फॉस्फोरस, पोटाश और सल्फर, ज़िंक, आयरन, कॉपर, मैंगनीज़ और बोरॉन जैसे सूक्ष्म तत्व, और मिट्टी का पी एच, ई सी और जैविक कार्बन।",
+      "on_screen_text": null,
+      "visual": {
+        "type": "graphic",
+        "shots": [],
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": "KeyPoints",
+        "props": {
+          "title": "12 चीज़ों की जांच",
+          "points": [
+            "नाइट्रोजन, फॉस्फोरस, पोटाश, सल्फर",
+            "ज़िंक, आयरन, कॉपर, मैंगनीज़, बोरॉन",
+            "pH, EC, जैविक कार्बन"
+          ]
+        },
+        "notes": null
+      },
+      "sources": [
+        "sources/shc-faq-english.pdf#what-is-a-SHC",
+        "sources/pib-shc-factsheet.html#12-parameters"
+      ],
+      "audio": {
+        "file": "audio/scene-06.wav",
+        "duration_sec": 16.252,
+        "segments": [
+          {
+            "text": "सरकार के सॉइल हेल्थ कार्ड में 12 चीज़ें जांची जाती हैं।",
+            "start": 0.0,
+            "end": 3.551,
+            "style": "slow"
+          },
+          {
+            "text": "नाइट्रोजन, फॉस्फोरस, पोटाश और सल्फर, ज़िंक, आयरन, कॉपर, मैंगनीज़ और बोरॉन जैसे सूक्ष्म तत्व, और मिट्टी का pH, EC और जैविक कार्बन।",
+            "start": 3.871,
+            "end": 16.252,
+            "style": "neutral"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "सरकार के सॉइल हेल्थ कार्ड में",
+          "start": 0.0,
+          "end": 2.065
+        },
+        {
+          "text": "12 चीज़ें जांची जाती हैं।",
+          "start": 2.065,
+          "end": 3.871
+        },
+        {
+          "text": "नाइट्रोजन, फॉस्फोरस, पोटाश और सल्फर, ज़िंक, आयरन,",
+          "start": 3.871,
+          "end": 8.8
+        },
+        {
+          "text": "कॉपर, मैंगनीज़ और बोरॉन जैसे सूक्ष्म तत्व,",
+          "start": 8.8,
+          "end": 12.927
+        },
+        {
+          "text": "और मिट्टी का pH,",
+          "start": 12.927,
+          "end": 14.418
+        },
+        {
+          "text": "EC और जैविक कार्बन।",
+          "start": 14.418,
+          "end": 16.252
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "purpose": "explain",
+      "narration_display": "रिपोर्ट में लिखा होता है कि कौन सी खाद कितनी डालनी है, और मिट्टी सुधारने के लिए क्या करना है। सही मात्रा में खाद लगे, तो फसल को संतुलित पोषण मिलता है।",
+      "narration_spoken": "रिपोर्ट में लिखा होता है कि कौन सी खाद कितनी डालनी है, और मिट्टी सुधारने के लिए क्या करना है। सही मात्रा में खाद लगे, तो फसल को संतुलित पोषण मिलता है।",
+      "on_screen_text": null,
+      "visual": {
+        "type": "image",
+        "shots": [
+          {
+            "at_segment": 0,
+            "image_prompt": "Ramesh stands in a completely harvested field: only very short dry cut stubble on bare brown soil, no standing crop anywhere, holding a printed soil report sheet with tables in both hands and reading it closely, afternoon light, flat North Indian village farmland, neem and shisham trees and mud-brick houses in the distance",
+            "characters": [
+              "ramesh"
+            ],
+            "seed": 460028,
+            "attempts": 1,
+            "image_file": "images/scene-07-s1.png",
+            "reference_sha1": {
+              "ramesh": "c6b22fb010edc45a07af3309e6dad6e61438340b"
+            },
+            "inspection": {
+              "file_sha1": "69b3cd18a26c8aec68189bb7573e5b8527ce476c",
+              "passed": true,
+              "notes": "re-check 2026-11-20: ramesh: 2 arms/2 hands hold report by both side edges, 2 legs chappals, standing balanced; action: static, reading report, paper held (not floating); good practice: printed report with tables fits 'report says which fertilizer and how much'; identity: face/grey beard/hairline/white kurta/green gamchha match ref, nothing on head",
+              "inspected_at": "2026-11-20 10:29"
+            },
+            "notes": null
+          },
+          {
+            "at_segment": 1,
+            "image_prompt": "Wide view of a healthy, even, dense green wheat field with uniform growth, soft golden afternoon light, flat North Indian village farmland, neem and shisham trees and mud-brick houses in the distance",
+            "characters": [],
+            "seed": 808300,
+            "attempts": 1,
+            "image_file": "images/scene-07-s2.png",
+            "reference_sha1": {},
+            "inspection": {
+              "file_sha1": "3df858c0700e72d46c041d7ae708e6338f78f2c3",
+              "passed": true,
+              "notes": "re-check 2026-11-20: no people; action: static crop; good practice: dense even healthy wheat at heading illustrates 'balanced nutrition for the crop' (outcome shown is generic, not a claimed yield); mud/brick houses, no palms; no text",
+              "inspected_at": "2026-11-20 10:29"
+            },
+            "notes": null
+          }
+        ],
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": null,
+        "props": null,
+        "notes": null
+      },
+      "sources": [
+        "sources/shc-faq-english.pdf#how-can-a-farmer-use-SHC"
+      ],
+      "audio": {
+        "file": "audio/scene-07.wav",
+        "duration_sec": 9.94,
+        "segments": [
+          {
+            "text": "रिपोर्ट में लिखा होता है कि कौन सी खाद कितनी डालनी है, और मिट्टी सुधारने के लिए क्या करना है।",
+            "start": 0.0,
+            "end": 5.69,
+            "style": "neutral"
+          },
+          {
+            "text": "सही मात्रा में खाद लगे, तो फसल को संतुलित पोषण मिलता है।",
+            "start": 6.01,
+            "end": 9.94,
+            "style": "neutral"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "रिपोर्ट में लिखा होता है कि",
+          "start": 0.0,
+          "end": 1.787
+        },
+        {
+          "text": "कौन सी खाद कितनी डालनी है,",
+          "start": 1.787,
+          "end": 3.492
+        },
+        {
+          "text": "और मिट्टी सुधारने के लिए",
+          "start": 3.492,
+          "end": 5.117
+        },
+        {
+          "text": "क्या करना है।",
+          "start": 5.117,
+          "end": 6.01
+        },
+        {
+          "text": "सही मात्रा में खाद लगे,",
+          "start": 6.01,
+          "end": 7.669
+        },
+        {
+          "text": "तो फसल को",
+          "start": 7.669,
+          "end": 8.281
+        },
+        {
+          "text": "संतुलित पोषण मिलता है।",
+          "start": 8.281,
+          "end": 9.94
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "purpose": "step",
+      "narration_display": "नमूना लेने का सही समय है फसल कटने के बाद, जब खेत में कोई खड़ी फसल न हो। यानी खरीफ़ की कटाई के बाद, या रबी की कटाई के बाद।",
+      "narration_spoken": "नमूना लेने का सही समय है फसल कटने के बाद, जब खेत में कोई खड़ी फसल न हो। यानी खरीफ़ की कटाई के बाद, या रबी की कटाई के बाद।",
+      "on_screen_text": "कब लें नमूना?",
+      "visual": {
+        "type": "image",
+        "shots": [
+          {
+            "at_segment": 0,
+            "image_prompt": "Wide view of a completely harvested field: only very short dry cut stubble on bare brown soil, no standing crop anywhere, open flat land to the horizon after the paddy harvest, short rice stubble rows, clear morning light, flat North Indian village farmland, neem and shisham trees and mud-brick houses in the distance",
+            "characters": [],
+            "seed": 333424,
+            "attempts": 1,
+            "image_file": "images/scene-08-s1.png",
+            "reference_sha1": {},
+            "inspection": {
+              "file_sha1": "b07f73c9309e5eca8df3ea026f98004c1c818cbc",
+              "passed": true,
+              "notes": "re-check 2026-11-20: no people; action: static landscape; good practice: harvested paddy stubble, no standing crop, matches 'sample after harvest when no crop stands'; mud houses, no palms; no text",
+              "inspected_at": "2026-11-20 10:30"
+            },
+            "notes": null
+          },
+          {
+            "at_segment": 1,
+            "image_prompt": "Ramesh stands at the edge of a completely harvested field: only very short dry cut stubble on bare brown soil, no standing crop anywhere, holding an empty steel bucket in his right hand and a small khurpi in his left hand, looking out over the field, clear morning light, flat North Indian village farmland, neem and shisham trees and mud-brick houses in the distance",
+            "characters": [
+              "ramesh"
+            ],
+            "seed": 450858,
+            "attempts": 1,
+            "image_file": "images/scene-08-s2.png",
+            "reference_sha1": {
+              "ramesh": "c6b22fb010edc45a07af3309e6dad6e61438340b"
+            },
+            "inspection": {
+              "file_sha1": "61683b309775d9c74f48ad5f9502b0ef5fab0661",
+              "passed": true,
+              "notes": "re-check 2026-11-20: ramesh: 2 arms/2 hands (bucket hangs by handle from right hand, khurpi held by its handle in left, one blade), 2 legs chappals; action: static, both objects hang naturally under gravity, nothing pouring; good practice: field shows only short dry stubble rows (zoomed), no standing crop, farmer ready with bucket+khurpi fits 'sample after harvest'; identity: face/grey beard/hairline/white kurta/green gamchha match ref, nothing on head",
+              "inspected_at": "2026-11-20 10:30"
+            },
+            "notes": null
+          }
+        ],
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": null,
+        "props": null,
+        "notes": null
+      },
+      "sources": [
+        "sources/shc-faq-english.pdf#ideal-time"
+      ],
+      "audio": {
+        "file": "audio/scene-08.wav",
+        "duration_sec": 9.6,
+        "segments": [
+          {
+            "text": "नमूना लेने का सही समय है फसल कटने के बाद, जब खेत में कोई खड़ी फसल न हो।",
+            "start": 0.0,
+            "end": 5.09,
+            "style": "neutral"
+          },
+          {
+            "text": "यानी खरीफ़ की कटाई के बाद, या रबी की कटाई के बाद।",
+            "start": 5.41,
+            "end": 9.6,
+            "style": "neutral"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "नमूना लेने का सही समय है",
+          "start": 0.0,
+          "end": 1.904
+        },
+        {
+          "text": "फसल कटने के बाद,",
+          "start": 1.904,
+          "end": 3.206
+        },
+        {
+          "text": "जब खेत में",
+          "start": 3.206,
+          "end": 4.007
+        },
+        {
+          "text": "कोई खड़ी फसल न हो।",
+          "start": 4.007,
+          "end": 5.41
+        },
+        {
+          "text": "यानी खरीफ़ की कटाई के बाद,",
+          "start": 5.41,
+          "end": 7.726
+        },
+        {
+          "text": "या रबी की कटाई के बाद।",
+          "start": 7.726,
+          "end": 9.6
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "purpose": "step",
+      "narration_display": "अब नमूना लेने का तरीका। खेत में टेढ़े-मेढ़े चलते हुए 10 से 15 अलग-अलग जगहें चुनें, ताकि पूरे खेत की सही तस्वीर मिल सके।",
+      "narration_spoken": "अब नमूना लेने का तरीका। खेत में टेढ़े-मेढ़े चलते हुए दस से पंद्रह अलग-अलग जगहें चुनें, ताकि पूरे खेत की सही तस्वीर मिल सके।",
+      "on_screen_text": "10–15 जगहों से",
+      "visual": {
+        "type": "image",
+        "shots": [
+          {
+            "at_segment": 0,
+            "image_prompt": "Close-up on bare harvested field soil with short dry stubble: one single clean empty steel bucket standing upright and beside it one khurpi, a small Indian hand hoe with a curved flat iron blade fixed on a short wooden handle, morning light",
+            "characters": [],
+            "seed": 478574,
+            "attempts": 2,
+            "image_file": "images/scene-09-s1.png",
+            "reference_sha1": {},
+            "inspection": {
+              "file_sha1": "ea69c3293f0f4cb0d635a12665ff681358640810",
+              "passed": true,
+              "notes": "re-check 2026-11-20: no people; action: static, bucket stands upright on soil, trowel/khurpi lies flat on ground (single blade + single handle), nothing floating; good practice: one clean, empty, dry steel bucket (interior bright metal, no water) fits clean sampling equipment; harvested stubble; no text",
+              "inspected_at": "2026-11-20 10:30"
+            },
+            "notes": null
+          },
+          {
+            "at_segment": 1,
+            "image_prompt": "High wide shot from slightly above: Ramesh is small in the frame, walking across a completely harvested, flat, dry field (only very short dry cut stubble on bare brown soil, no standing crop, no trenches, no channels, no water anywhere). Behind him, spaced far apart in a zig-zag pattern across the field, are four small hand-sized freshly dug holes, each with a tiny heap of soil beside it. He holds one small khurpi by its short wooden handle in his right hand, his left arm relaxed and empty, no bucket, morning light; no wristwatch, no rings",
+            "characters": [
+              "ramesh"
+            ],
+            "seed": 857966,
+            "attempts": 4,
+            "image_file": "images/scene-09-s2.png",
+            "reference_sha1": {
+              "ramesh": "c6b22fb010edc45a07af3309e6dad6e61438340b"
+            },
+            "inspection": {
+              "file_sha1": "50fc4a4351f53d47b22ca363c2ff2de4766193c6",
+              "passed": true,
+              "notes": "attempt 4 (extra, user OK): ramesh walking: 2 arms/2 hands (right holds single spade by handle, blade trailing just above ground; left empty, relaxed), fingers OK in zoom, 2 legs mid-stride, chappals; action: carries spade, nothing poured/thrown; good practice: flat dry harvested field with ~6 small holes spread apart across the field, no trenches, no water (fits 'choose 10-15 spots across the field'; spade is in narration 'फावड़े या खुरपी'); identity: pair checked, face/grey beard/hairline/white kurta/green gamchha match, no watch, nothing on head",
+              "inspected_at": "2026-11-20 10:28"
+            },
+            "notes": null
+          }
+        ],
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": null,
+        "props": null,
+        "notes": null
+      },
+      "sources": [
+        "sources/icar-ccari-soil-sampling.html#procedure-3"
+      ],
+      "audio": {
+        "file": "audio/scene-09.wav",
+        "duration_sec": 8.737,
+        "segments": [
+          {
+            "text": "अब नमूना लेने का तरीका।",
+            "start": 0.0,
+            "end": 1.62,
+            "style": "neutral"
+          },
+          {
+            "text": "खेत में टेढ़े-मेढ़े चलते हुए 10 से 15 अलग-अलग जगहें चुनें, ताकि पूरे खेत की सही तस्वीर मिल सके।",
+            "start": 1.94,
+            "end": 8.737,
+            "style": "slow"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "अब नमूना लेने का तरीका।",
+          "start": 0.0,
+          "end": 1.94
+        },
+        {
+          "text": "खेत में टेढ़े-मेढ़े चलते हुए",
+          "start": 1.94,
+          "end": 4.059
+        },
+        {
+          "text": "10 से 15 अलग-अलग जगहें चुनें,",
+          "start": 4.059,
+          "end": 6.177
+        },
+        {
+          "text": "ताकि पूरे खेत की",
+          "start": 6.177,
+          "end": 7.325
+        },
+        {
+          "text": "सही तस्वीर मिल सके।",
+          "start": 7.325,
+          "end": 8.737
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "purpose": "step",
+      "narration_display": "हर जगह से ऊपर की घास-फूस हटाएं, और फावड़े या खुरपी से V आकार का गड्ढा बनाएं, लगभग 15 सेंटीमीटर, यानी आधा फुट गहरा।",
+      "narration_spoken": "हर जगह से ऊपर की घास-फूस हटाएं, और फावड़े या खुरपी से वी आकार का गड्ढा बनाएं, लगभग पंद्रह सेंटीमीटर, यानी आधा फुट गहरा।",
+      "on_screen_text": null,
+      "visual": {
+        "type": "graphic",
+        "shots": [],
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": "BigNumber",
+        "props": {
+          "number": "15",
+          "unit": "सेमी",
+          "label": "गड्ढे की गहराई"
+        },
+        "notes": null
+      },
+      "sources": [
+        "sources/icar-ccari-soil-sampling.html#procedure-1-4",
+        "sources/shc-faq-english.pdf#how-collected"
+      ],
+      "audio": {
+        "file": "audio/scene-10.wav",
+        "duration_sec": 8.94,
+        "segments": [
+          {
+            "text": "हर जगह से ऊपर की घास-फूस हटाएं, और फावड़े या खुरपी से V आकार का गड्ढा बनाएं, लगभग 15 सेंटीमीटर, यानी आधा फुट गहरा।",
+            "start": 0.0,
+            "end": 8.94,
+            "style": "slow"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "हर जगह से",
+          "start": 0.0,
+          "end": 0.688
+        },
+        {
+          "text": "ऊपर की घास-फूस हटाएं,",
+          "start": 0.688,
+          "end": 2.456
+        },
+        {
+          "text": "और फावड़े या खुरपी से",
+          "start": 2.456,
+          "end": 4.126
+        },
+        {
+          "text": "V आकार का गड्ढा बनाएं,",
+          "start": 4.126,
+          "end": 5.895
+        },
+        {
+          "text": "लगभग 15 सेंटीमीटर,",
+          "start": 5.895,
+          "end": 7.466
+        },
+        {
+          "text": "यानी आधा फुट गहरा।",
+          "start": 7.466,
+          "end": 8.94
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "purpose": "step",
+      "narration_display": "अब गड्ढे की एक दीवार से, ऊपर से नीचे तक, लगभग 2.5-3 सेंटीमीटर मोटी परत काट लें, और साफ़ बाल्टी में डालें।",
+      "narration_spoken": "अब गड्ढे की एक दीवार से, ऊपर से नीचे तक, लगभग ढाई से तीन सेंटीमीटर मोटी परत काट लें, और साफ़ बाल्टी में डालें।",
+      "on_screen_text": null,
+      "visual": {
+        "type": "graphic",
+        "shots": [],
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": "BigNumber",
+        "props": {
+          "number": "2.5–3",
+          "unit": "सेमी",
+          "label": "मोटी परत काटें"
+        },
+        "notes": "3 image attempts failed (a1: fused two-handle tool; a2: extra arm + fused tool; a3: bucket fused with spade). Switched to graphic; user can pick a1/a3 instead."
+      },
+      "sources": [
+        "sources/icar-ccari-soil-sampling.html#procedure-5"
+      ],
+      "audio": {
+        "file": "audio/scene-11.wav",
+        "duration_sec": 7.5,
+        "segments": [
+          {
+            "text": "अब गड्ढे की एक दीवार से, ऊपर से नीचे तक, लगभग 2.5-3 सेंटीमीटर मोटी परत काट लें, और साफ़ बाल्टी में डालें।",
+            "start": 0.0,
+            "end": 7.5,
+            "style": "slow"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "अब गड्ढे की एक दीवार से,",
+          "start": 0.0,
+          "end": 1.696
+        },
+        {
+          "text": "ऊपर से नीचे तक,",
+          "start": 1.696,
+          "end": 2.768
+        },
+        {
+          "text": "लगभग 2.5-3 सेंटीमीटर मोटी",
+          "start": 2.768,
+          "end": 4.732
+        },
+        {
+          "text": "परत काट लें,",
+          "start": 4.732,
+          "end": 5.625
+        },
+        {
+          "text": "और साफ़ बाल्टी में डालें।",
+          "start": 5.625,
+          "end": 7.5
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "purpose": "step",
+      "narration_display": "सभी जगहों की मिट्टी एक जगह इकट्ठा करें, और हाथ से अच्छी तरह मिला लें।",
+      "narration_spoken": "सभी जगहों की मिट्टी एक जगह इकट्ठा करें, और हाथ से अच्छी तरह मिला लें।",
+      "on_screen_text": "अच्छी तरह मिलाएं",
+      "visual": {
+        "type": "image",
+        "shots": [
+          {
+            "at_segment": 0,
+            "image_prompt": "Medium close-up: Ramesh squats in a completely harvested field: only very short dry cut stubble on bare brown soil, no standing crop anywhere and mixes loose brown soil inside a clean steel bucket with his right hand, his left hand steadying the bucket rim, morning light",
+            "characters": [
+              "ramesh"
+            ],
+            "seed": 28,
+            "attempts": 1,
+            "image_file": "images/scene-12-s1.png",
+            "reference_sha1": {
+              "ramesh": "c6b22fb010edc45a07af3309e6dad6e61438340b"
+            },
+            "inspection": {
+              "file_sha1": "28df507b3577b54d1ebfc3822f08494b7030cfd0",
+              "passed": true,
+              "notes": "re-check 2026-11-20: ramesh squatting: 2 arms/2 hands (right fingers in the soil inside the bucket, left steadies rim), 2 legs/2 feet chappals; action: hand mixing loose soil inside an upright bucket resting on the ground, soil stays inside, nothing pouring; good practice: mixing all collected soil by hand in a clean bucket matches narration; identity: face/grey beard/hairline/white kurta/green gamchha match ref, nothing on head",
+              "inspected_at": "2026-11-20 10:30"
+            },
+            "notes": null
+          }
+        ],
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": null,
+        "props": null,
+        "notes": null
+      },
+      "sources": [
+        "sources/icar-ccari-soil-sampling.html#procedure-6"
+      ],
+      "audio": {
+        "file": "audio/scene-12.wav",
+        "duration_sec": 5.08,
+        "segments": [
+          {
+            "text": "सभी जगहों की मिट्टी एक जगह इकट्ठा करें, और हाथ से अच्छी तरह मिला लें।",
+            "start": 0.0,
+            "end": 5.08,
+            "style": "neutral"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "सभी जगहों की",
+          "start": 0.0,
+          "end": 0.924
+        },
+        {
+          "text": "मिट्टी एक जगह इकट्ठा करें,",
+          "start": 0.924,
+          "end": 2.956
+        },
+        {
+          "text": "और हाथ से",
+          "start": 2.956,
+          "end": 3.602
+        },
+        {
+          "text": "अच्छी तरह मिला लें।",
+          "start": 3.602,
+          "end": 5.08
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "purpose": "step",
+      "narration_display": "मिली हुई मिट्टी को साफ़ कागज़ या प्लास्टिक शीट पर फैलाकर चार हिस्सों में बांटें। आमने-सामने के दो हिस्से हटा दें, और यही तब तक दोहराएं जब तक लगभग आधा किलो मिट्टी बचे।",
+      "narration_spoken": "मिली हुई मिट्टी को साफ़ कागज़ या प्लास्टिक शीट पर फैलाकर चार हिस्सों में बांटें। आमने-सामने के दो हिस्से हटा दें, और यही तब तक दोहराएं जब तक लगभग आधा किलो मिट्टी बचे।",
+      "on_screen_text": null,
+      "visual": {
+        "type": "image",
+        "shots": [
+          {
+            "at_segment": 0,
+            "image_prompt": "Ramesh kneels beside a clean white plastic sheet on the ground on which loose brown soil is spread flat in one round even layer; with the edge of his right hand he draws one straight line through the middle of the soil; his left hand rests on his left knee; brown leather chappals on his feet; harvested stubble field around, flat North Indian village with neem trees and mud-brick houses behind, no palm trees, morning light; no wristwatch, no rings",
+            "characters": [
+              "ramesh"
+            ],
+            "seed": 744450,
+            "attempts": 3,
+            "image_file": "images/scene-13-s1.png",
+            "reference_sha1": {
+              "ramesh": "c6b22fb010edc45a07af3309e6dad6e61438340b"
+            },
+            "inspection": {
+              "file_sha1": "8157d93f34af5a04aacc4b1bd4a7423b4673e554",
+              "passed": true,
+              "notes": "re-check 2026-11-20: ramesh kneeling: 2 arms/2 hands (right draws a line through the soil with a small stick held between fingers, left rests flat on soil), 2 legs/2 feet chappals; action: stick tip in the soil, groove follows it; soil lies flat on sheet resting on ground; good practice: soil spread on a clean sheet and divided with a cross line (faint 4 parts visible), fits the quartering sentence; one small blurred palm in far background (noted to user); identity: face/grey beard/hairline/white kurta/green gamchha match ref, nothing on head",
+              "inspected_at": "2026-11-20 10:30"
+            },
+            "notes": null
+          }
+        ],
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": null,
+        "props": null,
+        "notes": null
+      },
+      "sources": [
+        "sources/icar-ccari-soil-sampling.html#procedure-6"
+      ],
+      "audio": {
+        "file": "audio/scene-13.wav",
+        "duration_sec": 10.88,
+        "segments": [
+          {
+            "text": "मिली हुई मिट्टी को साफ़ कागज़ या प्लास्टिक शीट पर फैलाकर चार हिस्सों में बांटें।",
+            "start": 0.0,
+            "end": 4.97,
+            "style": "neutral"
+          },
+          {
+            "text": "आमने-सामने के दो हिस्से हटा दें, और यही तब तक दोहराएं जब तक लगभग आधा किलो मिट्टी बचे।",
+            "start": 5.29,
+            "end": 10.88,
+            "style": "neutral"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "मिली हुई मिट्टी को",
+          "start": 0.0,
+          "end": 1.202
+        },
+        {
+          "text": "साफ़ कागज़ या प्लास्टिक शीट पर",
+          "start": 1.202,
+          "end": 3.206
+        },
+        {
+          "text": "फैलाकर चार हिस्सों में बांटें।",
+          "start": 3.206,
+          "end": 5.29
+        },
+        {
+          "text": "आमने-सामने के दो हिस्से हटा दें,",
+          "start": 5.29,
+          "end": 7.51
+        },
+        {
+          "text": "और यही तब तक",
+          "start": 7.51,
+          "end": 8.249
+        },
+        {
+          "text": "दोहराएं जब तक",
+          "start": 8.249,
+          "end": 9.154
+        },
+        {
+          "text": "लगभग आधा किलो मिट्टी बचे।",
+          "start": 9.154,
+          "end": 10.88
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "purpose": "step",
+      "narration_display": "इस मिट्टी को छाया में सुखाकर साफ़ प्लास्टिक थैली में भरें, और थैली पर अपना नाम, गांव और खेत की पहचान लिखकर लगाएं।",
+      "narration_spoken": "इस मिट्टी को छाया में सुखाकर साफ़ प्लास्टिक थैली में भरें, और थैली पर अपना नाम, गांव और खेत की पहचान लिखकर लगाएं।",
+      "on_screen_text": null,
+      "visual": {
+        "type": "graphic",
+        "shots": [],
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": "KeyPoints",
+        "props": {
+          "title": "नमूना तैयार करें",
+          "points": [
+            "छाया में सुखाएं",
+            "साफ़ प्लास्टिक थैली में भरें",
+            "नाम, गांव, खेत की पहचान लिखें"
+          ]
+        },
+        "notes": null
+      },
+      "sources": [
+        "sources/icar-ccari-soil-sampling.html#procedure-7-8"
+      ],
+      "audio": {
+        "file": "audio/scene-14.wav",
+        "duration_sec": 8.6,
+        "segments": [
+          {
+            "text": "इस मिट्टी को छाया में सुखाकर साफ़ प्लास्टिक थैली में भरें, और थैली पर अपना नाम, गांव और खेत की पहचान लिखकर लगाएं।",
+            "start": 0.0,
+            "end": 8.6,
+            "style": "neutral"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "इस मिट्टी को छाया में",
+          "start": 0.0,
+          "end": 1.607
+        },
+        {
+          "text": "सुखाकर साफ़ प्लास्टिक थैली में भरें,",
+          "start": 1.607,
+          "end": 4.536
+        },
+        {
+          "text": "और थैली पर अपना नाम,",
+          "start": 4.536,
+          "end": 6.048
+        },
+        {
+          "text": "गांव और खेत की",
+          "start": 6.048,
+          "end": 7.088
+        },
+        {
+          "text": "पहचान लिखकर लगाएं।",
+          "start": 7.088,
+          "end": 8.6
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "purpose": "step",
+      "narration_display": "नमूना जांच के लिए सरकारी मिट्टी जांच प्रयोगशाला या कृषि विज्ञान केंद्र में दिया जा सकता है। सॉइल हेल्थ कार्ड योजना में जांच का खर्च सरकार उठाती है। जानकारी के लिए अपने ज़िला कृषि अधिकारी से मिलें।",
+      "narration_spoken": "नमूना जांच के लिए सरकारी मिट्टी जांच प्रयोगशाला या कृषि विज्ञान केंद्र में दिया जा सकता है। सॉइल हेल्थ कार्ड योजना में जांच का खर्च सरकार उठाती है। जानकारी के लिए अपने ज़िला कृषि अधिकारी से मिलें।",
+      "on_screen_text": "लैब में जमा करें",
+      "visual": {
+        "type": "image",
+        "shots": [
+          {
+            "at_segment": 0,
+            "image_prompt": "Inside a rural government soil testing laboratory office: Ramesh stands at a wooden table and sets his own small cloth bag of soil down on the table with both hands, next to a row of other small cloth soil sample bags and an open register; wall charts and a notice board behind, natural window light; no wristwatch, no rings, no jewellery",
+            "characters": [
+              "ramesh"
+            ],
+            "seed": 853636,
+            "attempts": 2,
+            "image_file": "images/scene-15-s1.png",
+            "reference_sha1": {
+              "ramesh": "c6b22fb010edc45a07af3309e6dad6e61438340b"
+            },
+            "inspection": {
+              "file_sha1": "ce6c3ed10c6afa4727157cb4267de7543a7ea7bc",
+              "passed": true,
+              "notes": "re-check 2026-11-20: ramesh alone: 2 arms/2 hands both on his cloth bag which rests on the table, standing behind table; action: setting bag down, bag supported by table, other bags and register rest on table, nothing floating; good practice: farmer handing in a sample at a lab counter fits 'give sample at government lab/KVK'; charts illegible; identity: face/grey beard/hairline/white kurta/green gamchha match ref, no watch, nothing on head",
+              "inspected_at": "2026-11-20 10:30"
+            },
+            "notes": null
+          },
+          {
+            "at_segment": 1,
+            "image_prompt": "Medium shot: Sunita, a slim woman of about 32 with a youthful face exactly as in the reference, stands at a laboratory bench and pours dried brown soil from a small cloth sample bag into a steel dish with both hands, glass beakers on the bench, wall charts behind, natural window light; one thin bangle on her left wrist only, no rings",
+            "characters": [
+              "sunita"
+            ],
+            "seed": 286998,
+            "attempts": 3,
+            "image_file": "images/scene-15-s2.png",
+            "reference_sha1": {
+              "sunita": "a384633a4a83088c0512483e8829386f98f426ae"
+            },
+            "inspection": {
+              "file_sha1": "8340b9a541780108c89dad273918b6a1073c3139",
+              "passed": true,
+              "notes": "re-check 2026-11-20 (zoomed): sunita: 2 arms/2 hands (right holds tied cloth bag by its neck above the dish, left fingers in the soil in the dish), standing; action: bag is closed so nothing pours from it, dish already holds soil, nothing falls from a gripping hand; flasks rest on bench; good practice: technician handling a soil sample fits 'cost borne by government / meet district officer' segment; charts illegible; identity: slim face/bun/bindi/blue kameez/white coat/cream dupatta/one bangle match ref",
+              "inspected_at": "2026-11-20 10:30"
+            },
+            "notes": null
+          }
+        ],
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": null,
+        "props": null,
+        "notes": null
+      },
+      "sources": [
+        "sources/shc-faq-english.pdf#who-and-where-tested",
+        "sources/shc-faq-english.pdf#payment-per-sample",
+        "sources/shc-faq-english.pdf#contact",
+        "sources/pib-shc-factsheet-2025-08.pdf#costs"
+      ],
+      "audio": {
+        "file": "audio/scene-15.wav",
+        "duration_sec": 13.56,
+        "segments": [
+          {
+            "text": "नमूना जांच के लिए सरकारी मिट्टी जांच प्रयोगशाला या कृषि विज्ञान केंद्र में दिया जा सकता है।",
+            "start": 0.0,
+            "end": 6.33,
+            "style": "neutral"
+          },
+          {
+            "text": "सॉइल हेल्थ कार्ड योजना में जांच का खर्च सरकार उठाती है।",
+            "start": 6.65,
+            "end": 10.55,
+            "style": "neutral"
+          },
+          {
+            "text": "जानकारी के लिए अपने ज़िला कृषि अधिकारी से मिलें।",
+            "start": 10.87,
+            "end": 13.56,
+            "style": "neutral"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "नमूना जांच के लिए",
+          "start": 0.0,
+          "end": 1.241
+        },
+        {
+          "text": "सरकारी मिट्टी जांच प्रयोगशाला या",
+          "start": 1.241,
+          "end": 3.724
+        },
+        {
+          "text": "कृषि विज्ञान केंद्र में",
+          "start": 3.724,
+          "end": 5.497
+        },
+        {
+          "text": "दिया जा सकता है।",
+          "start": 5.497,
+          "end": 6.65
+        },
+        {
+          "text": "सॉइल हेल्थ कार्ड योजना में",
+          "start": 6.65,
+          "end": 8.713
+        },
+        {
+          "text": "जांच का खर्च सरकार उठाती है।",
+          "start": 8.713,
+          "end": 10.87
+        },
+        {
+          "text": "जानकारी के लिए",
+          "start": 10.87,
+          "end": 11.677
+        },
+        {
+          "text": "अपने ज़िला कृषि अधिकारी से मिलें।",
+          "start": 11.677,
+          "end": 13.56
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "purpose": "mistake",
+      "narration_display": "अब कुछ आम गलतियां। पहली गलती, खेत के एक ही कोने से नमूना लेना। तब रिपोर्ट पूरे खेत की नहीं, बस उस कोने की होगी।",
+      "narration_spoken": "अब कुछ आम गलतियां। पहली गलती, खेत के एक ही कोने से नमूना लेना। तब रिपोर्ट पूरे खेत की नहीं, बस उस कोने की होगी।",
+      "on_screen_text": "गलती 1",
+      "visual": {
+        "type": "image",
+        "shots": [
+          {
+            "at_segment": 0,
+            "image_prompt": "Wide shot: Ramesh squats and digs soil with a khurpi in only one corner of a large a completely harvested field: only very short dry cut stubble on bare brown soil, no standing crop anywhere, right next to the earthen bund, the rest of the wide field empty, morning light, flat North Indian village farmland, neem and shisham trees and mud-brick houses in the distance",
+            "characters": [
+              "ramesh"
+            ],
+            "seed": 620164,
+            "attempts": 1,
+            "image_file": "images/scene-16-s1.png",
+            "reference_sha1": {
+              "ramesh": "c6b22fb010edc45a07af3309e6dad6e61438340b"
+            },
+            "inspection": {
+              "file_sha1": "da650ee2a227edb82d39d2d7c4de6cf1e95d2e02",
+              "passed": true,
+              "notes": "re-check 2026-11-20 (zoomed): ramesh squatting: 2 arms/2 hands on one straight spade handle (continuous from blade through both hands past shoulder), 2 legs/2 feet chappals; action: blade in soil, loosened soil heaped beside the pit as from digging; good practice: digging at a single spot right by the bund shows the 'one corner only' mistake the narration describes; distant small car only; identity: face/grey beard/hairline/white kurta/green gamchha match ref, nothing on head",
+              "inspected_at": "2026-11-20 10:30"
+            },
+            "notes": null
+          }
+        ],
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": null,
+        "props": null,
+        "notes": null
+      },
+      "sources": [
+        "sources/icar-ccari-soil-sampling.html#procedure-3"
+      ],
+      "audio": {
+        "file": "audio/scene-16.wav",
+        "duration_sec": 8.93,
+        "segments": [
+          {
+            "text": "अब कुछ आम गलतियां।",
+            "start": 0.0,
+            "end": 1.37,
+            "style": "firm"
+          },
+          {
+            "text": "पहली गलती, खेत के एक ही कोने से नमूना लेना।",
+            "start": 1.69,
+            "end": 4.97,
+            "style": "firm"
+          },
+          {
+            "text": "तब रिपोर्ट पूरे खेत की नहीं, बस उस कोने की होगी।",
+            "start": 5.29,
+            "end": 8.93,
+            "style": "firm"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "अब कुछ आम गलतियां।",
+          "start": 0.0,
+          "end": 1.69
+        },
+        {
+          "text": "पहली गलती, खेत के एक ही",
+          "start": 1.69,
+          "end": 3.596
+        },
+        {
+          "text": "कोने से नमूना लेना।",
+          "start": 3.596,
+          "end": 5.29
+        },
+        {
+          "text": "तब रिपोर्ट पूरे खेत की नहीं,",
+          "start": 5.29,
+          "end": 7.493
+        },
+        {
+          "text": "बस उस कोने की होगी।",
+          "start": 7.493,
+          "end": 8.93
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "purpose": "mistake",
+      "narration_display": "दूसरी गलती, गलत जगह से नमूना लेना। मेड़ या नाली के पास, पेड़ या कुएं के पास, खाद के ढेर के पास, पानी भरी जगह से, या जहां हाल ही में खाद डाली हो, वहां से नमूना न लें।",
+      "narration_spoken": "दूसरी गलती, गलत जगह से नमूना लेना। मेड़ या नाली के पास, पेड़ या कुएं के पास, खाद के ढेर के पास, पानी भरी जगह से, या जहां हाल ही में खाद डाली हो, वहां से नमूना न लें।",
+      "on_screen_text": null,
+      "visual": {
+        "type": "graphic",
+        "shots": [],
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": "KeyPoints",
+        "props": {
+          "title": "यहां से नमूना न लें",
+          "points": [
+            "मेड़ और नाली के पास",
+            "पेड़ और कुएं के पास",
+            "खाद के ढेर के पास",
+            "पानी भरी जगह",
+            "हाल में खाद डाली जगह"
+          ]
+        },
+        "notes": null
+      },
+      "sources": [
+        "sources/icar-ccari-soil-sampling.html#place-2",
+        "sources/shc-faq-english.pdf#how-collected"
+      ],
+      "audio": {
+        "file": "audio/scene-17.wav",
+        "duration_sec": 12.83,
+        "segments": [
+          {
+            "text": "दूसरी गलती, गलत जगह से नमूना लेना।",
+            "start": 0.0,
+            "end": 2.82,
+            "style": "firm"
+          },
+          {
+            "text": "मेड़ या नाली के पास, पेड़ या कुएं के पास, खाद के ढेर के पास, पानी भरी जगह से, या जहां हाल ही में खाद डाली हो, वहां से नमूना न लें।",
+            "start": 3.14,
+            "end": 12.83,
+            "style": "firm"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "दूसरी गलती,",
+          "start": 0.0,
+          "end": 1.121
+        },
+        {
+          "text": "गलत जगह से नमूना लेना।",
+          "start": 1.121,
+          "end": 3.14
+        },
+        {
+          "text": "मेड़ या नाली के पास,",
+          "start": 3.14,
+          "end": 4.706
+        },
+        {
+          "text": "पेड़ या कुएं के पास,",
+          "start": 4.706,
+          "end": 6.272
+        },
+        {
+          "text": "खाद के ढेर के पास,",
+          "start": 6.272,
+          "end": 7.642
+        },
+        {
+          "text": "पानी भरी जगह से,",
+          "start": 7.642,
+          "end": 8.915
+        },
+        {
+          "text": "या जहां हाल ही में",
+          "start": 8.915,
+          "end": 10.285
+        },
+        {
+          "text": "खाद डाली हो,",
+          "start": 10.285,
+          "end": 11.264
+        },
+        {
+          "text": "वहां से नमूना न लें।",
+          "start": 11.264,
+          "end": 12.83
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "purpose": "mistake",
+      "narration_display": "तीसरी गलती, नमूने के लिए खाद या दवा की पुरानी बोरी इस्तेमाल करना। हमेशा साफ़ बाल्टी और साफ़ थैली ही इस्तेमाल करें।",
+      "narration_spoken": "तीसरी गलती, नमूने के लिए खाद या दवा की पुरानी बोरी इस्तेमाल करना। हमेशा साफ़ बाल्टी और साफ़ थैली ही इस्तेमाल करें।",
+      "on_screen_text": "गलती 3",
+      "visual": {
+        "type": "image",
+        "shots": [
+          {
+            "at_segment": 0,
+            "image_prompt": "Close-up: an empty, crumpled, dirty old white woven plastic fertilizer sack lying flattened on the ground, its print faded and worn away, next to a small pile of brown soil in a harvested field, rural North India",
+            "characters": [],
+            "seed": 335690,
+            "attempts": 2,
+            "image_file": "images/scene-18-s1.png",
+            "reference_sha1": {},
+            "inspection": {
+              "file_sha1": "63ca83e035cff965a4b5a3a9b1802c7088ad4558",
+              "passed": true,
+              "notes": "re-check 2026-11-20: no people; action: static, dirty old woven khaad sack lies on the ground, partly filled, soil pile beside it; good practice: old fertilizer sack used for soil illustrates the mistake 'using an old khaad/pesticide bag'; faded gibberish print, no real words/brand",
+              "inspected_at": "2026-11-20 10:31"
+            },
+            "notes": null
+          }
+        ],
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": null,
+        "props": null,
+        "notes": null
+      },
+      "sources": [
+        "sources/icar-ccari-soil-sampling.html#procedure-5-8"
+      ],
+      "audio": {
+        "file": "audio/scene-18.wav",
+        "duration_sec": 9.0,
+        "segments": [
+          {
+            "text": "तीसरी गलती, नमूने के लिए खाद या दवा की पुरानी बोरी इस्तेमाल करना।",
+            "start": 0.0,
+            "end": 4.91,
+            "style": "firm"
+          },
+          {
+            "text": "हमेशा साफ़ बाल्टी और साफ़ थैली ही इस्तेमाल करें।",
+            "start": 5.23,
+            "end": 9.0,
+            "style": "firm"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "तीसरी गलती,",
+          "start": 0.0,
+          "end": 0.987
+        },
+        {
+          "text": "नमूने के लिए खाद या",
+          "start": 0.987,
+          "end": 2.467
+        },
+        {
+          "text": "दवा की पुरानी बोरी इस्तेमाल करना।",
+          "start": 2.467,
+          "end": 5.23
+        },
+        {
+          "text": "हमेशा साफ़ बाल्टी और",
+          "start": 5.23,
+          "end": 6.832
+        },
+        {
+          "text": "साफ़ थैली ही इस्तेमाल करें।",
+          "start": 6.832,
+          "end": 9.0
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "purpose": "mistake",
+      "narration_display": "और चौथी गलती, रिपोर्ट मिलने के बाद उसे संभालकर रख देना। रिपोर्ट तभी काम की है, जब उसके हिसाब से खाद डाली जाए।",
+      "narration_spoken": "और चौथी गलती, रिपोर्ट मिलने के बाद उसे संभालकर रख देना। रिपोर्ट तभी काम की है, जब उसके हिसाब से खाद डाली जाए।",
+      "on_screen_text": "गलती 4",
+      "visual": {
+        "type": "image",
+        "shots": [
+          {
+            "at_segment": 0,
+            "image_prompt": "A closed plain brown cardboard file folder lying forgotten and dusty on a wooden shelf in a rural Indian house, next to a brass lamp and a steel tumbler, soft indoor light",
+            "characters": [],
+            "seed": 193106,
+            "attempts": 1,
+            "image_file": "images/scene-19-s1.png",
+            "reference_sha1": {},
+            "inspection": {
+              "file_sha1": "406045315ffc6b42d1a5795de7b9edb098c17111",
+              "passed": true,
+              "notes": "re-check 2026-11-20: no people; action: static, folder lies flat on the shelf, lamp and tumbler stand on it, nothing floating; lamp is an odd old brass design but reads as a household lamp; good practice: report folder left unused on a shelf illustrates 'keeping the report aside'; no text",
+              "inspected_at": "2026-11-20 10:32"
+            },
+            "notes": null
+          },
+          {
+            "at_segment": 1,
+            "image_prompt": "Ramesh crouches beside an open plain white fertilizer sack in his farmyard, holding a printed soil report sheet with tables in his left hand and measuring granules from the sack into a steel bucket with a small steel bowl in his right hand, mud-brick house wall behind, morning light",
+            "characters": [
+              "ramesh"
+            ],
+            "seed": 98749,
+            "attempts": 1,
+            "image_file": "images/scene-19-s2.png",
+            "reference_sha1": {
+              "ramesh": "c6b22fb010edc45a07af3309e6dad6e61438340b"
+            },
+            "inspection": {
+              "file_sha1": "6597cf4fa6df2414dc104d72e2fe4f32bd5f6fe6",
+              "passed": true,
+              "notes": "re-check 2026-11-20 (zoomed): ramesh crouching: 2 arms/2 hands (one holds report by its edge, other holds a small scoop), 2 legs/2 feet chappals; action: granules fall from the tip of the tilted scoop straight down into the upright bucket resting on the ground; sack open and upright on ground; good practice: measuring khaad while reading the report fits 'apply fertilizer as per the report'; identity: face/grey beard/hairline/white kurta/green gamchha match ref, nothing on head",
+              "inspected_at": "2026-11-20 10:32"
+            },
+            "notes": null
+          }
+        ],
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": null,
+        "props": null,
+        "notes": null
+      },
+      "sources": [
+        "sources/shc-faq-english.pdf#how-can-a-farmer-use-SHC"
+      ],
+      "audio": {
+        "file": "audio/scene-19.wav",
+        "duration_sec": 8.12,
+        "segments": [
+          {
+            "text": "और चौथी गलती, रिपोर्ट मिलने के बाद उसे संभालकर रख देना।",
+            "start": 0.0,
+            "end": 4.36,
+            "style": "firm"
+          },
+          {
+            "text": "रिपोर्ट तभी काम की है, जब उसके हिसाब से खाद डाली जाए।",
+            "start": 4.68,
+            "end": 8.12,
+            "style": "firm"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "और चौथी गलती,",
+          "start": 0.0,
+          "end": 1.144
+        },
+        {
+          "text": "रिपोर्ट मिलने के",
+          "start": 1.144,
+          "end": 2.6
+        },
+        {
+          "text": "बाद उसे संभालकर रख देना।",
+          "start": 2.6,
+          "end": 4.68
+        },
+        {
+          "text": "रिपोर्ट तभी काम की है,",
+          "start": 4.68,
+          "end": 6.154
+        },
+        {
+          "text": "जब उसके हिसाब से",
+          "start": 6.154,
+          "end": 7.219
+        },
+        {
+          "text": "खाद डाली जाए।",
+          "start": 7.219,
+          "end": 8.12
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "purpose": "step",
+      "narration_display": "रिपोर्ट समझ न आए, तो अपने नज़दीकी कृषि विज्ञान केंद्र या कृषि अधिकारी से मिलें। वे आपकी फसल के हिसाब से सही खाद और उसकी मात्रा समझा देंगे।",
+      "narration_spoken": "रिपोर्ट समझ न आए, तो अपने नज़दीकी कृषि विज्ञान केंद्र या कृषि अधिकारी से मिलें। वे आपकी फसल के हिसाब से सही खाद और उसकी मात्रा समझा देंगे।",
+      "on_screen_text": "KVK से सलाह लें",
+      "visual": {
+        "type": "image",
+        "shots": [
+          {
+            "at_segment": 0,
+            "image_prompt": "Medium shot in a completely harvested field: only very short dry cut stubble on bare brown soil, no standing crop anywhere: Ramesh stands on the left listening, holding a printed soil report sheet in both hands; on the right, a few steps away, a clean-shaven agriculture officer in a khaki shirt and dark trousers, about 40, holds a small notebook in his left hand and points down at the soil with his right index finger; a clear gap between the two men; flat North Indian village farmland, neem and shisham trees and mud-brick houses in the distance",
+            "characters": [
+              "ramesh"
+            ],
+            "seed": 183002,
+            "attempts": 1,
+            "image_file": "images/scene-20-s1.png",
+            "reference_sha1": {
+              "ramesh": "c6b22fb010edc45a07af3309e6dad6e61438340b"
+            },
+            "inspection": {
+              "file_sha1": "a1c9cfd4b804047a79a476b94c47207b61e5944c",
+              "passed": true,
+              "notes": "re-check 2026-11-20: ramesh: 2 arms/2 hands hold report by its edges, 2 legs chappals; officer (non-cast): notebook held in one hand, other index finger points at soil, 2 legs shoes; action: static conversation, papers held, clear gap between the men, no contact; good practice: farmer consulting an agriculture officer in the field fits 'meet KVK/agriculture officer'; identity: face/grey beard/hairline/white kurta/green gamchha match ref (face slightly slimmer), nothing on head",
+              "inspected_at": "2026-11-20 10:32"
+            },
+            "notes": null
+          },
+          {
+            "at_segment": 1,
+            "image_prompt": "Close medium shot: Ramesh nods with a calm, satisfied smile, holding a printed soil report sheet with tables in both hands, a completely harvested field: only very short dry cut stubble on bare brown soil, no standing crop anywhere behind him, flat North Indian village farmland with neem and shisham trees and plain mud-brick houses in the distance, no palm trees, soft afternoon light; no wristwatch, no rings, no jewellery",
+            "characters": [
+              "ramesh"
+            ],
+            "seed": 402075,
+            "attempts": 2,
+            "image_file": "images/scene-20-s2.png",
+            "reference_sha1": {
+              "ramesh": "c6b22fb010edc45a07af3309e6dad6e61438340b"
+            },
+            "inspection": {
+              "file_sha1": "5c745b8113a5082b66e30ef7c7f3419fdafbbcf2",
+              "passed": true,
+              "notes": "re-check 2026-11-20: ramesh: 2 arms/2 hands hold report by both side edges, standing; action: static, report held (not floating); good practice: satisfied farmer with his report fits 'they will explain the right fertilizer and dose'; mud houses, neem trees, no palms; report illegible; identity: face/grey beard/hairline/white kurta/green gamchha match ref, nothing on head; small finger ring (minor, noted to user)",
+              "inspected_at": "2026-11-20 10:32"
+            },
+            "notes": null
+          }
+        ],
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": null,
+        "props": null,
+        "notes": null
+      },
+      "sources": [
+        "sources/shc-faq-english.pdf#contact",
+        "sources/pib-shc-factsheet.html#experts-help"
+      ],
+      "audio": {
+        "file": "audio/scene-20.wav",
+        "duration_sec": 9.3,
+        "segments": [
+          {
+            "text": "रिपोर्ट समझ न आए, तो अपने नज़दीकी कृषि विज्ञान केंद्र या कृषि अधिकारी से मिलें।",
+            "start": 0.0,
+            "end": 5.45,
+            "style": "neutral"
+          },
+          {
+            "text": "वे आपकी फसल के हिसाब से सही खाद और उसकी मात्रा समझा देंगे।",
+            "start": 5.77,
+            "end": 9.3,
+            "style": "neutral"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "रिपोर्ट समझ न आए,",
+          "start": 0.0,
+          "end": 1.243
+        },
+        {
+          "text": "तो अपने नज़दीकी कृषि विज्ञान केंद्र",
+          "start": 1.243,
+          "end": 3.906
+        },
+        {
+          "text": "या कृषि अधिकारी से मिलें।",
+          "start": 3.906,
+          "end": 5.77
+        },
+        {
+          "text": "वे आपकी फसल के",
+          "start": 5.77,
+          "end": 6.614
+        },
+        {
+          "text": "हिसाब से सही खाद और",
+          "start": 6.614,
+          "end": 7.765
+        },
+        {
+          "text": "उसकी मात्रा समझा देंगे।",
+          "start": 7.765,
+          "end": 9.3
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "purpose": "explain",
+      "narration_display": "हर साल जांच कराना ज़रूरी नहीं। सरकारी योजना में सॉइल हेल्थ कार्ड तीन साल के चक्र में बनता है, और अगला कार्ड बताता है कि मिट्टी में क्या बदला।",
+      "narration_spoken": "हर साल जांच कराना ज़रूरी नहीं। सरकारी योजना में सॉइल हेल्थ कार्ड तीन साल के चक्र में बनता है, और अगला कार्ड बताता है कि मिट्टी में क्या बदला।",
+      "on_screen_text": null,
+      "visual": {
+        "type": "graphic",
+        "shots": [],
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": "BigNumber",
+        "props": {
+          "number": "3",
+          "unit": "साल",
+          "label": "का एक चक्र"
+        },
+        "notes": null
+      },
+      "sources": [
+        "sources/shc-faq-english.pdf#card-every-year",
+        "sources/pib-shc-factsheet-2025-08.pdf#costs"
+      ],
+      "audio": {
+        "file": "audio/scene-21.wav",
+        "duration_sec": 8.87,
+        "segments": [
+          {
+            "text": "हर साल जांच कराना ज़रूरी नहीं।",
+            "start": 0.0,
+            "end": 1.86,
+            "style": "neutral"
+          },
+          {
+            "text": "सरकारी योजना में सॉइल हेल्थ कार्ड तीन साल के चक्र में बनता है, और अगला कार्ड बताता है कि मिट्टी में क्या बदला।",
+            "start": 2.18,
+            "end": 8.87,
+            "style": "neutral"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "हर साल जांच कराना ज़रूरी नहीं।",
+          "start": 0.0,
+          "end": 2.18
+        },
+        {
+          "text": "सरकारी योजना में",
+          "start": 2.18,
+          "end": 3.244
+        },
+        {
+          "text": "सॉइल हेल्थ कार्ड तीन साल के",
+          "start": 3.244,
+          "end": 4.917
+        },
+        {
+          "text": "चक्र में बनता है,",
+          "start": 4.917,
+          "end": 5.981
+        },
+        {
+          "text": "और अगला कार्ड बताता है",
+          "start": 5.981,
+          "end": 7.35
+        },
+        {
+          "text": "कि मिट्टी में क्या बदला।",
+          "start": 7.35,
+          "end": 8.87
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "purpose": "recap",
+      "narration_display": "तो याद रखें। कटाई के बाद नमूना लें, खेत की कई जगहों से लें, साफ़ थैली में भरकर जमा करें, और रिपोर्ट के हिसाब से ही खाद डालें।",
+      "narration_spoken": "तो याद रखें। कटाई के बाद नमूना लें, खेत की कई जगहों से लें, साफ़ थैली में भरकर जमा करें, और रिपोर्ट के हिसाब से ही खाद डालें।",
+      "on_screen_text": null,
+      "visual": {
+        "type": "graphic",
+        "shots": [],
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": "KeyPoints",
+        "props": {
+          "title": "याद रखें",
+          "points": [
+            "कटाई के बाद नमूना",
+            "10–15 जगहों से मिट्टी",
+            "साफ़ थैली",
+            "रिपोर्ट के हिसाब से खाद"
+          ]
+        },
+        "notes": null
+      },
+      "sources": [],
+      "audio": {
+        "file": "audio/scene-22.wav",
+        "duration_sec": 8.76,
+        "segments": [
+          {
+            "text": "तो याद रखें।",
+            "start": 0.0,
+            "end": 1.13,
+            "style": "neutral"
+          },
+          {
+            "text": "कटाई के बाद नमूना लें, खेत की कई जगहों से लें, साफ़ थैली में भरकर जमा करें, और रिपोर्ट के हिसाब से ही खाद डालें।",
+            "start": 1.45,
+            "end": 8.76,
+            "style": "neutral"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "तो याद रखें।",
+          "start": 0.0,
+          "end": 1.45
+        },
+        {
+          "text": "कटाई के बाद नमूना लें,",
+          "start": 1.45,
+          "end": 2.945
+        },
+        {
+          "text": "खेत की कई जगहों से लें,",
+          "start": 2.945,
+          "end": 4.44
+        },
+        {
+          "text": "साफ़ थैली में भरकर जमा करें,",
+          "start": 4.44,
+          "end": 6.351
+        },
+        {
+          "text": "और रिपोर्ट के",
+          "start": 6.351,
+          "end": 7.265
+        },
+        {
+          "text": "हिसाब से ही खाद डालें।",
+          "start": 7.265,
+          "end": 8.76
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "purpose": "cta",
+      "narration_display": "जांच से खाद सही लगती है, और मिट्टी सेहतमंद रहती है। ऐसी और जानकारी के लिए चैनल को सब्सक्राइब करें।",
+      "narration_spoken": "जांच से खाद सही लगती है, और मिट्टी सेहतमंद रहती है। ऐसी और जानकारी के लिए चैनल को सब्सक्राइब करें।",
+      "on_screen_text": null,
+      "visual": {
+        "type": "graphic",
+        "shots": [],
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": "TitleCard",
+        "props": {
+          "title": "सब्सक्राइब करें",
+          "subtitle": "ऐसी और जानकारी के लिए"
+        },
+        "notes": null
+      },
+      "sources": [],
+      "audio": {
+        "file": "audio/scene-23.wav",
+        "duration_sec": 6.96,
+        "segments": [
+          {
+            "text": "जांच से खाद सही लगती है, और मिट्टी सेहतमंद रहती है।",
+            "start": 0.0,
+            "end": 3.96,
+            "style": "warm"
+          },
+          {
+            "text": "ऐसी और जानकारी के लिए चैनल को सब्सक्राइब करें।",
+            "start": 4.28,
+            "end": 6.96,
+            "style": "warm"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "जांच से खाद सही लगती है,",
+          "start": 0.0,
+          "end": 1.983
+        },
+        {
+          "text": "और मिट्टी सेहतमंद रहती है।",
+          "start": 1.983,
+          "end": 4.28
+        },
+        {
+          "text": "ऐसी और जानकारी के लिए",
+          "start": 4.28,
+          "end": 5.479
+        },
+        {
+          "text": "चैनल को सब्सक्राइब करें।",
+          "start": 5.479,
+          "end": 6.96
+        }
+      ]
+    }
+  ],
+  "package": {
+    "youtube_title": "मिट्टी की जांच कैसे कराएं? नमूना लेने का सही तरीका | सॉइल हेल्थ कार्ड",
+    "description_hi": "हर साल अंदाज़े से खाद डालने के बजाय मिट्टी की जांच कराएं, ताकि पता चले कि खेत को कौन सी खाद कितनी चाहिए। इस वीडियो में जानिए सॉइल हेल्थ कार्ड में किन 12 चीज़ों की जांच होती है, नमूना कब और कैसे लें, और किन गलतियों से बचें।",
+    "tags": [
+      "मिट्टी की जांच",
+      "सॉइल हेल्थ कार्ड",
+      "soil health card",
+      "soil testing",
+      "मिट्टी का नमूना",
+      "खाद",
+      "किसान",
+      "खेती",
+      "कृषि सलाह",
+      "KVK",
+      "रबी",
+      "AgriGate"
+    ],
+    "thumbnail_text": "मिट्टी की जांच कैसे कराएं?",
+    "thumbnail_image": "images/scene-07-s1.png",
+    "synthetic_content": null,
+    "sources_list": [
+      "कृषि एवं सहकारिता विभाग, कृषि मंत्रालय (भारत सरकार) — Soil Health Card FAQ",
+      "PIB (भारत सरकार) — Soil Health Card Scheme factsheet, अगस्त 2025",
+      "PIB (भारत सरकार) — Factsheet: Soil Health Card Scheme",
+      "ICAR – Central Coastal Agricultural Research Institute — How to take soil sample",
+      "कृषि विभाग, हिमाचल प्रदेश — Soil Health Card"
+    ]
+  }
+}

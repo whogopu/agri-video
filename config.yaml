@@ -148,6 +148,9 @@ images:
   # The brief's FLUX.1 schnell q8 is 18 GB and doesn't fit 16 GB RAM; schnell q4 (9.6 GB) is the fallback:
   #   command: mflux-generate, model: mflux-community/flux-1-schnell-mflux-q4, base_model: schnell, guidance: null
   command: mflux-generate-flux2
+  # Shots that show cast members (assets/cast/) use the same model in edit mode, conditioned on the
+  # characters' approved reference images (~40 s with one reference, ~90 s with two).
+  edit_command: mflux-generate-flux2-edit
   model: mflux-community/flux2-klein-4b-mflux-q4
   base_model: flux2-klein-4b
   steps: 4
@@ -168,8 +171,17 @@ images:
     - "Dress: correct and consistent for rural India and the role (kurta-pyjama, dhoti, saree/salwar, turban; officer in a plain shirt), no garment merging into skin, ground or objects"
     - "Tools & objects: one tool = one blade and one handle, held the right way by hands that belong to the person (spade blade in soil, bucket by its handle, paper by its edges); no tools fused to each other or to buckets"
     - "Faces & people: natural faces, no duplicated or merged people, no stray limbs from out-of-frame people"
-    - "Context: Indian rural setting and the right crop/stage for the narration"
+    - "Identity (cast shots): compare with the reference side by side (`--crops` writes *-vs-<id>.png). Same face, hair and hairline, facial hair, age and build; same clothes and colours; nothing added (turban, cap, glasses, jewellery) unless the shot asks for it. Another face = fail, even if the image is otherwise fine"
+    - "Action & physics (user rule 2026-11-20): trace every poured, thrown, sprayed or falling material (khaad, seed, water, soil, spray) back to a believable source: an OPEN throwing hand, the mouth of a TILTED container, a nozzle. It must never come out of a closed fist, a hand gripping a handle, an upright bucket or thin air. Container angle matches the flow; the landing matches the action (broadcasting spreads thinly, it doesn't form one heap); objects rest on something or are held; nothing floats or passes through solids. A hand posed to throw must actually throw. Notes for every pass need 'action: ...' ('action: static' for a still scene)"
+    - "Narration & good practice: the picture shows what the narration says, and the farming in it is correct: crop and stage (no wheat ears on 'young wheat'; urea on a growing crop, not one that has headed), method, tool, quantity looks plausible (half a kilo is not a pinch), clean equipment where the script says clean. A picture that teaches the wrong thing fails even if every hand is perfect"
+    - "Context: Indian rural setting (North India for our audience: mud-brick or brick houses, neem/shisham/peepal; no coastal palm groves or painted concrete bungalows) and the right crop/stage for the narration"
     - "Text: no READABLE words, numbers, brand names or logos. Illegible text where real objects have it is GOOD and looks realistic — keep it: notice boards, wall charts and posters in labs/offices/KVKs/shops, labels on sacks or bags, and documents people hold (a soil report should look like a printed report with tables/lines, not a blank sheet). Blank paper or bare institutional walls look fake"
+
+shots:
+  # An image scene holds 1–3 shots that cut on sentence boundaries (visual.shots[].at_segment).
+  min_shot_sec: 2.5        # validate warns below this: a picture needs time to be read
+  max_shot_sec: 9          # validate warns above this: a still held longer feels static
+  fade_frames: 6           # quick dissolve between shots inside a scene (SHOT_FADE_FRAMES in theme.ts)
 
 captions:
   max_words_per_chunk: 6                 # long format; Shorts use formats.short.caption_max_words

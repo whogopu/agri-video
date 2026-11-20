@@ -1,0 +1,917 @@
+{
+  "schema_version": 2,
+  "id": "2026-11-19-ramesh-mitti-jaanch-pilot",
+  "title_hi": "रमेश जी ने कराई मिट्टी की जांच",
+  "status": "draft_rendered",
+  "format": "long",
+  "video": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30
+  },
+  "voice": {
+    "preset": "maya_vasant",
+    "backend": "mlx_audio",
+    "speaker": "Vasant",
+    "description": "",
+    "seed": 42,
+    "wpm": 174.0
+  },
+  "cast": [
+    "ramesh",
+    "sunita"
+  ],
+  "scenes": [
+    {
+      "id": 1,
+      "purpose": "hook",
+      "narration_display": "रमेश जी हर साल पड़ोसी को देखकर यूरिया और DAP डालते थे। || इस बार उन्होंने सोचा, | पहले यह तो जानूं कि मेरे खेत को चाहिए क्या?",
+      "narration_spoken": "रमेश जी हर साल पड़ोसी को देखकर यूरिया और डी ए पी डालते थे। || इस बार उन्होंने सोचा, | पहले यह तो जानूं कि मेरे खेत को चाहिए क्या?",
+      "on_screen_text": null,
+      "visual": {
+        "type": "image",
+        "shots": [
+          {
+            "at_segment": 0,
+            "image_prompt": "Ramesh carries a white woven fertilizer sack on his right shoulder, steadying it with his right hand, his left arm swinging naturally, walking along the earthen bund beside a green wheat field in a North Indian village, morning light, medium-wide shot",
+            "characters": [
+              "ramesh"
+            ],
+            "seed": 187127,
+            "attempts": 1,
+            "image_file": "images/scene-01-s1.png",
+            "reference_sha1": {
+              "ramesh": "c6b22fb010edc45a07af3309e6dad6e61438340b"
+            },
+            "inspection": {
+              "file_sha1": "ff5009c60d5d4ce43fc090683d3e5914bc25f944",
+              "passed": true,
+              "notes": "ramesh: 2 arms/2 hands (right on sack, left free, 5 fingers in crop), 2 legs, walking OK; sack single, label illegible; identity: face/receding grey hair/grey beard+moustache, white kurta-pyjama, pale green gamchha left shoulder, chappals match ref",
+              "inspected_at": "2026-11-20 08:54"
+            },
+            "notes": null
+          },
+          {
+            "at_segment": 1,
+            "image_prompt": "Medium close-up of Ramesh standing at the edge of his harvested field, his right hand thoughtfully touching his chin, his left hand resting on his hip, looking across the field with a thoughtful expression, soft morning light",
+            "characters": [
+              "ramesh"
+            ],
+            "seed": 47650,
+            "attempts": 1,
+            "image_file": "images/scene-01-s2.png",
+            "reference_sha1": {
+              "ramesh": "c6b22fb010edc45a07af3309e6dad6e61438340b"
+            },
+            "inspection": {
+              "file_sha1": "2e10ebf173b8f8189192bb0db8af491cdf619ad0",
+              "passed": true,
+              "notes": "ramesh: right hand at chin, left on hip, 2 legs, standing OK; young crop rows; identity: face/hair/beard/kurta/gamchha match ref, nothing added",
+              "inspected_at": "2026-11-20 08:54"
+            },
+            "notes": null
+          }
+        ],
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": null,
+        "props": null,
+        "notes": null
+      },
+      "sources": [],
+      "audio": {
+        "file": "audio/scene-01.wav",
+        "duration_sec": 8.9,
+        "segments": [
+          {
+            "text": "रमेश जी हर साल पड़ोसी को देखकर यूरिया और DAP डालते थे।",
+            "start": 0.0,
+            "end": 4.37,
+            "style": "neutral"
+          },
+          {
+            "text": "इस बार उन्होंने सोचा,",
+            "start": 5.02,
+            "end": 6.2,
+            "style": "neutral"
+          },
+          {
+            "text": "पहले यह तो जानूं कि मेरे खेत को चाहिए क्या?",
+            "start": 6.32,
+            "end": 8.9,
+            "style": "neutral"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "रमेश जी हर साल पड़ोसी को",
+          "start": 0.0,
+          "end": 2.218
+        },
+        {
+          "text": "देखकर यूरिया और DAP डालते थे।",
+          "start": 2.218,
+          "end": 5.02
+        },
+        {
+          "text": "इस बार उन्होंने सोचा,",
+          "start": 5.02,
+          "end": 6.32
+        },
+        {
+          "text": "पहले यह तो जानूं कि",
+          "start": 6.32,
+          "end": 7.458
+        },
+        {
+          "text": "मेरे खेत को चाहिए क्या?",
+          "start": 7.458,
+          "end": 8.9
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "purpose": "problem",
+      "narration_display": "बात सही भी है। हर खेत की मिट्टी अलग होती है, और उसकी ज़रूरत भी अलग। || बिना जांच के खाद डालने से खर्च बढ़ता है, और खाद का संतुलन बिगड़ता है।",
+      "narration_spoken": "बात सही भी है। हर खेत की मिट्टी अलग होती है, और उसकी ज़रूरत भी अलग। || बिना जांच के खाद डालने से खर्च बढ़ता है, और खाद का संतुलन बिगड़ता है।",
+      "on_screen_text": "हर खेत अलग",
+      "visual": {
+        "type": "image",
+        "shots": [
+          {
+            "at_segment": 0,
+            "image_prompt": "Two neighbouring freshly ploughed farm fields in a North Indian village separated by a straight earthen bund, the left field with dark brown moist soil, the right field with pale dry sandy soil, wide shot, morning light, no people",
+            "characters": [],
+            "seed": 188509,
+            "attempts": 1,
+            "image_file": "images/scene-02-s1.png",
+            "reference_sha1": {},
+            "inspection": {
+              "file_sha1": "fb9af0d55a6bff6428deff15b46953b701c61c81",
+              "passed": true,
+              "notes": "no people; two fields dark vs pale soil split by a bund; village houses, palms in background (slightly coastal look, acceptable); no text",
+              "inspected_at": "2026-11-20 08:54"
+            },
+            "notes": null
+          },
+          {
+            "at_segment": 2,
+            "image_prompt": "A stack of white woven fertilizer sacks with illegible printed labels in a dim village store room, mud-plastered wall, light from a small window, a steel bucket beside the sacks, no people",
+            "characters": [],
+            "seed": 714175,
+            "attempts": 1,
+            "image_file": "images/scene-02-s2.png",
+            "reference_sha1": {},
+            "inspection": {
+              "file_sha1": "70a416ccb00f4dedb129aa04b52e61972d79e1ad",
+              "passed": true,
+              "notes": "no people; fertilizer sacks, labels illegible print (realistic); bucket single handle",
+              "inspected_at": "2026-11-20 08:54"
+            },
+            "notes": null
+          }
+        ],
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": null,
+        "props": null,
+        "notes": null
+      },
+      "sources": [
+        "sources/shc-faq-english.pdf#what-is-SHC",
+        "sources/pib-shc-factsheet-2025-08.pdf#objectives"
+      ],
+      "audio": {
+        "file": "audio/scene-02.wav",
+        "duration_sec": 10.56,
+        "segments": [
+          {
+            "text": "बात सही भी है।",
+            "start": 0.0,
+            "end": 1.18,
+            "style": "neutral"
+          },
+          {
+            "text": "हर खेत की मिट्टी अलग होती है, और उसकी ज़रूरत भी अलग।",
+            "start": 1.5,
+            "end": 4.94,
+            "style": "neutral"
+          },
+          {
+            "text": "बिना जांच के खाद डालने से खर्च बढ़ता है, और खाद का संतुलन बिगड़ता है।",
+            "start": 5.59,
+            "end": 10.56,
+            "style": "neutral"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "बात सही भी है।",
+          "start": 0.0,
+          "end": 1.5
+        },
+        {
+          "text": "हर खेत की",
+          "start": 1.5,
+          "end": 2.198
+        },
+        {
+          "text": "मिट्टी अलग होती है,",
+          "start": 2.198,
+          "end": 3.794
+        },
+        {
+          "text": "और उसकी ज़रूरत भी अलग।",
+          "start": 3.794,
+          "end": 5.59
+        },
+        {
+          "text": "बिना जांच के खाद डालने से",
+          "start": 5.59,
+          "end": 7.397
+        },
+        {
+          "text": "खर्च बढ़ता है,",
+          "start": 7.397,
+          "end": 8.482
+        },
+        {
+          "text": "और खाद का संतुलन बिगड़ता है।",
+          "start": 8.482,
+          "end": 10.56
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "purpose": "step",
+      "narration_display": "इसलिए फसल कटने के बाद, जब खेत खाली था, | रमेश जी नमूना लेने निकले।",
+      "narration_spoken": "इसलिए फसल कटने के बाद, जब खेत खाली था, | रमेश जी नमूना लेने निकले।",
+      "on_screen_text": "कटाई के बाद",
+      "visual": {
+        "type": "image",
+        "shots": [
+          {
+            "at_segment": 0,
+            "image_prompt": "Ramesh walks into a completely harvested, empty wheat field: only very short cut stubble a few centimetres high on bare brown soil, no standing crop anywhere. He carries one empty steel bucket in his right hand; a small khurpi is held separately in his left hand by its wooden handle. Early morning, wide shot from the side",
+            "characters": [
+              "ramesh"
+            ],
+            "seed": 192467,
+            "attempts": 2,
+            "image_file": "images/scene-03-s1.png",
+            "reference_sha1": {
+              "ramesh": "c6b22fb010edc45a07af3309e6dad6e61438340b"
+            },
+            "inspection": {
+              "file_sha1": "b7590afde272002821a1a9601bb7fd264aff3667",
+              "passed": true,
+              "notes": "attempt 2. ramesh: 2 arms/2 hands each holding a bucket by its handle, 2 legs walking; harvested stubble field now; carries two buckets (khurpi rests inside the left one, not fused); identity: face/hair/beard, kurta-pyjama, gamchha match ref",
+              "inspected_at": "2026-11-20 08:54"
+            },
+            "notes": null
+          }
+        ],
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": null,
+        "props": null,
+        "notes": null
+      },
+      "sources": [
+        "sources/shc-faq-english.pdf#ideal-time"
+      ],
+      "audio": {
+        "file": "audio/scene-03.wav",
+        "duration_sec": 5.31,
+        "segments": [
+          {
+            "text": "इसलिए फसल कटने के बाद, जब खेत खाली था,",
+            "start": 0.0,
+            "end": 3.06,
+            "style": "neutral"
+          },
+          {
+            "text": "रमेश जी नमूना लेने निकले।",
+            "start": 3.18,
+            "end": 5.31,
+            "style": "neutral"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "इसलिए फसल कटने के बाद,",
+          "start": 0.0,
+          "end": 1.908
+        },
+        {
+          "text": "जब खेत खाली था,",
+          "start": 1.908,
+          "end": 3.18
+        },
+        {
+          "text": "रमेश जी नमूना लेने निकले।",
+          "start": 3.18,
+          "end": 5.31
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "purpose": "step",
+      "narration_display": "उन्होंने खेत में टेढ़े-मेढ़े चलते हुए 10 से 15 जगहें चुनीं। || हर जगह घास-फूस हटाई, और खुरपी से लगभग 15 सेंटीमीटर गहरा V आकार का गड्ढा बनाया।",
+      "narration_spoken": "उन्होंने खेत में टेढ़े-मेढ़े चलते हुए दस से पंद्रह जगहें चुनीं। || हर जगह घास-फूस हटाई, और खुरपी से लगभग पंद्रह सेंटीमीटर गहरा वी आकार का गड्ढा बनाया।",
+      "on_screen_text": "10–15 जगहें",
+      "visual": {
+        "type": "image",
+        "shots": [
+          {
+            "at_segment": 0,
+            "image_prompt": "High wide shot of a completely harvested, empty wheat field: only very short cut stubble on bare brown soil, no standing crop anywhere. Ramesh is small in the frame, carrying one steel bucket in his right hand, walking along a zig-zag line of five small freshly dug spots, morning light",
+            "characters": [
+              "ramesh"
+            ],
+            "seed": 919943,
+            "attempts": 2,
+            "image_file": "images/scene-04-s1.png",
+            "reference_sha1": {
+              "ramesh": "c6b22fb010edc45a07af3309e6dad6e61438340b"
+            },
+            "inspection": {
+              "file_sha1": "f5457bfcf2c6ed1df14999a93a767317e9214e15",
+              "passed": true,
+              "notes": "attempt 2. ramesh small in frame: 2 arms, bucket in left hand, 2 legs; harvested stubble, line of dug pits; identity: grey hair/beard, white kurta, green gamchha match ref at small size",
+              "inspected_at": "2026-11-20 08:54"
+            },
+            "notes": null
+          },
+          {
+            "at_segment": 1,
+            "image_prompt": "Close-up: Ramesh squats in the field and cuts a V-shaped pit about a hand deep into the brown soil with a small khurpi held in his right hand, his left hand resting on his left knee, a steel bucket beside him",
+            "characters": [
+              "ramesh"
+            ],
+            "seed": 496312,
+            "attempts": 1,
+            "image_file": "images/scene-04-s2.png",
+            "reference_sha1": {
+              "ramesh": "c6b22fb010edc45a07af3309e6dad6e61438340b"
+            },
+            "inspection": {
+              "file_sha1": "3233d27c6092f7c16c4de1bf97d77a73459e6df9",
+              "passed": true,
+              "notes": "ramesh squatting: 2 arms/2 hands (right on khurpi single handle in pit, left on bucket rim), 2 legs, chappals; identity: pair checked, face/hairline/beard/kurta/gamchha match ref",
+              "inspected_at": "2026-11-20 08:54"
+            },
+            "notes": null
+          }
+        ],
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": null,
+        "props": null,
+        "notes": null
+      },
+      "sources": [
+        "sources/icar-ccari-soil-sampling.html#procedure-1-4"
+      ],
+      "audio": {
+        "file": "audio/scene-04.wav",
+        "duration_sec": 10.656,
+        "segments": [
+          {
+            "text": "उन्होंने खेत में टेढ़े-मेढ़े चलते हुए 10 से 15 जगहें चुनीं।",
+            "start": 0.0,
+            "end": 3.861,
+            "style": "slow"
+          },
+          {
+            "text": "हर जगह घास-फूस हटाई, और खुरपी से लगभग 15 सेंटीमीटर गहरा V आकार का गड्ढा बनाया।",
+            "start": 4.511,
+            "end": 10.656,
+            "style": "slow"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "उन्होंने खेत में टेढ़े-मेढ़े चलते हुए",
+          "start": 0.0,
+          "end": 2.946
+        },
+        {
+          "text": "10 से 15 जगहें चुनीं।",
+          "start": 2.946,
+          "end": 4.511
+        },
+        {
+          "text": "हर जगह घास-फूस हटाई,",
+          "start": 4.511,
+          "end": 6.169
+        },
+        {
+          "text": "और खुरपी से लगभग 15 सेंटीमीटर",
+          "start": 6.169,
+          "end": 8.51
+        },
+        {
+          "text": "गहरा V आकार का गड्ढा बनाया।",
+          "start": 8.51,
+          "end": 10.656
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "purpose": "step",
+      "narration_display": "फिर गड्ढे की दीवार से ऊपर से नीचे तक एक परत काटी, और साफ़ बाल्टी में डाली। || सारी मिट्टी अच्छी तरह मिलाई, | और लगभग आधा किलो मिट्टी छाया में सुखाकर थैली में भरी।",
+      "narration_spoken": "फिर गड्ढे की दीवार से ऊपर से नीचे तक एक परत काटी, और साफ़ बाल्टी में डाली। || सारी मिट्टी अच्छी तरह मिलाई, | और लगभग आधा किलो मिट्टी छाया में सुखाकर थैली में भरी।",
+      "on_screen_text": "आधा किलो नमूना",
+      "visual": {
+        "type": "image",
+        "shots": [
+          {
+            "at_segment": 0,
+            "image_prompt": "Close-up of Ramesh kneeling beside a small V-shaped pit in the field, holding a thin slice of soil on the flat blade of a khurpi in his right hand and dropping it into a clean steel bucket that he steadies by its rim with his left hand",
+            "characters": [
+              "ramesh"
+            ],
+            "seed": 668620,
+            "attempts": 1,
+            "image_file": "images/scene-05-s1.png",
+            "reference_sha1": {
+              "ramesh": "c6b22fb010edc45a07af3309e6dad6e61438340b"
+            },
+            "inspection": {
+              "file_sha1": "c7306a4e201d1aec902a95c86e40fd0b30f5edd7",
+              "passed": true,
+              "notes": "ramesh squatting: right hand holds khurpi (single handle) with soil slice, left hand on bucket rim, 5 fingers (crop), 2 legs; bucket sits in pit (odd but plausible); identity: face/hair/beard/kurta/gamchha match ref",
+              "inspected_at": "2026-11-20 08:54"
+            },
+            "notes": null
+          },
+          {
+            "at_segment": 1,
+            "image_prompt": "Ramesh sits on his heels in the shade of a neem tree, brown soil spread thinly on a blue plastic sheet in front of him, filling a small white cloth bag with soil using both hands, village houses in the background",
+            "characters": [
+              "ramesh"
+            ],
+            "seed": 115030,
+            "attempts": 1,
+            "image_file": "images/scene-05-s2.png",
+            "reference_sha1": {
+              "ramesh": "c6b22fb010edc45a07af3309e6dad6e61438340b"
+            },
+            "inspection": {
+              "file_sha1": "e1d7c0d14740a01c9ba96e75b8c3cb68c1db14bb",
+              "passed": true,
+              "notes": "ramesh cross-legged under tree: 2 hands tying cloth bag, 2 feet in chappals; soil on blue sheet; identity: face/hair/beard/kurta/gamchha match ref",
+              "inspected_at": "2026-11-20 08:54"
+            },
+            "notes": null
+          }
+        ],
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": null,
+        "props": null,
+        "notes": null
+      },
+      "sources": [
+        "sources/icar-ccari-soil-sampling.html#procedure-5-8"
+      ],
+      "audio": {
+        "file": "audio/scene-05.wav",
+        "duration_sec": 10.72,
+        "segments": [
+          {
+            "text": "फिर गड्ढे की दीवार से ऊपर से नीचे तक एक परत काटी, और साफ़ बाल्टी में डाली।",
+            "start": 0.0,
+            "end": 4.58,
+            "style": "neutral"
+          },
+          {
+            "text": "सारी मिट्टी अच्छी तरह मिलाई,",
+            "start": 5.23,
+            "end": 6.99,
+            "style": "neutral"
+          },
+          {
+            "text": "और लगभग आधा किलो मिट्टी छाया में सुखाकर थैली में भरी।",
+            "start": 7.11,
+            "end": 10.72,
+            "style": "neutral"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "फिर गड्ढे की दीवार से",
+          "start": 0.0,
+          "end": 1.533
+        },
+        {
+          "text": "ऊपर से नीचे तक",
+          "start": 1.533,
+          "end": 2.525
+        },
+        {
+          "text": "एक परत काटी,",
+          "start": 2.525,
+          "end": 3.427
+        },
+        {
+          "text": "और साफ़ बाल्टी में डाली।",
+          "start": 3.427,
+          "end": 5.23
+        },
+        {
+          "text": "सारी मिट्टी अच्छी तरह मिलाई,",
+          "start": 5.23,
+          "end": 7.11
+        },
+        {
+          "text": "और लगभग आधा किलो मिट्टी",
+          "start": 7.11,
+          "end": 8.705
+        },
+        {
+          "text": "छाया में सुखाकर थैली में भरी।",
+          "start": 8.705,
+          "end": 10.72
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "purpose": "step",
+      "narration_display": "यह नमूना वे सरकारी मिट्टी जांच प्रयोगशाला ले गए, | जहां सुनीता जी ने उसे जांच के लिए ले लिया। || सॉइल हेल्थ कार्ड योजना में जांच का खर्च सरकार उठाती है।",
+      "narration_spoken": "यह नमूना वे सरकारी मिट्टी जांच प्रयोगशाला ले गए, | जहां सुनीता जी ने उसे जांच के लिए ले लिया। || सॉइल हेल्थ कार्ड योजना में जांच का खर्च सरकार उठाती है।",
+      "on_screen_text": "खर्च सरकार का",
+      "visual": {
+        "type": "image",
+        "shots": [
+          {
+            "at_segment": 0,
+            "image_prompt": "In a small government soil-testing laboratory, Ramesh stands on the left of a wooden counter and places a small white cloth bag of soil on it with both hands; Sunita stands behind the counter on the right with both her hands resting flat on the counter, a clear gap between their hands, shelves of glass bottles and an illegible wall chart behind, medium shot",
+            "characters": [
+              "ramesh",
+              "sunita"
+            ],
+            "seed": 612987,
+            "attempts": 1,
+            "image_file": "images/scene-06-s1.png",
+            "reference_sha1": {
+              "ramesh": "c6b22fb010edc45a07af3309e6dad6e61438340b",
+              "sunita": "a384633a4a83088c0512483e8829386f98f426ae"
+            },
+            "inspection": {
+              "file_sha1": "5bb77f431be3dad7d7cae68c585a8eb20d4c1ef3",
+              "passed": true,
+              "notes": "ramesh: 2 hands on bag; sunita: right hand touches bag top, left flat on counter with bangle; every hand traced to own arm in zoomed crop, no fusion; counter between them; wall chart illegible; identity: ramesh matches ref; sunita bun/bindi/cream dupatta/blue kameez/white coat/bangle match ref (pair checked)",
+              "inspected_at": "2026-11-20 08:54"
+            },
+            "notes": null
+          },
+          {
+            "at_segment": 2,
+            "image_prompt": "Sunita sits at a lab bench in a small government soil-testing laboratory, pouring a little soil from a small cloth bag into a white porcelain dish with both hands, rows of glass bottles on shelves and an illegible wall chart behind her, medium shot",
+            "characters": [
+              "sunita"
+            ],
+            "seed": 207363,
+            "attempts": 1,
+            "image_file": "images/scene-06-s2.png",
+            "reference_sha1": {
+              "sunita": "a384633a4a83088c0512483e8829386f98f426ae"
+            },
+            "inspection": {
+              "file_sha1": "db27da4f5edb374ec518d002b30e992eef45d17d",
+              "passed": true,
+              "notes": "sunita seated: 2 hands holding cloth bag over white dish, 5 fingers, bangle; charts illegible; identity: pair checked, bun/bindi/dupatta/kameez/coat match, face slightly fuller but same person",
+              "inspected_at": "2026-11-20 08:54"
+            },
+            "notes": null
+          }
+        ],
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": null,
+        "props": null,
+        "notes": null
+      },
+      "sources": [
+        "sources/shc-faq-english.pdf#who-and-where-tested",
+        "sources/shc-faq-english.pdf#payment-per-sample"
+      ],
+      "audio": {
+        "file": "audio/scene-06.wav",
+        "duration_sec": 10.7,
+        "segments": [
+          {
+            "text": "यह नमूना वे सरकारी मिट्टी जांच प्रयोगशाला ले गए,",
+            "start": 0.0,
+            "end": 3.51,
+            "style": "neutral"
+          },
+          {
+            "text": "जहां सुनीता जी ने उसे जांच के लिए ले लिया।",
+            "start": 3.63,
+            "end": 6.15,
+            "style": "neutral"
+          },
+          {
+            "text": "सॉइल हेल्थ कार्ड योजना में जांच का खर्च सरकार उठाती है।",
+            "start": 6.8,
+            "end": 10.7,
+            "style": "neutral"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "यह नमूना वे सरकारी मिट्टी",
+          "start": 0.0,
+          "end": 1.906
+        },
+        {
+          "text": "जांच प्रयोगशाला ले गए,",
+          "start": 1.906,
+          "end": 3.63
+        },
+        {
+          "text": "जहां सुनीता जी ने उसे",
+          "start": 3.63,
+          "end": 5.263
+        },
+        {
+          "text": "जांच के लिए ले लिया।",
+          "start": 5.263,
+          "end": 6.8
+        },
+        {
+          "text": "सॉइल हेल्थ कार्ड योजना में",
+          "start": 6.8,
+          "end": 8.707
+        },
+        {
+          "text": "जांच का खर्च सरकार उठाती है।",
+          "start": 8.707,
+          "end": 10.7
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "purpose": "explain",
+      "narration_display": "फिर रमेश जी को उनका सॉइल हेल्थ कार्ड मिला। || उसमें लिखा था कि उनके खेत को कौन सी खाद कितनी चाहिए। || अब वे अंदाज़े से नहीं, | जांच के हिसाब से खाद डालते हैं।",
+      "narration_spoken": "फिर रमेश जी को उनका सॉइल हेल्थ कार्ड मिला। || उसमें लिखा था कि उनके खेत को कौन सी खाद कितनी चाहिए। || अब वे अंदाज़े से नहीं, | जांच के हिसाब से खाद डालते हैं।",
+      "on_screen_text": "सॉइल हेल्थ कार्ड",
+      "visual": {
+        "type": "image",
+        "shots": [
+          {
+            "at_segment": 0,
+            "image_prompt": "Ramesh sits on a wooden charpai outside his mud-brick house, holding a printed A4 report sheet with tables in both hands and reading it carefully, afternoon light, medium shot",
+            "characters": [
+              "ramesh"
+            ],
+            "seed": 600560,
+            "attempts": 1,
+            "image_file": "images/scene-07-s1.png",
+            "reference_sha1": {
+              "ramesh": "c6b22fb010edc45a07af3309e6dad6e61438340b"
+            },
+            "inspection": {
+              "file_sha1": "5685ce415bdd181fe18dd1d4e322f845eafa4e5b",
+              "passed": true,
+              "notes": "ramesh on wooden bench: 2 hands holding report sheet, 2 legs; report text illegible; identity: face/hair/beard/kurta/gamchha match ref",
+              "inspected_at": "2026-11-20 08:54"
+            },
+            "notes": null
+          },
+          {
+            "at_segment": 1,
+            "image_prompt": "Close-up of exactly two hands of one man, both his own, coming from white cotton kurta sleeves at the bottom of the frame, holding a printed soil health report sheet with illegible small tables and a small coloured bar chart; no other people, no other hands; a mud wall softly blurred behind",
+            "characters": [],
+            "seed": 84367,
+            "attempts": 2,
+            "image_file": "images/scene-07-s2.png",
+            "reference_sha1": {},
+            "inspection": {
+              "file_sha1": "897ba78a34ab15a8dc1d576678a39b5ce9a107c1",
+              "passed": true,
+              "notes": "attempt 2. hands only: exactly 2 hands from white kurta sleeves (one person), thumbs + fingers natural; report header garbled/illegible, bar chart",
+              "inspected_at": "2026-11-20 08:54"
+            },
+            "notes": null
+          },
+          {
+            "at_segment": 2,
+            "image_prompt": "Ramesh stands at the edge of his field of young green wheat seedlings in neat rows, looking satisfied and confident, both hands resting relaxed at his sides, morning light, medium shot",
+            "characters": [
+              "ramesh"
+            ],
+            "seed": 122000,
+            "attempts": 1,
+            "image_file": "images/scene-07-s3.png",
+            "reference_sha1": {
+              "ramesh": "c6b22fb010edc45a07af3309e6dad6e61438340b"
+            },
+            "inspection": {
+              "file_sha1": "f077e32fcb35df368dcbf1a738c0be6da6edda8d",
+              "passed": true,
+              "notes": "ramesh standing: 2 arms/2 hands at sides, 2 legs, chappals; young green crop rows; identity: face/hair/beard/kurta/gamchha match ref",
+              "inspected_at": "2026-11-20 08:54"
+            },
+            "notes": null
+          }
+        ],
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": null,
+        "props": null,
+        "notes": null
+      },
+      "sources": [
+        "sources/shc-faq-english.pdf#how-can-a-farmer-use-SHC"
+      ],
+      "audio": {
+        "file": "audio/scene-07.wav",
+        "duration_sec": 11.51,
+        "segments": [
+          {
+            "text": "फिर रमेश जी को उनका सॉइल हेल्थ कार्ड मिला।",
+            "start": 0.0,
+            "end": 2.53,
+            "style": "neutral"
+          },
+          {
+            "text": "उसमें लिखा था कि उनके खेत को कौन सी खाद कितनी चाहिए।",
+            "start": 3.18,
+            "end": 7.21,
+            "style": "neutral"
+          },
+          {
+            "text": "अब वे अंदाज़े से नहीं,",
+            "start": 7.86,
+            "end": 9.39,
+            "style": "neutral"
+          },
+          {
+            "text": "जांच के हिसाब से खाद डालते हैं।",
+            "start": 9.51,
+            "end": 11.51,
+            "style": "neutral"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "फिर रमेश जी को",
+          "start": 0.0,
+          "end": 1.029
+        },
+        {
+          "text": "उनका सॉइल हेल्थ कार्ड मिला।",
+          "start": 1.029,
+          "end": 3.18
+        },
+        {
+          "text": "उसमें लिखा था कि",
+          "start": 3.18,
+          "end": 4.664
+        },
+        {
+          "text": "उनके खेत को",
+          "start": 4.664,
+          "end": 5.691
+        },
+        {
+          "text": "कौन सी खाद कितनी चाहिए।",
+          "start": 5.691,
+          "end": 7.86
+        },
+        {
+          "text": "अब वे अंदाज़े से नहीं,",
+          "start": 7.86,
+          "end": 9.51
+        },
+        {
+          "text": "जांच के हिसाब से",
+          "start": 9.51,
+          "end": 10.55
+        },
+        {
+          "text": "खाद डालते हैं।",
+          "start": 10.55,
+          "end": 11.51
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "purpose": "cta",
+      "narration_display": "आप भी रमेश जी की तरह अपने खेत की मिट्टी की जांच कराएं। || ऐसी और जानकारी के लिए चैनल को सब्सक्राइब करें।",
+      "narration_spoken": "आप भी रमेश जी की तरह अपने खेत की मिट्टी की जांच कराएं। || ऐसी और जानकारी के लिए चैनल को सब्सक्राइब करें।",
+      "on_screen_text": null,
+      "visual": {
+        "type": "image",
+        "shots": [
+          {
+            "at_segment": 0,
+            "image_prompt": "Ramesh stands at the edge of his green wheat field in warm golden evening light, smiling warmly at the camera, palms joined in a namaste greeting, medium close-up",
+            "characters": [
+              "ramesh"
+            ],
+            "seed": 577459,
+            "attempts": 1,
+            "image_file": "images/scene-08-s1.png",
+            "reference_sha1": {
+              "ramesh": "c6b22fb010edc45a07af3309e6dad6e61438340b"
+            },
+            "inspection": {
+              "file_sha1": "ebd77f820bc3038e5c333076a8a60b7c44b80c31",
+              "passed": true,
+              "notes": "ramesh: hands joined in namaste (2 hands, fingers aligned), 2 legs, chappals; smiling; identity: face/hair/beard/kurta/gamchha match ref",
+              "inspected_at": "2026-11-20 08:54"
+            },
+            "notes": null
+          }
+        ],
+        "broll_id": null,
+        "in_sec": null,
+        "out_sec": null,
+        "template": null,
+        "props": null,
+        "notes": null
+      },
+      "sources": [],
+      "audio": {
+        "file": "audio/scene-08.wav",
+        "duration_sec": 6.55,
+        "segments": [
+          {
+            "text": "आप भी रमेश जी की तरह अपने खेत की मिट्टी की जांच कराएं।",
+            "start": 0.0,
+            "end": 3.16,
+            "style": "warm"
+          },
+          {
+            "text": "ऐसी और जानकारी के लिए चैनल को सब्सक्राइब करें।",
+            "start": 3.81,
+            "end": 6.55,
+            "style": "warm"
+          }
+        ]
+      },
+      "captions": [
+        {
+          "text": "आप भी रमेश जी की",
+          "start": 0.0,
+          "end": 1.089
+        },
+        {
+          "text": "तरह अपने खेत की",
+          "start": 1.089,
+          "end": 2.177
+        },
+        {
+          "text": "मिट्टी की जांच कराएं।",
+          "start": 2.177,
+          "end": 3.81
+        },
+        {
+          "text": "ऐसी और जानकारी के लिए",
+          "start": 3.81,
+          "end": 5.036
+        },
+        {
+          "text": "चैनल को सब्सक्राइब करें।",
+          "start": 5.036,
+          "end": 6.55
+        }
+      ]
+    }
+  ],
+  "package": {
+    "youtube_title": "",
+    "description_hi": "",
+    "tags": [],
+    "thumbnail_text": "",
+    "thumbnail_image": null,
+    "synthetic_content": null,
+    "sources_list": []
+  }
+}

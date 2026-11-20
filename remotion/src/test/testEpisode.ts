@@ -31,8 +31,14 @@ export const testEpisodeProps: EpisodeProps = {
         purpose: "explain",
         narration_display: "इस क्षेत्र के श्रमिक द्वारा कृषि में ज़्यादा मेहनत होती है।",
         on_screen_text: "क्षेत्र और श्रमिक",
-        visual: { type: "image", image_prompt: "placeholder", seed: 1 },
-        image_file: "images/scene-02.png",
+        // two shots of the placeholder: no segment timings, so they split the narration evenly
+        visual: {
+          type: "image",
+          shots: [
+            { at_segment: 0, image_prompt: "placeholder", seed: 1, image_file: "images/scene-02.png" },
+            { at_segment: 1, image_prompt: "placeholder", seed: 2, image_file: "images/scene-02.png" },
+          ],
+        },
         audio: { file: "audio/scene-02.wav", duration_sec: 4.5 },
         captions: [
           { text: "इस क्षेत्र के श्रमिक द्वारा", start: 0, end: 2.2 },
@@ -96,7 +102,15 @@ export const testShortProps: EpisodeProps = {
     format: "short",
     video: { width: 1080, height: 1920, fps: 30 },
     scenes: testEpisodeProps.episode.scenes.map((s) =>
-      s.image_file ? { ...s, image_file: "images/scene-02-portrait.png" } : s,
+      s.visual.shots
+        ? {
+            ...s,
+            visual: {
+              ...s.visual,
+              shots: s.visual.shots.map((sh) => ({ ...sh, image_file: "images/scene-02-portrait.png" })),
+            },
+          }
+        : s,
     ),
   },
 };

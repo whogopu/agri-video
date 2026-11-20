@@ -17,10 +17,28 @@ Default: **generated images + graphics**. B-roll is optional; the library is usu
 ## Format
 Shorts (`format: short`) are 9:16. Images are generated portrait (`config.yaml: formats.short.image_size`). Prefer B-roll whose subject stays in the centre third, since landscape clips are center-cropped. Keep the key subject in the upper two thirds; the Shorts UI covers the bottom.
 
+## Shots: several pictures per scene
+An image scene holds `visual.shots` (1–3). Each shot starts at a narration **segment** (sentence) via `at_segment`; the cut lands in the pause before that sentence and the next picture dissolves in (6 frames). Plan from `audio.segments` (narration is done by now):
+- one sentence ≈ one shot; each shot 2.5–9 s on screen (`config.yaml: shots`; validate warns outside). Merge very short sentences into one shot.
+- vary the framing: wide (where we are) → medium (what he does) → close-up (hands, soil, the card). Never two near-identical shots in a row.
+- `characters`: cast ids visible in the shot. Shots without people (soil close-up, fertilizer sacks) leave it empty and generate faster.
+```json
+"visual": {"type": "image", "shots": [
+  {"at_segment": 0, "characters": ["ramesh"], "image_prompt": "Ramesh walks into his harvested wheat field ..."},
+  {"at_segment": 1, "characters": [], "image_prompt": "Close-up of dry cracked brown soil ..."}]}
+```
+
+## Cast shots (consistent characters)
+- Shots with `characters` run FLUX.2 klein **edit mode** with the characters' approved reference images (`assets/cast/<id>/ref.png`). `images.py` adds the preamble automatically: "Ramesh is the man in reference image 1: keep exactly his face … and his clothes (…); nothing else added on the head." So in `image_prompt` just call him by name and describe the action, pose, framing and setting. Don't describe his face or clothes again, and don't contradict them.
+- ~40 s per shot with one character, ~90 s with two. At most 2 characters per shot.
+- Two characters: keep them apart (counter between them, one placing, one waiting). Hand-overs remain the riskiest shot.
+
 ## Images
 ```bash
-uv run python -m pipeline.images episodes/<id>                                   # all image scenes (~18 s each)
-uv run python -m pipeline.images episodes/<id> --scene N --retry [--prompt "..."] # next attempt, new seed
+uv run python -m pipeline.images episodes/<id>                                     # all shots of all image scenes
+uv run python -m pipeline.images episodes/<id> --scene N --shot K --retry [--prompt "..."]  # next attempt, new seed
+uv run python -m pipeline.images episodes/<id> --scene N --shot K --crops         # crops + reference|shot pair
+uv run python -m pipeline.images episodes/<id> --scene N --shot K --inspect pass --notes "...; identity: ..."
 ```
 - **Two people and one object** (a hand-over, a handshake, showing a report): describe the hands apart, e.g. "the farmer holds the bag by its drawstring; the officer's open palm waits just below it, a clear gap between their hands". Where you can, show one person's hands at a time.
 - For labs, offices, KVKs and shops, let the model add notice boards and charts. For reports and cards, ask for "a printed report sheet with tables" and check that it stays illegible. Don't ask for bare walls, blank paper or "no posters". Only reject text you can actually read, or large brand/logo signs.
@@ -28,7 +46,7 @@ uv run python -m pipeline.images episodes/<id> --scene N --retry [--prompt "..."
 - Model: FLUX.2 klein 4B (q4). It follows concrete prompts well; vague prompts drift (a "khurpi" may become a spade).
 - **Inspect every image. This is mandatory, and validate enforces it:**
   1. Open the image at full size: one image per look, never a grid.
-  2. Run `uv run python -m pipeline.images episodes/<id> --scene N --crops` and open the 4 zoomed quarters in `images/inspect/`.
+  2. Run `uv run python -m pipeline.images episodes/<id> --scene N --shot K --crops` and open the 4 zoomed quarters in `images/inspect/` (plus the reference|shot pair for cast shots).
   3. Go **person by person** through `config.yaml: images.inspection_checklist` (`images --checklist` prints it):
      - **2 arms, 2 hands, both visible**, each hand attached to its own arm. A person whose second arm is hidden behind the body or a saree looks one-armed and fails, unless the frame edge crops them or it's a hands-only close-up. In prompts, say what both hands are doing ("holding the bag with both hands", "receiving it with both hands cupped").
      - **separate people**: where two people touch or pass something, zoom in on the contact point. Each hand must be complete and separate, with a gap or the object between them, and you must be able to follow every hand back to its owner's arm. Fused hands fail.
@@ -39,9 +57,12 @@ uv run python -m pipeline.images episodes/<id> --scene N --retry [--prompt "..."
      - **tools and objects**: one blade and one handle, held correctly, nothing fused together
      - natural faces, no stray limbs, Indian context, right crop and stage
      - **text:** nothing readable (words, numbers, brands, logos). Illegible text where real objects have it is **realistic. Keep it:** notice boards, wall charts and posters in labs, offices and KVKs; labels on sacks and bags; **documents people hold** (a soil report should look printed, with table lines, not blank). Don't prompt for "bare walls", "blank paper" or "seen from the back".
-  4. Record it: `--scene N --inspect pass --notes "farmer: 2 arms/2 hands/5+5 fingers/2 legs, squat OK, kurta OK; spade single handle in soil"`, or `--inspect fail --notes "..."` and then `--retry`.
+     - **action & physics (every shot; user rule 2026-11-20):** in a zoomed crop, trace every poured, thrown, sprayed or falling material back to its source: an open throwing hand, the mouth of a tilted container, a nozzle. Fail if it comes out of a closed fist, a hand gripping a handle, an upright bucket or thin air; if the container angle doesn't match the flow; if broadcast khaad lands as one heap; if a hand posed to throw throws nothing; if anything floats or passes through a solid. The notes must contain `action: ...` (`action: static` when nothing moves); `images --inspect pass` refuses notes without it.
+     - **narration & good practice:** the picture shows what the sentence says and teaches the right farming: crop and stage, method, tool, a plausible quantity, clean equipment where the script says clean. A picture that teaches the wrong thing fails even if every hand is perfect. If the model can't draw a step (e.g. quartering a soil sample), don't settle for a misleading picture: use a graphic or drop the shot.
+     - **identity (cast shots):** open `images/inspect/<shot>-vs-<id>.png` (reference left, shot right). Same face, hairline, facial hair, age, build; same clothes and colours; nothing added (turban, cap, glasses). Another face fails even if the image is otherwise good. The notes must contain the word "identity".
+  4. Record it: `--scene N --shot K --inspect pass --notes "farmer: 2 arms/2 hands/5+5 fingers/2 legs, squat OK, kurta OK; spade single handle in soil; action: blade cuts into soil, loosened soil beside the pit"`, or `--inspect fail --notes "..."` and then `--retry`.
   The notes must say what you counted. A regenerated image clears its inspection automatically.
 - If a person isn't essential to the scene, prefer a prompt without people: fewer limbs, fewer failures. Name the clothing and the grip in the prompt ("holding the single wooden handle with both hands").
-- All attempts are kept as `images/scene-XX-aN.png`; `scene-XX.png` is the current pick. After 3 attempts (`images.max_attempts`) the stage flags the scene in `log.md` instead. Tell the user and suggest B-roll or a graphic. Use `--retry --extra-attempt` only when the user explicitly asks for another try.
+- All attempts are kept as `images/scene-XX-sK-aN.png`; `scene-XX-sK.png` is the current pick. After 3 attempts per shot (`images.max_attempts`) the stage flags the scene in `log.md` instead. Tell the user and suggest B-roll or a graphic. Use `--retry --extra-attempt` only when the user explicitly asks for another try.
 
 Finish with `uv run python -m pipeline.validate episodes/<id> --set-status visuals_ready`. It checks image files, seeds, clip licenses and in/out ranges, and that no B-roll segment is reused.

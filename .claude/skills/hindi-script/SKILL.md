@@ -19,6 +19,12 @@ description: Write the Hindi narration script (script.md + episode.json scenes) 
 - `on_screen_text`: optional, 1–4 words.
 - Suggest a `visual.type` per scene (graphic for numbers/lists/titles). The visuals stage finalizes it.
 
+## Informative, narrator talks to the viewer; the cast is visual only
+User decision 2026-11-20 (correcting a 2026-11-19 misreading): episodes are **informative explainers**, not stories. The narrator, an experienced कृषि सलाहकार, speaks directly to the farmer ("आप…", "किसान भाई…"): what it is, why it matters, how to do it step by step, common mistakes, recap. Cover the topic fully; never compress or drop facts, steps or mistakes to make a narrative flow.
+- The recurring cast (`assets/cast/`, रमेश जी farmer, सुनीता जी lab technician) exists only so the **people on screen look the same in every shot**. Do **not** name them in the narration, give them an arc, or write "रमेश जी ने…". On screen, रमेश जी simply demonstrates what the narrator explains.
+- Set `episode.json: cast` to the characters who appear in shots (`uv run python -m pipeline.cast list`). A new character needs the user's casting approval before visuals (`make-episode`).
+- Plan shots in `script.md`: one sentence ≈ one shot (each 3–8 s on screen), noting which cast member is visible. Shots without people (soil close-up, report, sacks) need no cast.
+
 ## Writing for the ear (delivery markup)
 Narration is spoken one sentence at a time, so write how a good कृषि सलाहकार talks: short sentences, a question to the farmer, a beat before the key fact, the key number repeated in the recap. Light markup in `narration_display` shapes the delivery (stripped from captions and word counts; `pipeline/prosody.py`):
 - `||` long pause: after the opening question, after "अब कुछ आम गलतियां।", before the key point.

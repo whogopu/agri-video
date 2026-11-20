@@ -24,3 +24,6 @@ remotion/public/brand/
 samples/
 tts/.venv/
 episodes/*/images/inspect/
+
+# cast: candidates are working files; ref.png + character.json are committed
+assets/cast/*/candidates/

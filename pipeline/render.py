@@ -57,8 +57,8 @@ def sync_assets(ep: Episode, ep_dir: Path) -> dict:
     for s in ep.scenes:
         if s.audio:
             link_or_copy(ep_dir / s.audio.file, dst_root / s.audio.file)
-        if s.visual.type == "image" and s.image_file:
-            link_or_copy(ep_dir / s.image_file, dst_root / s.image_file)
+        for f in s.image_files():
+            link_or_copy(ep_dir / f, dst_root / f)
 
     broll_files: dict[str, str] = {}
     used = {s.visual.broll_id for s in ep.scenes if s.visual.type == "broll" and s.visual.broll_id}

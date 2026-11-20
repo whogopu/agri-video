@@ -1,58 +1,70 @@
-"""Image stage: generate a still for every scene whose visual.type is "image".
+"""Image stage: generate the stills (shots) of every scene whose visual.type is "image".
 
-    uv run python -m pipeline.images episodes/<id> [--scene N] [--force]
-    uv run python -m pipeline.images episodes/<id> --scene N --retry [--prompt "..."]   # new seed, next attempt
-    uv run python -m pipeline.images --prompt "..." --format short --out x.png [--seed 7]  # one-off test
-    uv run python -m pipeline.images episodes/<id> --scene N --crops            # zoomed quarters for inspection
-    uv run python -m pipeline.images episodes/<id> --scene N --inspect pass --notes "farmer: 2 arms, 2 hands (5 fingers), 2 legs; spade single handle"
-    uv run python -m pipeline.images episodes/<id> --scene N --use-attempt 1 [--seed S --prompt "..."]  # go back to an earlier attempt
-    uv run python -m pipeline.images --checklist                                # print the inspection checklist
+    uv run python -m pipeline.images episodes/<id> [--scene N [--shot K]] [--force]
+    uv run python -m pipeline.images episodes/<id> --scene N --shot K --retry [--prompt "..."]   # next attempt, new seed
+    uv run python -m pipeline.images --prompt "..." --format short --out x.png [--seed 7] [--cast ramesh]  # one-off test
+    uv run python -m pipeline.images episodes/<id> --scene N [--shot K] --crops     # zoomed quarters (+ reference side-by-side)
+    uv run python -m pipeline.images episodes/<id> --scene N --shot K --inspect pass --notes "..."
+    uv run python -m pipeline.images episodes/<id> --scene N --shot K --use-attempt 1   # go back to an earlier attempt
+    uv run python -m pipeline.images --checklist                                   # print the inspection checklist
 
-Every image must be inspected against config.yaml images.inspection_checklist (anatomy,
-posture, dress, tool handling, text) and the result recorded with --inspect. The record
-stores the image's SHA-1, so regenerating an image clears it; validate blocks
-visuals_ready until every image scene has a passing inspection of its current file.
+A scene holds one or more shots (visual.shots); each starts at a narration segment (sentence), so
+the picture changes with the narration. A shot that lists `characters` (cast ids, assets/cast/) is
+generated in edit mode with those characters' approved reference images, so faces and clothes stay
+the same across the whole episode and across episodes.
 
-Size comes from config.yaml formats.<format>.image_size (16:9 or 9:16). The style suffix from
-config.yaml is appended to every prompt. Every attempt is kept as images/scene-XX-aN.png; the
-current pick is copied to images/scene-XX.png (episode.json image_file). After
-images.max_attempts attempts the scene is flagged in log.md for the user instead.
+Every shot must be inspected against config.yaml images.inspection_checklist (anatomy, posture,
+dress, tools, text, and identity vs the reference) and the result recorded with --inspect. The
+record stores the image's SHA-1, so regenerating clears it; validate blocks visuals_ready until
+every shot has a passing inspection of its current file.
 
-Backend contract: generate(prompt, seed, width, height, out_path) -> seconds.
+Files: every attempt is kept as images/scene-XX-sK-aN.png; the current pick is images/scene-XX-sK.png
+(shot.image_file). v1 episodes keep their old images/scene-XX.png names for shot 1.
+
+Backend contract: generate(prompt, seed, width, height, out_path, references=()) -> seconds.
 """
 
 from __future__ import annotations
 
 import argparse
 import hashlib
-from datetime import datetime
 import shutil
 import subprocess
 import sys
 import time
+from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Sequence
 
 from PIL import Image
 
-from pipeline.schema import ImageInspection
+from pipeline.cast import load_character, reference_path, reference_preamble, reference_problems
 from pipeline.common import (
-    REPO_ROOT, append_log, format_config, load_config, load_episode, log, resolve_episode_dir,
+    REPO_ROOT, append_log, format_config, load_config, load_episode, resolve_episode_dir,
     save_episode, selected_scenes, setup_logging, stage_timer,
 )
+from pipeline.schema import Episode, ImageInspection, Scene, Shot
 
 
 class MfluxBackend:
-    """mflux CLI (MLX) installed as a uv tool. One process per image; peak ~3.7 GB for klein-4B q4."""
+    """mflux CLI (MLX) installed as a uv tool. One process per image; peak ~3.7 GB for klein-4B q4.
+    With references it runs images.edit_command (FLUX.2 klein edit: ~40 s with one reference,
+    ~90 s with two)."""
 
     def __init__(self, icfg: dict[str, Any]):
         self.cfg = icfg
 
-    def generate(self, prompt: str, seed: int, width: int, height: int, out_path: Path) -> float:
+    def generate(self, prompt: str, seed: int, width: int, height: int, out_path: Path,
+                 references: Sequence[Path] = ()) -> float:
         c = self.cfg
-        cmd = [c.get("command", "mflux-generate"), "--model", c["model"],
+        command = c.get("edit_command") if references else c.get("command", "mflux-generate")
+        if not command:
+            raise RuntimeError("images.edit_command is not set; shots with characters need an edit model")
+        cmd = [command, "--model", c["model"],
                "--prompt", prompt, "--seed", str(seed), "--width", str(width), "--height", str(height),
                "--steps", str(c["steps"]), "--output", str(out_path)]
+        if references:
+            cmd += ["--image-paths", *[str(r) for r in references]]
         if c.get("base_model"):
             cmd += ["--base-model", c["base_model"]]
         if c.get("guidance") is not None:
@@ -77,9 +89,10 @@ def get_backend(icfg: dict[str, Any]):
         raise SystemExit(f"unknown images backend {icfg['backend']!r}; available: {', '.join(BACKENDS)}")
 
 
-def full_prompt(prompt: str, icfg: dict[str, Any]) -> str:
+def full_prompt(prompt: str, icfg: dict[str, Any], preamble: str = "") -> str:
     suffix = icfg.get("style_suffix", "").strip()
-    return f"{prompt.rstrip(' .,')}, {suffix}" if suffix else prompt
+    body = f"{prompt.rstrip(' .,')}, {suffix}" if suffix else prompt
+    return f"{preamble} {body}" if preamble else body
 
 
 def file_sha1(path: Path) -> str:
@@ -106,10 +119,75 @@ def write_crops(image: Path, out_dir: Path) -> list[Path]:
     return out
 
 
-def default_seed(episode_id: str, scene_id: int, attempt: int) -> int:
-    """Deterministic per episode/scene/attempt, so reruns reproduce and retries differ."""
-    h = hashlib.sha1(f"{episode_id}:{scene_id}:{attempt}".encode()).hexdigest()
-    return int(h[:8], 16) % 1_000_000
+def write_identity_pair(image: Path, ref: Path, out: Path) -> Path:
+    """Reference (left) and shot (right) at the same height, for the identity check."""
+    a, b = Image.open(ref).convert("RGB"), Image.open(image).convert("RGB")
+    h = max(a.height, b.height)
+    a = a.resize((round(a.width * h / a.height), h), Image.LANCZOS)
+    b = b.resize((round(b.width * h / b.height), h), Image.LANCZOS)
+    pair = Image.new("RGB", (a.width + b.width + 16, h), "white")
+    pair.paste(a, (0, 0))
+    pair.paste(b, (a.width + 16, 0))
+    out.parent.mkdir(parents=True, exist_ok=True)
+    pair.save(out)
+    return out
+
+
+def pass_notes_problem(notes: str | None, has_cast: bool) -> str | None:
+    """Why `--inspect pass` notes are not enough, or None. Every pass must record what was counted, an
+    `action:` check (where poured/thrown material comes from, container angle, how it lands, the action
+    matching the narration and good practice; 'action: static' for a still scene) and, for cast shots,
+    `identity:`. User rule 2026-11-20 after a passed shot showed khaad pouring out of a closed fist."""
+    text = (notes or "").strip().lower()
+    if not text:
+        return ("--inspect pass needs --notes with what you counted (arms, hands, fingers, legs per person; "
+                "tools; action; for cast: face/hair/clothes match the reference)")
+    if "action:" not in text:
+        return ("--inspect pass needs an 'action:' check in --notes: trace any poured/thrown/sprayed material to "
+                "its source (open hand, tilted container mouth, nozzle — never a closed fist or upright bucket), "
+                "how it lands, and that the action matches the narration and good practice "
+                "(e.g. 'action: granules leave open right palm, bucket upright in left hand, spread thinly'); "
+                "for a still scene write 'action: static'")
+    if has_cast and "identity" not in text:
+        return ("shots with cast members need an identity check in --notes "
+                "(e.g. 'identity: ramesh face/hair/moustache/kurta+gamchha match ref')")
+    return None
+
+
+def default_seed(episode_id: str, scene_id: int, attempt: int, shot: int = 1) -> int:
+    """Deterministic per episode/scene/shot/attempt, so reruns reproduce and retries differ.
+    Shot 1 keeps the v1 formula, so v1 seeds stay valid."""
+    key = f"{episode_id}:{scene_id}:{attempt}" if shot == 1 else f"{episode_id}:{scene_id}.{shot}:{attempt}"
+    return int(hashlib.sha1(key.encode()).hexdigest()[:8], 16) % 1_000_000
+
+
+def shot_stem(scene_id: int, k: int) -> str:
+    return f"scene-{scene_id:02d}-s{k}"
+
+
+def selected_shots(scene: Scene, shot_ids: list[int] | None) -> list[tuple[int, Shot]]:
+    shots = list(enumerate(scene.visual.shots, 1))
+    if not shot_ids:
+        return shots
+    bad = [k for k in shot_ids if not 1 <= k <= len(shots)]
+    if bad:
+        raise SystemExit(f"scene {scene.id} has {len(shots)} shot(s); no shot {bad}")
+    return [(k, sh) for k, sh in shots if k in shot_ids]
+
+
+def cast_references(ep: Episode, shot: Shot) -> tuple[list[Path], str, dict[str, str]]:
+    """Reference images, prompt preamble and reference SHA-1s for the characters in a shot."""
+    chars = []
+    for cid in shot.characters:
+        if cid not in ep.cast:
+            raise SystemExit(f"character {cid!r} is not in episode.cast {ep.cast}")
+        c = load_character(cid)
+        probs = reference_problems(c)
+        if probs:
+            raise SystemExit("; ".join(probs))
+        chars.append(c)
+    refs = [reference_path(c) for c in chars]
+    return refs, reference_preamble(chars), {c.id: c.reference_sha1 for c in chars}
 
 
 def run_episode(args: argparse.Namespace) -> None:
@@ -124,82 +202,107 @@ def run_episode(args: argparse.Namespace) -> None:
         scenes = [s for s in selected_scenes(ep, args.scenes) if s.visual.type == "image"]
         if not scenes:
             run.note("no image scenes selected")
-        flagged = []
+        flagged, made = [], []
         for s in scenes:
-            v = s.visual
-            if args.prompt:
-                v.image_prompt = args.prompt
-            if not v.image_prompt:
-                raise SystemExit(f"scene {s.id}: no image_prompt")
-            final = ep_dir / "images" / f"scene-{s.id:02d}.png"
-            if final.exists() and not (args.force or args.retry):
-                continue
-            if args.retry or v.attempts == 0:
-                attempt = v.attempts + 1
-            else:
-                attempt = v.attempts  # --force: redo the current attempt with the same seed
-            if attempt > max_attempts and not args.extra_attempt:
-                msg = (f"scene {s.id}: reached {max_attempts} image attempts; needs a human decision "
-                       f"(B-roll, graphic, or a different idea)")
-                append_log(ep_dir, f"\n**FLAG** {msg}")
-                flagged.append(s.id)
-                continue
-            seed = args.seed if args.seed is not None else (
-                v.seed if (v.seed is not None and not args.retry) else default_seed(ep.id, s.id, attempt))
-            attempt_file = ep_dir / "images" / f"scene-{s.id:02d}-a{attempt}.png"
-            secs = backend.generate(full_prompt(v.image_prompt, icfg), seed, width, height, attempt_file)
-            shutil.copyfile(attempt_file, final)
-            v.seed, v.attempts = seed, attempt
-            v.inspection = None  # new pixels → must be inspected again
-            s.image_file = f"images/{final.name}"
-            save_episode(ep_dir, ep)  # save after each image so a crash keeps finished work
-            run.note(f"scene {s.id}: attempt {attempt}, seed {seed}, {width}x{height}, {secs:.1f}s → {attempt_file.name}")
+            if not s.visual.shots:
+                raise SystemExit(f"scene {s.id}: image scene without shots (visual.shots)")
+            todo = selected_shots(s, args.shots)
+            if args.prompt and len(todo) != 1:
+                raise SystemExit("--prompt needs exactly one shot (--scene N --shot K)")
+            for k, sh in todo:
+                if args.prompt:
+                    sh.image_prompt = args.prompt
+                if not sh.image_prompt:
+                    raise SystemExit(f"scene {s.id} shot {k}: no image_prompt")
+                refs, preamble, ref_sha = cast_references(ep, sh)
+                stale = bool(sh.characters) and sh.reference_sha1 != ref_sha and sh.image_file is not None
+                current = ep_dir / sh.image_file if sh.image_file else None
+                if current and current.exists() and not (args.force or args.retry or stale):
+                    continue
+                if args.retry or sh.attempts == 0 or stale:
+                    attempt = sh.attempts + 1
+                else:
+                    attempt = sh.attempts  # --force: redo the current attempt with the same seed
+                if attempt > max_attempts and not args.extra_attempt:
+                    msg = (f"scene {s.id} shot {k}: reached {max_attempts} image attempts; needs a human decision "
+                           f"(fewer people, a graphic, or a different idea)")
+                    append_log(ep_dir, f"\n**FLAG** {msg}")
+                    flagged.append(f"{s.id}.{k}")
+                    continue
+                seed = args.seed if args.seed is not None else (
+                    sh.seed if (sh.seed is not None and not (args.retry or stale))
+                    else default_seed(ep.id, s.id, attempt, k))
+                stem = shot_stem(s.id, k)
+                attempt_file = ep_dir / "images" / f"{stem}-a{attempt}.png"
+                final = ep_dir / "images" / f"{stem}.png"
+                secs = backend.generate(full_prompt(sh.image_prompt, icfg, preamble), seed, width, height,
+                                        attempt_file, refs)
+                shutil.copyfile(attempt_file, final)
+                sh.seed, sh.attempts, sh.reference_sha1 = seed, attempt, ref_sha
+                sh.inspection = None  # new pixels → must be inspected again
+                sh.image_file = f"images/{final.name}"
+                save_episode(ep_dir, ep)  # save after each image so a crash keeps finished work
+                made.append((s, k, sh))
+                who = f", cast {'+'.join(sh.characters)}" if sh.characters else ""
+                run.note(f"scene {s.id} shot {k}: attempt {attempt}, seed {seed}{who}, {secs:.1f}s → {attempt_file.name}")
         if flagged:
-            print(f"Flagged for the user (max attempts reached): scenes {flagged}", file=sys.stderr)
-    print("Inspect EVERY image at full size, plus zoomed crops (--crops), person by person, against:")
+            print(f"Flagged for the user (max attempts reached): shots {flagged}", file=sys.stderr)
+    print("Inspect EVERY shot at full size, plus zoomed crops (--crops), person by person, against:")
     print(checklist_text(icfg))
-    print("Then record each result:  --scene N --inspect pass|fail --notes \"<per-person counts>\"")
-    for s in scenes:
-        if s.image_file:
-            print(f"  {ep_dir.name}/{s.image_file}  (scene {s.id}: {s.narration_display[:60]})")
+    print("Then record each result:  --scene N --shot K --inspect pass|fail --notes \"<per-person counts; identity>\"")
+    for s, k, sh in made:
+        print(f"  {ep_dir.name}/{sh.image_file}  (scene {s.id} shot {k}: {sh.image_prompt[:60]})")
 
 
 def run_inspection_tools(args: argparse.Namespace) -> None:
     ep_dir = resolve_episode_dir(args.episode)
-    icfg = load_config()["images"]
     ep = load_episode(ep_dir)
-    scenes = [s for s in selected_scenes(ep, args.scenes) if s.visual.type == "image" and s.image_file]
-    if not scenes:
-        raise SystemExit("no generated image scenes selected")
+    scenes = [s for s in selected_scenes(ep, args.scenes) if s.visual.type == "image"]
+    targets = [(s, k, sh) for s in scenes for k, sh in selected_shots(s, args.shots) if sh.image_file]
+    if not targets:
+        raise SystemExit("no generated shots selected")
     if args.use_attempt:
         with stage_timer(ep_dir, "images (use earlier attempt)") as run:
-            for s in scenes:
-                src = ep_dir / "images" / f"scene-{s.id:02d}-a{args.use_attempt}.png"
-                if not src.exists():
-                    raise SystemExit(f"{src.name} not found")
-                shutil.copyfile(src, ep_dir / s.image_file)
+            for s, k, sh in targets:
+                cands = [ep_dir / "images" / f"{shot_stem(s.id, k)}-a{args.use_attempt}.png"]
+                if k == 1:
+                    cands.append(ep_dir / "images" / f"scene-{s.id:02d}-a{args.use_attempt}.png")  # v1 names
+                src = next((c for c in cands if c.exists()), None)
+                if src is None:
+                    raise SystemExit(f"{cands[0].name} not found")
+                shutil.copyfile(src, ep_dir / sh.image_file)
                 if args.seed is not None:
-                    s.visual.seed = args.seed
+                    sh.seed = args.seed
                 if args.prompt:
-                    s.visual.image_prompt = args.prompt
-                s.visual.inspection = None  # different pixels → inspect again
-                run.note(f"scene {s.id}: now using {src.name} (seed {s.visual.seed})")
+                    sh.image_prompt = args.prompt
+                sh.inspection = None  # different pixels → inspect again
+                run.note(f"scene {s.id} shot {k}: now using {src.name} (seed {sh.seed})")
             save_episode(ep_dir, ep)
         return
     if args.crops:
-        for s in scenes:
-            for c in write_crops(ep_dir / s.image_file, ep_dir / "images" / "inspect"):
+        for s, k, sh in targets:
+            img = ep_dir / sh.image_file
+            for c in write_crops(img, ep_dir / "images" / "inspect"):
                 print(c.relative_to(REPO_ROOT))
+            for cid in sh.characters:
+                ref = reference_path(load_character(cid))
+                if ref and ref.exists():
+                    pair = write_identity_pair(img, ref, ep_dir / "images" / "inspect" / f"{img.stem}-vs-{cid}.png")
+                    print(f"{pair.relative_to(REPO_ROOT)}   ← identity check: {cid}")
         return
+    if not args.shots and any(len(s.visual.shots) > 1 for s, _, _ in targets):
+        raise SystemExit("this scene has several shots: inspect them one at a time with --shot K")
     passed = args.inspect == "pass"
-    if passed and not (args.notes or "").strip():
-        raise SystemExit("--inspect pass needs --notes with what you counted (arms, hands, fingers, legs per person; tools)")
+    if passed:
+        problem = pass_notes_problem(args.notes, any(sh.characters for _, _, sh in targets))
+        if problem:
+            raise SystemExit(problem)
     with stage_timer(ep_dir, "image inspection") as run:
-        for s in scenes:
-            img = ep_dir / s.image_file
-            s.visual.inspection = ImageInspection(file_sha1=file_sha1(img), passed=passed, notes=args.notes or "",
-                                                  inspected_at=datetime.now().strftime("%Y-%m-%d %H:%M"))
-            run.note(f"scene {s.id}: inspection {'PASS' if passed else 'FAIL'} ({img.name}) — {args.notes or ''}")
+        for s, k, sh in targets:
+            img = ep_dir / sh.image_file
+            sh.inspection = ImageInspection(file_sha1=file_sha1(img), passed=passed, notes=args.notes or "",
+                                            inspected_at=datetime.now().strftime("%Y-%m-%d %H:%M"))
+            run.note(f"scene {s.id} shot {k}: inspection {'PASS' if passed else 'FAIL'} ({img.name}) — {args.notes or ''}")
         save_episode(ep_dir, ep)
 
 
@@ -209,7 +312,14 @@ def run_oneoff(args: argparse.Namespace) -> None:
     width, height = format_config(cfg, args.format)["image_size"]
     seed = args.seed if args.seed is not None else 1234
     out = Path(args.out) if Path(args.out).is_absolute() else REPO_ROOT / args.out
-    secs = get_backend(icfg).generate(full_prompt(args.prompt, icfg), seed, width, height, out)
+    refs, preamble = [], ""
+    if args.cast:
+        chars = [load_character(c) for c in args.cast]
+        for c in chars:
+            if reference_problems(c):
+                raise SystemExit("; ".join(reference_problems(c)))
+        refs, preamble = [reference_path(c) for c in chars], reference_preamble(chars)
+    secs = get_backend(icfg).generate(full_prompt(args.prompt, icfg, preamble), seed, width, height, out, refs)
     print(f"{out}  {width}x{height} seed {seed}  {secs:.1f}s")
 
 
@@ -217,18 +327,21 @@ def main() -> None:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("episode", nargs="?")
     p.add_argument("--scene", type=int, action="append", dest="scenes")
+    p.add_argument("--shot", type=int, action="append", dest="shots", help="shot number within the scene (1-based)")
     p.add_argument("--force", action="store_true", help="regenerate existing images (same seed)")
     p.add_argument("--retry", action="store_true", help="next attempt with a new seed (counts toward max_attempts)")
-    p.add_argument("--prompt", help="set/replace the image prompt (episode mode) or the prompt to test")
+    p.add_argument("--prompt", help="set/replace the shot's image prompt (episode mode) or the prompt to test")
     p.add_argument("--seed", type=int)
     p.add_argument("--format", default="long", choices=["long", "short"], help="one-off mode only")
     p.add_argument("--out", help="one-off mode: output file")
+    p.add_argument("--cast", nargs="+", help="one-off mode: cast ids to condition on")
     p.add_argument("--checklist", action="store_true", help="print the image inspection checklist")
-    p.add_argument("--crops", action="store_true", help="write 2× zoomed quarter crops to images/inspect/")
+    p.add_argument("--crops", action="store_true",
+                   help="write 2× zoomed quarter crops (and reference|shot pairs for cast) to images/inspect/")
     p.add_argument("--extra-attempt", action="store_true",
                    help="allow one attempt beyond images.max_attempts — ONLY when the user explicitly asked for it")
-    p.add_argument("--use-attempt", type=int, help="make attempt N (images/scene-XX-aN.png) the current image")
-    p.add_argument("--inspect", choices=["pass", "fail"], help="record the inspection result for --scene")
+    p.add_argument("--use-attempt", type=int, help="make attempt N the current image of the shot")
+    p.add_argument("--inspect", choices=["pass", "fail"], help="record the inspection result for --scene/--shot")
     p.add_argument("--notes", help="what was checked/counted (required for pass)")
     p.add_argument("-v", "--verbose", action="store_true")
     args = p.parse_args()
@@ -236,6 +349,8 @@ def main() -> None:
     if args.checklist:
         print(checklist_text(load_config()["images"]))
         return
+    if args.shots and not args.scenes:
+        p.error("--shot needs --scene N")
     if args.episode and (args.crops or args.inspect or args.use_attempt):
         if not args.scenes:
             p.error("--crops/--inspect/--use-attempt need --scene N")

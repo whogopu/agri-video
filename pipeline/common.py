@@ -158,6 +158,29 @@ def scene_frames(audio_sec: float | None, fps: int, padding_sec: float, crossfad
     return max(int(sec * fps + 0.5), crossfade * 2 + 1)  # JS Math.round for positive numbers
 
 
+def shot_starts_sec(scene, lead_in_sec: float = 0.0) -> list[float]:
+    """Start of each shot of an image scene, in seconds from the scene start (lead-in included).
+    A shot that starts at narration segment j>0 cuts in the middle of the pause before it. Without
+    segment timings (scene-mode audio, or no audio yet) shots split the narration evenly.
+    Mirrored in remotion/src/timing.ts (shotStartFrames): change both together."""
+    shots = scene.visual.shots
+    if not shots:
+        return []
+    audio = scene.audio
+    segs = audio.segments if audio else []
+    starts = []
+    for k, sh in enumerate(shots):
+        j = sh.at_segment
+        if j == 0:
+            starts.append(0.0)
+        elif segs and j < len(segs):
+            starts.append(lead_in_sec + (segs[j - 1].end + segs[j].start) / 2)
+        else:
+            dur = audio.duration_sec if audio else FALLBACK_SCENE_SEC
+            starts.append(lead_in_sec + dur * k / len(shots))
+    return starts
+
+
 def episode_frames(episode: Episode, cfg: dict[str, Any]) -> int:
     fps, pad = episode.video.fps, float(cfg["video"]["scene_padding_sec"])
     lead = float(cfg["video"].get("scene_lead_in_sec", 0.0))

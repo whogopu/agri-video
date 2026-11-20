@@ -1,0 +1,19 @@
+{
+  "id": "ramesh",
+  "name_hi": "रमेश जी",
+  "name_en": "Ramesh",
+  "role": "farmer from a North Indian village; the channel's main recurring character",
+  "gender": "male",
+  "look": "a North Indian farmer, about 48 years old, lean build, short grey-black hair combed back with a slightly receding hairline, bare head, neatly trimmed grey moustache and short grey stubble beard, warm brown skin, kind tired eyes",
+  "wardrobe": "a plain white cotton kurta, white pyjama, a light green cotton gamchha over his left shoulder, brown leather chappals",
+  "reference": "ref.png",
+  "reference_sha1": "c6b22fb010edc45a07af3309e6dad6e61438340b",
+  "approved_at": "2026-11-19 22:58",
+  "candidate_seeds": [
+    972242,
+    496674,
+    758144,
+    500672
+  ],
+  "notes": "Reference = candidate 3 (approved by the user 2026-11-19 22:58)."
+}

@@ -1,0 +1,19 @@
+{
+  "id": "sunita",
+  "name_hi": "सुनीता जी",
+  "name_en": "Sunita",
+  "role": "soil-testing lab technician; recurring when a lab or KVK appears",
+  "gender": "female",
+  "look": "an Indian woman, about 32 years old, hair tied in a low bun, small red bindi, round face, warm brown skin",
+  "wardrobe": "a light blue salwar kameez with a white lab coat over it, a pale dupatta around her neck",
+  "reference": "ref.png",
+  "reference_sha1": "a384633a4a83088c0512483e8829386f98f426ae",
+  "approved_at": "2026-11-19 22:58",
+  "candidate_seeds": [
+    780067,
+    898089,
+    257660,
+    207060
+  ],
+  "notes": "Reference = candidate 3 (approved by the user 2026-11-19 22:58)."
+}

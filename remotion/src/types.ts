@@ -4,12 +4,22 @@ export type Caption = { text: string; start: number; end: number };
 
 export type GraphicTemplate = "TitleCard" | "KeyPoints" | "BigNumber";
 
-export type Visual = {
-  type: "image" | "broll" | "graphic" | null;
+export type Shot = {
+  /** the shot starts with this narration segment (0 = scene start) */
+  at_segment: number;
   image_prompt?: string | null;
+  characters?: string[];
   seed?: number | null;
   attempts?: number;
+  image_file?: string | null;
+  reference_sha1?: Record<string, string>;
   inspection?: { file_sha1: string; passed: boolean; notes?: string; inspected_at?: string } | null;
+  notes?: string | null;
+};
+
+export type Visual = {
+  type: "image" | "broll" | "graphic" | null;
+  shots?: Shot[];
   broll_id?: string | null;
   in_sec?: number | null;
   out_sec?: number | null;
@@ -32,7 +42,6 @@ export type Scene = {
     segments?: { text: string; start: number; end: number; style: string }[];
   } | null;
   captions: Caption[];
-  image_file?: string | null;
 };
 
 export type Episode = {
@@ -40,6 +49,7 @@ export type Episode = {
   id: string;
   title_hi: string;
   status?: string;
+  cast?: string[];
   format?: "long" | "short";
   video: { width: number; height: number; fps: number };
   voice?: Record<string, unknown>;

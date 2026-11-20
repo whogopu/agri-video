@@ -45,7 +45,7 @@ def problems(ep: Episode) -> tuple[list[str], list[str]]:
 def thumbnail_image(ep: Episode) -> str | None:
     if ep.package.thumbnail_image:
         return ep.package.thumbnail_image
-    return next((s.image_file for s in ep.scenes if s.visual.type == "image" and s.image_file), None)
+    return next((f for s in ep.scenes for f in s.image_files()), None)
 
 
 def source_lines(ep: Episode, ep_dir: Path) -> list[str]:

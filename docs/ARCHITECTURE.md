@@ -1,7 +1,7 @@
 # AgriGate Hindi Video Pipeline: Technical Architecture
 
 > **Audience:** engineers (and Claude sessions) who will maintain or extend this pipeline.
-> **Status:** v0 complete (2026-11-19). Demo episode: `episodes/2026-11-19-mitti-ki-jaanch`.
+> **Status:** v0 complete (2026-11-19); visual upgrade phase A (shots + recurring cast) done; `episodes/2026-11-20-mitti-ki-jaanch-v3` (v2 script with cast shots) draft approved at checkpoint 2 on 2026-11-20, final render not started. The story-led pilot `episodes/2026-11-19-ramesh-mitti-jaanch-pilot` was rejected (D28). Demo episode: `episodes/2026-11-19-mitti-ki-jaanch`.
 > **Related docs:** `PROJECT_BRIEF.md` (original requirements), `CLAUDE.md` (rules every session follows), `docs/licenses.md`, `docs/timings.md`.
 
 ---
@@ -80,7 +80,8 @@ agri-video/
 │   ├── captions.py          caption chunking + timing
 │   ├── audio.py             ffmpeg/ffprobe helpers (duration, trim, loudness, gain)
 │   ├── tts_try.py           voice auditions / TTS smoke tests outside an episode
-│   ├── images.py            image backend (mflux), attempts, seeds, crops, inspection records
+│   ├── cast.py              recurring characters: candidates, user-approved reference, prompt preamble
+│   ├── images.py            image backend (mflux; edit mode for cast shots), shots, attempts, seeds, crops, inspection records
 │   ├── broll.py             optional B-roll library: index / check / list
 │   ├── render.py            sync assets into Remotion, write props, run remotion render
 │   ├── review.py            contact sheets + automated checks → review/review.md
@@ -114,6 +115,7 @@ agri-video/
 │
 ├── assets/
 │   ├── brand/               logo.png + brand.json (colors sampled from the logo)
+│   ├── cast/<id>/           recurring characters: character.json + ref.png (committed), candidates/ (gitignored)
 │   ├── broll/               OPTIONAL library: clips/, frames/, index.json
 │   └── music/               (v1) royalty-free tracks
 │
@@ -145,10 +147,11 @@ Defined in `pipeline/schema.py` (pydantic v2, `extra="forbid"` so typos in hand-
 
 ```jsonc
 {
-  "schema_version": 1,
+  "schema_version": 2,                // v1 files migrate on load (single image → shot 1)
   "id": "2026-11-19-mitti-ki-jaanch",
   "title_hi": "मिट्टी की जांच क्यों और कैसे कराएं",
   "status": "packaged",               // see §6.1
+  "cast": ["ramesh", "sunita"],       // recurring characters in this episode (assets/cast/), main first
   "format": "long",                   // long (16:9) | short (9:16); must match video size
   "video": { "width": 1920, "height": 1080, "fps": 30 },
   "voice": { "preset": "rohit", "backend": "parler", "speaker": "Rohit",
@@ -160,8 +163,11 @@ Defined in `pipeline/schema.py` (pydantic v2, `extra="forbid"` so typos in hand-
     "on_screen_text": "…",             // optional 1–4 word tag (top-left)
     "visual": {
       "type": "image",                 // image | broll | graphic
-      "image_prompt": "…", "seed": 133830, "attempts": 3,
-      "inspection": { "file_sha1": "…", "passed": true, "notes": "farmer: 2 arms/2 hands…", "inspected_at": "…" },
+      "shots": [{                      // image: 1–3 stills, each starting at a narration sentence
+        "at_segment": 0, "characters": ["ramesh"],
+        "image_prompt": "…", "seed": 133830, "attempts": 3, "image_file": "images/scene-07-s1.png",
+        "reference_sha1": { "ramesh": "…" },   // reference used; a changed reference makes the shot stale
+        "inspection": { "file_sha1": "…", "passed": true, "notes": "…; identity: …", "inspected_at": "…" } }],
       "broll_id": null, "in_sec": null, "out_sec": null,          // broll only
       "template": null, "props": null,                            // graphic only: TitleCard|KeyPoints|BigNumber
       "notes": null
@@ -169,15 +175,14 @@ Defined in `pipeline/schema.py` (pydantic v2, `extra="forbid"` so typos in hand-
     "sources": ["sources/shc-faq-english.pdf#how-can-a-farmer-use-SHC"],
     "audio": { "file": "audio/scene-07.wav", "duration_sec": 12.102,
                "segments": [{ "text": "…", "start": 0.06, "end": 4.9, "style": "neutral" }] },  // per sentence
-    "captions": [{ "text": "रिपोर्ट में लिखा होता है कि", "start": 0.0, "end": 1.9 }],
-    "image_file": "images/scene-07.png"
+    "captions": [{ "text": "रिपोर्ट में लिखा होता है कि", "start": 0.0, "end": 1.9 }]
   }],
   "package": { "youtube_title": "…", "description_hi": "…", "tags": [], "thumbnail_text": "…",
                "thumbnail_image": "images/scene-07.png", "sources_list": [], "synthetic_content": null }
 }
 ```
 
-Model-level validators: scene ids are unique and ordered; captions have `end > start`; B-roll `out_sec > in_sec`; `format` matches orientation (portrait ⇔ short).
+Model-level validators: scene ids are unique and ordered; shots start at segment 0 and their `at_segment` values increase; captions have `end > start`; B-roll `out_sec > in_sec`; `format` matches orientation (portrait ⇔ short).
 
 **Writes are atomic** (`common.write_json`: write to a temp file, then `os.replace`), and `save_episode` re-validates before writing, so a crash never leaves a half-written `episode.json`.
 
@@ -199,8 +204,8 @@ episodes/2026-11-19-mitti-ki-jaanch/
 │   ├── work/scene-XX.wav          48 kHz, trimmed, compressed, segments joined with pauses (float32)
 │   └── scene-XX.wav               final, loudness-normalized + room tone (16-bit)
 ├── images/
-│   ├── scene-XX-aN.png            every attempt kept
-│   ├── scene-XX.png               current pick (what is rendered)
+│   ├── scene-XX-sK-aN.png         every attempt of shot K kept (v1: scene-XX-aN.png)
+│   ├── scene-XX-sK.png            current pick of shot K (what is rendered)
 │   └── inspect/                   zoomed crops for inspection (gitignored)
 ├── render/              draft.mp4, video.mp4, thumbnail.png, props.json, thumbnail-props.json
 ├── review/              sheet-NN.png, checks.json, review.md
@@ -237,7 +242,7 @@ stateDiagram-v2
 | always | schema; **no `[VERIFY` anywhere** in episode.json or script.md; ≥1 scene; word count vs. target (from voice wpm × format seconds); hook first, CTA last with the config CTA line; scene length 4–14 s (estimated); factual scenes (`problem/explain/step/mistake`, or any scene with a digit) list sources; source files exist; on-screen text ≤4 words |
 | `script_approved` | `narration_spoken` filled, no digits left; warns on Latin letters (TTS may mispronounce) |
 | `narrated` | every scene has audio + captions; captions don't run past audio |
-| `visuals_ready` | image scenes: prompt, seed, file exists, **passing inspection of the current file (SHA-1 match)**; B-roll: clip in index, complete and licensed, in/out within the clip, no reused segment, people-visible warning; graphics: template + props |
+| `visuals_ready` | cast members have an approved, unchanged reference; image scenes: per shot prompt, seed, file exists, cast shots made from the current reference, **passing inspection of the current file (SHA-1 match)**; shot length 2.5–9 s (warning); B-roll: clip in index, complete and licensed, in/out within the clip, no reused segment, people-visible warning; graphics: template + props |
 | `draft_rendered` / `final_rendered` | `render/draft.mp4` / `render/video.mp4` exist |
 | `reviewed` | `review/review.md` exists with **no TODO** |
 | `packaged` | `render/thumbnail.png` and `youtube.md` exist |
@@ -337,6 +342,14 @@ These heuristics came from real defects ("कौन | सा", "बिना | �
 
   The record stores the image's **SHA-1**: regenerating or swapping the image invalidates it automatically, and `validate` blocks `visuals_ready` until every image scene has a passing record.
 - **Local post-edits** (e.g. blurring a legible poster header or a small portrait) are allowed; they change the SHA-1, so the image must be re-inspected, and the edit is mentioned in the notes.
+
+### 7.6a Shots and the recurring cast (2026-11-19)
+- **Shots.** A scene held one still for 10–17 s, which felt static. An image scene now holds 1–3 `shots`, each starting at a narration sentence (`at_segment`). The cut sits in the middle of the pause before that sentence (`common.shot_starts_sec` = `timing.ts: shotStartFrames`); without segment timings, shots split the scene evenly. Each shot gets its own Ken Burns move, and the next shot dissolves in over `SHOT_FADE_FRAMES` (6). Validate warns for shots under 2.5 s or over 9 s.
+- **Cast.** Recurring synthetic characters live in `assets/cast/<id>/` (`schema.CastMember`: name_hi, name_en, role, gender, `look`, `wardrobe`). `cast candidates` makes 4 full-figure references (plain wall, final costume, face sharp). Claude inspects them, `cast sheet` makes a numbered sheet, **the user picks**, and `cast approve` records the file's SHA-1.
+- **Consistency mechanism.** A shot with `characters` runs `mflux-generate-flux2-edit` (same FLUX.2 klein 4B q4, Apache-2.0) with the reference images, and the prompt starts with `cast.reference_preamble()`: "<Name> is the man in reference image 1: keep exactly his face … and his clothes (<wardrobe>); nothing else added on the head." Tests (`samples/character-test/`): the face, hair and beard carried over well across field, close-up and lab shots, and two characters with two references stayed distinct. Klein takes clothes from the **prompt** more than from the reference and adds headwear on its own, hence the explicit wardrobe and "nothing added". Cost: ~40 s per shot with one reference, ~90 s with two (vs ~19 s).
+- **Identity inspection.** `--crops` also writes `<shot>-vs-<id>.png` (reference | shot). Checklist item "Identity"; `--inspect pass` on a cast shot requires the notes to mention identity. Each shot stores the reference SHA-1 it was made from, so re-approving a reference flags every older shot.
+- **Action & physics inspection** (D29). Every pass note needs `action: ...`: poured/thrown material traced to an open hand or tilted container, landing that matches the action, nothing floating; plus a narration & good-practice check (crop stage, method, quantity, clean equipment). `images.pass_notes_problem` refuses passes without it; `validate` errors on any inspection recorded from `ACTION_RULE_SINCE` (2026-11-20) without it. If the model cannot draw a step correctly after its attempts, drop the shot or use a graphic rather than keep a misleading picture.
+- Fallbacks if references stop being enough: a second, close-up face reference per character; a character LoRA (`mflux-train` on klein base 4B, larger download). Face swap (InsightFace) is excluded: non-commercial.
 
 ### 7.7 B-roll (optional)
 The library lives in `assets/broll/`. `broll index` probes new clips (duration, size, fps, orientation), writes a three-frame contact strip to `frames/<id>.jpg`, and adds a **stub** entry. Claude then fills in descriptions (English and Hindi), tags (crop, activity, setting, season, shot type), usable segments, quality notes, `people_visible`, source and **license**. A clip with any field missing is **unusable**: `broll check` fails, `validate` rejects it, and `list` marks it. Most episodes use generated images only; the visuals skill skips B-roll entirely when no complete clips exist.
@@ -461,6 +474,10 @@ Decisions made during the v0 build, with what was considered.
 | D23 | Artifact-aware take trimming + long smooth fades (2026-11-19) | ffmpeg `silenceremove` + 8 ms fades | The user heard a disturbance at every sentence join; measurement showed codec bursts at take edges that the threshold trim kept and then cut abruptly. |
 | D24 | Scene change ≈1 s: padding 0.8 s + 0.4 s picture-first lead-in (2026-11-19) | Only longer padding; a sound cue | The user couldn't hear where one scene ended and the next began. The longest pause should mark the biggest change of idea; showing the new picture before the voice is how editors signal a new topic. +~20 s per 4-minute episode. |
 | D25 | Room tone as one continuous Remotion track; edge bursts cut even when long (2026-11-19) | Room tone per scene file; island length rule only | The user still heard disturbances at some joins in the v2 draft: per-scene room tone stepped from digital silence at each scene edge, and Maya2's 70–80 ms end-of-file bursts passed the 60 ms rule (and the 90 ms post-roll re-added shorter ones). |
+| D26 | **Several shots per image scene**, cut on sentence boundaries (schema v2) (2026-11-19) | One image per scene with a longer Ken Burns move | A still held 10–17 s felt static; editors change the picture every 3–5 s. Sentence timings already exist from narration, so cuts fall in natural pauses. Roughly doubles image time. |
+| D27 | **Recurring synthetic cast with user-approved references; FLUX.2 klein edit mode** (2026-11-19) | New random people per shot; character LoRA; face swap | User: the farmer on screen must look the same in every shot (the v2 soil video showed a different face and build each time). Edit mode needs no new model or licence and worked in tests; LoRA is the fallback; face-swap stacks are non-commercial. |
+| D28 | **Informative narration; cast is visual only** (2026-11-20, replaces a story-led version of 2026-11-19) | Story-led: the narrator tells रमेश जी's story | The story-led pilot (82 s) dropped most of the content of the informative v2 episode (soil card parameters, quartering, labelling, all four mistakes, 3-year cycle). User: the goal was only consistent faces; the explainer format is what helps farmers. The narrator addresses the viewer; cast members demonstrate on screen and are not named. |
+| D29 | **Action & physics check on every image, enforced in code** (2026-11-20) | Limb/finger checklist only | At checkpoint 2 the user found a passed shot where khaad poured out of a closed fist gripping an upright bucket. User: make it a rule so it never repeats. The re-check of all 26 shots then caught a water-filled sampling bucket, steam from cold flasks, an oversized sample pit and a dirty 'clean bag'. |
 
 ---
 

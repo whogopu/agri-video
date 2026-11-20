@@ -24,6 +24,8 @@ const font = {
 };
 
 export const TRANSITION_FRAMES = 10;
+/** quick dissolve between shots inside a scene (config.yaml shots.fade_frames) */
+export const SHOT_FADE_FRAMES = 6;
 
 export const landscapeTheme = {
   orientation: "landscape" as "landscape" | "portrait",

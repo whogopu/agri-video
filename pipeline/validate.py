@@ -32,6 +32,9 @@ DIGIT_RE = re.compile(r"[0-9०-९]")  # ASCII and Devanagari digits
 DEFAULT_WPM = 140  # used only if neither the episode voice nor its preset has a measured wpm
 SCENE_SEC_RANGE = (4.0, 14.0)  # warn outside this (target is 6–12 s)
 MAX_ON_SCREEN_WORDS = 4
+# Inspections recorded from this day on must contain an 'action:' check (user rule 2026-11-20). Older
+# episodes keep their records; anything inspected today or later, including re-inspections, is held to it.
+ACTION_RULE_SINCE = "2026-11-20"
 
 
 @dataclass
@@ -164,8 +167,79 @@ def _check_narrated(ep: Episode, ep_dir: Path, rep: Report) -> None:
             rep.error(f"{tag}: captions run past audio end ({s.captions[-1].end:.2f}s > {s.audio.duration_sec:.2f}s)")
 
 
+def _check_cast(ep: Episode, rep: Report, need_reference: bool) -> None:
+    """Episode cast ids must exist in assets/cast/; from visuals_ready on, with an approved reference."""
+    from pipeline.cast import char_dir, load_character, reference_problems
+    narration = " ".join(s.narration_display for s in ep.scenes)
+    for cid in ep.cast:
+        if not (char_dir(cid) / "character.json").exists():
+            rep.error(f"cast: unknown character {cid!r} (assets/cast/{cid}/character.json)")
+            continue
+        c = load_character(cid)
+        if need_reference:
+            for prob in reference_problems(c):
+                rep.error(f"cast: {prob}")
+        first_name = c.name_hi.split()[0]
+        if ep.scenes and first_name in narration:
+            rep.warn(f"cast: narration names {c.name_hi}; the cast is visual only, the narrator talks to the viewer (D28)")
+
+
+def _check_shot(ep: Episode, ep_dir: Path, tag: str, scene_id: int, k: int, sh, rep: Report) -> None:
+    from pipeline.cast import load_character
+    if not sh.image_prompt:
+        rep.error(f"{tag}: no image_prompt")
+    if sh.seed is None:
+        rep.error(f"{tag}: no seed")
+    for cid in sh.characters:
+        if cid not in ep.cast:
+            rep.error(f"{tag}: character {cid!r} is not in episode.cast")
+        elif cid in sh.reference_sha1:
+            try:
+                if load_character(cid).reference_sha1 != sh.reference_sha1[cid]:
+                    rep.error(f"{tag}: {cid}'s reference changed since this shot was made; regenerate it")
+            except SystemExit:
+                pass  # reported by _check_cast
+        elif sh.image_file:
+            rep.error(f"{tag}: shows {cid} but was not generated from the reference; regenerate it")
+    if not sh.image_file or not (ep_dir / sh.image_file).exists():
+        rep.error(f"{tag}: image_file missing: {sh.image_file}")
+        return
+    insp = sh.inspection
+    where = f"images --scene {scene_id} --shot {k}"
+    if insp is None:
+        rep.error(f"{tag}: image not inspected ({where} --crops, then --inspect pass|fail)")
+    elif insp.file_sha1 != hashlib.sha1((ep_dir / sh.image_file).read_bytes()).hexdigest():
+        rep.error(f"{tag}: image changed after its inspection; inspect it again")
+    elif not insp.passed:
+        rep.error(f"{tag}: image FAILED inspection ({insp.notes}); retry, swap visual, or ask the user")
+    elif (insp.inspected_at or "") >= ACTION_RULE_SINCE and "action:" not in (insp.notes or "").lower():
+        # user rule 2026-11-20: every pass traces poured/thrown material to its source (see images.pass_notes_problem)
+        rep.error(f"{tag}: inspection has no 'action:' check; look again for action & physics ({where} --inspect pass "
+                  f"--notes '...; action: ...')")
+
+
+def _check_shot_lengths(s: Scene, tag: str, cfg: dict, rep: Report) -> None:
+    from pipeline.common import shot_starts_sec
+    if not s.audio or not s.visual.shots:
+        return
+    if s.audio.segments and s.visual.shots[-1].at_segment >= len(s.audio.segments):
+        rep.error(f"{tag}: shot starts at segment {s.visual.shots[-1].at_segment}, "
+                  f"but the scene has only {len(s.audio.segments)} segments")
+        return
+    lead = float(cfg["video"].get("scene_lead_in_sec", 0.0))
+    end = lead + s.audio.duration_sec + float(cfg["video"]["scene_padding_sec"])
+    starts = shot_starts_sec(s, lead) + [end]
+    lo, hi = float(cfg["shots"]["min_shot_sec"]), float(cfg["shots"]["max_shot_sec"])
+    for k, (a, b) in enumerate(zip(starts, starts[1:]), 1):
+        if b - a < lo:
+            rep.warn(f"{tag} shot {k}: {b - a:.1f}s on screen (< {lo}s); merge it with a neighbour")
+        elif b - a > hi:
+            rep.warn(f"{tag} shot {k}: {b - a:.1f}s on screen (> {hi}s); split it at a sentence boundary")
+
+
 def _check_visuals(ep: Episode, ep_dir: Path, rep: Report) -> None:
     from pipeline.broll import LIBRARY, entry_problems, load_index
+    cfg = load_config()
     library = {c["id"]: c for c in load_index(LIBRARY)["clips"]}
     used_broll: list[tuple[str, float, float, int]] = []
     for s in ep.scenes:
@@ -173,20 +247,11 @@ def _check_visuals(ep: Episode, ep_dir: Path, rep: Report) -> None:
         if v.type is None:
             rep.error(f"{tag}: visual.type not set")
         elif v.type == "image":
-            if not v.image_prompt:
-                rep.error(f"{tag}: image scene without image_prompt")
-            if v.seed is None:
-                rep.error(f"{tag}: image scene without seed")
-            if not s.image_file or not (ep_dir / s.image_file).exists():
-                rep.error(f"{tag}: image_file missing: {s.image_file}")
-            else:
-                insp = v.inspection
-                if insp is None:
-                    rep.error(f"{tag}: image not inspected (images --scene {s.id} --crops, then --inspect pass|fail)")
-                elif insp.file_sha1 != hashlib.sha1((ep_dir / s.image_file).read_bytes()).hexdigest():
-                    rep.error(f"{tag}: image changed after its inspection; inspect it again")
-                elif not insp.passed:
-                    rep.error(f"{tag}: image FAILED inspection ({insp.notes}); retry, swap visual, or ask the user")
+            if not v.shots:
+                rep.error(f"{tag}: image scene without shots")
+            for k, sh in enumerate(v.shots, 1):
+                _check_shot(ep, ep_dir, f"{tag} shot {k}", s.id, k, sh, rep)
+            _check_shot_lengths(s, tag, cfg, rep)
         elif v.type == "broll":
             if not v.broll_id or v.in_sec is None or v.out_sec is None:
                 rep.error(f"{tag}: broll scene needs broll_id, in_sec and out_sec")
@@ -236,6 +301,7 @@ def validate(ep_dir: Path, as_status: Status | None = None) -> tuple[Report, Epi
     status = as_status or ep.status
     rep.info.append(f"validated as status: {status.value}")
     _check_script(ep, ep_dir, cfg, rep)
+    _check_cast(ep, rep, need_reference=status.at_least(Status.visuals_ready))
     if status.at_least(Status.script_approved):
         _check_spoken(ep, rep)
     if status.at_least(Status.narrated):
