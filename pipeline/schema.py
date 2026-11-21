@@ -215,6 +215,7 @@ class CastMember(_Model):
     gender: Literal["male", "female"]
     look: str                         # English prompt text: age, build, face, hair, facial hair, skin
     wardrobe: str                     # English prompt text: the fixed costume
+    accessories: str = ""             # English, positive: what is on head/wrists/fingers ("bare wrists, bare fingers")
     reference: str | None = None      # approved image, relative to the character folder (ref.png)
     reference_sha1: str | None = None
     approved_at: str | None = None    # set only by `cast approve`, after the USER picked the face

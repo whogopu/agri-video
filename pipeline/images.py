@@ -7,6 +7,11 @@
     uv run python -m pipeline.images episodes/<id> --scene N --shot K --inspect pass --notes "..."
     uv run python -m pipeline.images episodes/<id> --scene N --shot K --use-attempt 1   # go back to an earlier attempt
     uv run python -m pipeline.images --checklist                                   # print the inspection checklist
+    uv run python -m pipeline.images episodes/<id> --scene N --shot K --checklist   # + this shot's must-show items
+
+Prompts may use {kind:key} tokens from assets/visual_rules.yaml (tested phrases); every prompt is linted
+before generating (pipeline/visual_rules.py): naming what you don't want ("no palm trees") is rejected,
+because FLUX.2 klein has no negative prompt and tends to draw what is named.
 
 A scene holds one or more shots (visual.shots); each starts at a narration segment (sentence), so
 the picture changes with the narration. A shot that lists `characters` (cast ids, assets/cast/) is
@@ -44,6 +49,7 @@ from pipeline.common import (
     save_episode, selected_scenes, setup_logging, stage_timer,
 )
 from pipeline.schema import Episode, ImageInspection, Scene, Shot
+from pipeline.visual_rules import expand, lint, must_show, prompt_hints, shot_sentence
 
 
 class MfluxBackend:
@@ -90,9 +96,28 @@ def get_backend(icfg: dict[str, Any]):
 
 
 def full_prompt(prompt: str, icfg: dict[str, Any], preamble: str = "") -> str:
+    """Cast preamble + prompt with its {kind:key} tokens expanded (assets/visual_rules.yaml) + style suffix."""
+    prompt = expand(prompt)
     suffix = icfg.get("style_suffix", "").strip()
     body = f"{prompt.rstrip(' .,')}, {suffix}" if suffix else prompt
     return f"{preamble} {body}" if preamble else body
+
+
+def check_prompt(prompt: str, icfg: dict[str, Any], preamble: str = "", where: str = "") -> None:
+    """Lint the whole prompt (preamble, shot prompt, suffix) before spending a generation on it.
+    Errors (negations, unknown tokens) stop the stage; warnings are printed."""
+    errors, warnings = lint(f"{preamble} {prompt}, {icfg.get('style_suffix', '')}")
+    tag = f"{where}: " if where else ""
+    for w in warnings:
+        print(f"  prompt warning {tag}{w}", file=sys.stderr)
+    if errors:
+        raise SystemExit(f"{tag}image prompt rejected:\n  " + "\n  ".join(errors))
+
+
+def shot_must_show(scene: Scene, shot: Shot) -> list[str]:
+    """This shot's must-show items (visual_rules.yaml) from its prompt tokens and its narration sentence."""
+    sentence = shot_sentence(scene.model_dump(), shot.model_dump(), [x.model_dump() for x in scene.visual.shots])
+    return must_show(shot.image_prompt or "", sentence)
 
 
 def file_sha1(path: Path) -> str:
@@ -215,6 +240,7 @@ def run_episode(args: argparse.Namespace) -> None:
                 if not sh.image_prompt:
                     raise SystemExit(f"scene {s.id} shot {k}: no image_prompt")
                 refs, preamble, ref_sha = cast_references(ep, sh)
+                check_prompt(sh.image_prompt, icfg, preamble, f"scene {s.id} shot {k}")
                 stale = bool(sh.characters) and sh.reference_sha1 != ref_sha and sh.image_file is not None
                 current = ep_dir / sh.image_file if sh.image_file else None
                 if current and current.exists() and not (args.force or args.retry or stale):
@@ -252,6 +278,26 @@ def run_episode(args: argparse.Namespace) -> None:
     print("Then record each result:  --scene N --shot K --inspect pass|fail --notes \"<per-person counts; identity>\"")
     for s, k, sh in made:
         print(f"  {ep_dir.name}/{sh.image_file}  (scene {s.id} shot {k}: {sh.image_prompt[:60]})")
+        for m in shot_must_show(s, sh):
+            print(f"      must show: {m}")
+
+
+def print_shot_rules(args: argparse.Namespace) -> None:
+    """Shot-specific must-show items and library hints (assets/visual_rules.yaml) for --checklist."""
+    ep = load_episode(resolve_episode_dir(args.episode))
+    for s in selected_scenes(ep, args.scenes):
+        if s.visual.type != "image":
+            continue
+        for k, sh in selected_shots(s, args.shots):
+            sentence = shot_sentence(s.model_dump(), sh.model_dump(), [x.model_dump() for x in s.visual.shots])
+            print(f"\nscene {s.id} shot {k} — narration: {sentence}")
+            items = shot_must_show(s, sh)
+            for m in items:
+                print(f"  [ ] must show: {m}")
+            if not items:
+                print("  (no shot-specific rules matched)")
+            for h in prompt_hints(sentence, sh.image_prompt or ""):
+                print(f"  prompt hint: {h}")
 
 
 def run_inspection_tools(args: argparse.Namespace) -> None:
@@ -319,6 +365,7 @@ def run_oneoff(args: argparse.Namespace) -> None:
             if reference_problems(c):
                 raise SystemExit("; ".join(reference_problems(c)))
         refs, preamble = [reference_path(c) for c in chars], reference_preamble(chars)
+    check_prompt(args.prompt, icfg, preamble)
     secs = get_backend(icfg).generate(full_prompt(args.prompt, icfg, preamble), seed, width, height, out, refs)
     print(f"{out}  {width}x{height} seed {seed}  {secs:.1f}s")
 
@@ -348,6 +395,8 @@ def main() -> None:
     setup_logging(args.verbose)
     if args.checklist:
         print(checklist_text(load_config()["images"]))
+        if args.episode and args.scenes:
+            print_shot_rules(args)
         return
     if args.shots and not args.scenes:
         p.error("--shot needs --scene N")

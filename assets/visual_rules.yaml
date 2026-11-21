@@ -1,0 +1,186 @@
+# Image prompt rules (pipeline/visual_rules.py). One file for both sides of the image stage:
+#  - generation: write {kind:key} in a shot's image_prompt; images.py expands it to the phrase below.
+#  - inspection: `images --checklist episodes/<id> --scene N --shot K` lists the shot's must_show items
+#    (from the tokens its prompt uses and the narration rules whose keywords match its sentence).
+#
+# Rules for phrases (FLUX.2 klein 4B, guidance 1.0, no negative prompt):
+#  - Describe only what IS in the picture. Naming a thing ("no palm trees", "no water") tends to add it;
+#    `lint` blocks negations. A/B 2026-11-20: "no palm trees" gave a palm in 1/3 seeds, the positive
+#    background 0/3; "no standing crop anywhere" gave rows of seedlings in 2/3, "short cut stubble stumps" 0/3.
+#  - Every phrase records `tested:` (date, seeds, result). A new phrase starts as `tested: null` and gets
+#    a 3-seed A/B before an episode relies on it.
+#  - After a failed inspection, fix the phrase or add a must_show / narration rule here.
+
+settings:
+  north_field_bg:
+    text: >-
+      flat Uttar Pradesh farmland stretching to the horizon, tall slender eucalyptus trees and dense rounded
+      neem trees along the field boundary, a distant village of plastered brick houses with flat roofs and a
+      buffalo shed with a thatched roof
+    tested: >-
+      2026-11-20, seeds 11/22/33 behind stubble + 6 behind young wheat: reads North Indian 9/9; one small palm
+      far behind (seed 22) 1/9. Rejected: "broad-crowned neem and shisham ... low unplastered red-brick houses"
+      (reads as African savanna 3/3); "Punjab and Haryana plains, a straight row of tall thin eucalyptus"
+      (rows of European-looking poplars). Without any background phrase, palms appeared 2/6
+    must_show:
+      - "background reads as a North Indian plain: flat land, neem/eucalyptus/shisham-type trees, brick or mud houses (palms, coconut trees or painted concrete villas = South/coastal India: fail)"
+  soil_lab:
+    text: >-
+      a simple government soil testing laboratory: a long bench with a white tiled top, glass test tubes
+      standing in a metal rack, conical flasks and beakers of clear still liquid, a small digital weighing
+      balance, steel shelves with rows of small white plastic sample bottles along a white wall with charts
+    tested: >-
+      2026-11-20 rerun of v3 failures (lab still life, Sunita with beaker, Ramesh at the table): reads as a lab 3/3, liquids still 2/2 (v3 failed as kitchen jars and steam). 'sample jars' replaced by plastic sample bottles before the run
+    must_show:
+      - "reads as a laboratory at a glance (rack, flasks, balance on a bench), not a kitchen or a shop"
+      - "liquids are still; steam or smoke only with a visible burner"
+
+stages:
+  harvested_stubble:
+    text: >-
+      a flat, empty field of bare brown soil with short dry cut stubble stumps
+    tested: "2026-11-20, seeds 11/22/33 (still life + Ramesh wide): 6/6 read as harvested, cut stumps instead of loose straw"
+    must_show:
+      - "field after harvest: bare soil with short cut stubble only, no standing crop, no ears, no green seedling rows"
+  ploughed_bare:
+    text: >-
+      a freshly ploughed field of loose dark brown soil in long furrows, ready for sowing
+    tested: null
+    must_show:
+      - "bare ploughed soil, no crop"
+  young_wheat:
+    text: >-
+      young wheat seedlings three weeks after sowing: each plant a small tuft of three or four thin green
+      leaves, ankle-high, in straight rows with plenty of brown soil visible between them
+    tested: >-
+      2026-11-20, seeds 11/22/33: leaves only, no ears 3/3. Rejected: "young green wheat about ankle-high,
+      thin grass-like leaves only" (ears 2/3), "wheat one month after sowing ... tillering stage, shin-high"
+      (ears 3/3); "young green cereal seedlings ... a hand's height" (no ears 3/3 but reads as rice/grass)
+    must_show:
+      - "young green wheat with leaves only: no ears or heads, no golden colour (urea top-dressing goes on a young crop)"
+
+props:
+  steel_bucket_clean:
+    text: >-
+      a clean, dry, empty stainless-steel bucket with a thin wire handle, its inside dry and shiny
+    tested: >-
+      2026-11-20, seeds 11/22/33: one bucket, dry inside, 6/6; rerun 2/2 alone. When the other hand was to hold a spade, the spade became a second bucket (1/1)
+    must_show:
+      - "the number of buckets the prompt asks for; inside dry, no water"
+  cloth_sample_bag:
+    text: >-
+      a small white cloth drawstring bag of soil, about the size of two hands, a small paper tag tied to its neck
+    tested: >-
+      2026-11-20 rerun: Ramesh setting it down and Sunita pouring from it, 2/2 right, tags illegible
+    must_show:
+      - "small clean cloth or plastic bag; any writing on the tag illegible"
+  soil_report:
+    text: >-
+      a printed soil health report sheet with small tables and a narrow coloured bar chart
+    tested: "2026-11-20, seeds 11/22/33 with Ramesh: printed tables 6/6; headings sometimes semi-legible, check"
+    must_show:
+      - "looks printed (table lines, small type), not blank paper; nothing readable"
+  old_sack:
+    text: >-
+      an old, empty, crumpled white woven plastic fertilizer sack lying flat on the ground, its printing faded
+      to soft blurred patches of colour
+    tested: >-
+      2026-11-20 rerun, 1 seed: print became soft colour patches (v3 had big letters), woven plastic; but drawn full and puffy, the 'empty, crumpled, flat' part ignored
+    must_show:
+      - "sack empty, old and flat as narrated; print is blurred colour patches, no large letters"
+  khurpi:
+    text: >-
+      a small Indian hand weeder with a fist-length wooden handle and a dark forged iron blade shaped like a
+      flat pointed leaf, curving forward from the handle
+    tested: >-
+      2026-11-20. The word 'khurpi' and "small Indian hand hoe with a curved flat iron blade" drew a shiny Western
+      trowel 6/6. This phrase, in a squatting-and-digging shot with Ramesh, seeds 11/22/33: dark pointed flat blade
+      3/3, but the handle came out long (a scraper) 3/3. Adding a generated khurpi image as reference 2 in edit
+      mode gave a short handle 1/3 at twice the cost (~90 s), so it is not used. Reads as "a small digging
+      tool", not clearly a khurpi
+    must_show:
+      - "a small hand digging tool with a dark pointed iron blade, held by its handle; no shiny scoop trowel (a spade is correct too where the narration says फावड़े या खुरपी)"
+
+actions:
+  broadcast_open_hand:
+    text: >-
+      his right arm swings out to the side with the hand wide open and fingers spread, a thin fan of white
+      granules leaving his fingers and spreading through the air over a wide area of soil
+    tested: >-
+      2026-11-20 rerun of v3 scene 1 (failed 3x: closed fist, upright bucket, heap): granules leave the open right hand and spread thinly 1/1
+    must_show:
+      - "granules leave an OPEN hand (or the tilted mouth of a container), never a closed fist or a hand gripping a handle"
+      - "they land spread thinly over a wide area, not in one heap"
+  pour_from_tilted:
+    text: >-
+      tilts the container so its mouth points down, and the material pours out of the tilted mouth in a short stream
+    tested: null
+    must_show:
+      - "the container is tilted toward the flow; the stream starts at its mouth"
+
+# Words that often draw the wrong thing. lint warns; it doesn't block.
+risky_words:
+  - word: wheat
+    why: "alone it draws a standing wheat crop, often with golden ears. After harvest use {stage:harvested_stubble}; for a young crop use {stage:young_wheat}"
+  - word: khurpi
+    why: "klein doesn't know the word and draws a garden trowel (A/B 2026-11-20). Use {prop:khurpi} (blade right, handle often long) or a spade (फावड़ा) where the narration allows; a close-up of the tool won't read as a khurpi"
+  - word: palm
+    why: "can draw palm trees (South/coastal look). For the hand, write 'open hand' or 'cupped hands'"
+  - word: jar
+    why: "lab jars read as kitchen jars (v3 scene 5 failed). Name lab glassware: test tubes in a rack, conical flasks, beakers"
+  - word: coconut
+    why: "South/coastal India look"
+  - word: concrete
+    why: "painted concrete houses read as South/coastal India; use brick or mud houses"
+
+# Narration keyword → what the picture must show. Keywords match the shot's narration sentence (Hindi,
+# narration_display) or the prompt, case-insensitive substring. `hint` names library tokens to use.
+narration:
+  - id: after_harvest
+    when_any: ["कटाई के बाद", "फसल कटने", "खाली खेत", "खड़ी फसल न", "कटाई", "harvested"]
+    must_show:
+      - "field after harvest: bare soil and short cut stubble, no standing crop, no ears"
+    hint: "{stage:harvested_stubble}"
+  - id: sample_spots
+    when_any: ["टेढ़े-मेढ़े", "10 से 15", "अलग-अलग जगह", "zig-zag"]
+    must_show:
+      - "small separate hand-dug spots spread over the field; not trenches or channels, no standing water"
+  - id: clean_bucket
+    when_any: ["बाल्टी", "bucket"]
+    must_show:
+      - "exactly the buckets the prompt asks for; clean and dry inside"
+    hint: "{prop:steel_bucket_clean}"
+  - id: quartering
+    when_any: ["चार हिस्सों", "चार भाग", "quarter"]
+    must_show:
+      - "soil visibly in four parts with two opposite parts set aside. klein couldn't draw this in 3 tries (v3 scene 13): prefer a graphic"
+  - id: lab
+    when_any: ["प्रयोगशाला", "लैब", "laborator"]
+    must_show:
+      - "reads as a laboratory at a glance, not a kitchen; liquids still, steam only with a visible burner"
+    hint: "{setting:soil_lab}"
+  - id: broadcast_fertilizer
+    when_any: ["छिड़क", "बिखेर", "broadcast", "fling"]
+    must_show:
+      - "granules leave an open hand or a tilted container mouth, spread thinly; never a closed fist or upright bucket"
+      - "crop stage matches the timing in the narration (urea top-dressing = young crop before ears)"
+    hint: "{action:broadcast_open_hand}"
+  - id: old_sack
+    when_any: ["पुरानी बोरी", "बोरी", "sack"]
+    must_show:
+      - "the sack looks as narrated (old/empty/clean); print blurred, no large letters"
+    hint: "{prop:old_sack}"
+  - id: report
+    when_any: ["रिपोर्ट", "हेल्थ कार्ड", "report"]
+    must_show:
+      - "a report or card looks printed (tables, small type), not blank; nothing readable"
+    hint: "{prop:soil_report}"
+  - id: spraying
+    when_any: ["स्प्रे", "कीटनाशक", "दवा का छिड़काव", "spray"]
+    must_show:
+      - "anyone spraying a chemical wears full sleeves, gloves and a cloth over nose and mouth; the nozzle points at the crop"
+  - id: north_india
+    when_any: ["खेत", "गांव", "field", "village"]
+    must_show:
+      - "setting reads as North Indian plains (no palms, no coastal or hill look)"
+    hint: "{setting:north_field_bg}"

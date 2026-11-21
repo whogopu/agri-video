@@ -82,6 +82,9 @@ agri-video/
 │   ├── tts_try.py           voice auditions / TTS smoke tests outside an episode
 │   ├── cast.py              recurring characters: candidates, user-approved reference, prompt preamble
 │   ├── images.py            image backend (mflux; edit mode for cast shots), shots, attempts, seeds, crops, inspection records
+│   ├── visual_rules.py      prompt library tokens, prompt lint (no negations), per-shot must-show items (§7.6c)
+│   ├── vlm_inspect.py       TRIAL: local vision-model pre-screen of shots + eval against past verdicts (advisory only, §7.6b)
+│   ├── vlm_compare.py       TRIAL: one HTML page comparing models' verdicts and reasons on every labelled shot
 │   ├── broll.py             optional B-roll library: index / check / list
 │   ├── render.py            sync assets into Remotion, write props, run remotion render
 │   ├── review.py            contact sheets + automated checks → review/review.md
@@ -96,6 +99,9 @@ agri-video/
 │   └── parler_worker.py     reads jobs as JSON on stdin, loads model once, writes WAVs
 ├── asr/                     ISOLATED env for take scoring (mlx-whisper, librosa)
 │   └── asr_worker.py        transcribes takes, measures pitch range / end rise / gaps
+├── vlm/                     ISOLATED env for the local vision model trial (mlx-vlm 0.7.12)
+│   ├── vlm_worker.py        loads one model, answers a list of image questions, JSON in/out
+│   └── models/              locally converted MLX models, e.g. InternVL 3.5 8B 4-bit (gitignored)
 │
 ├── remotion/                TypeScript video compositions (Remotion 4.0.545, React 19)
 │   ├── src/Root.tsx         compositions: Episode, EpisodeShort (preview), FontTest, Thumbnail
@@ -126,7 +132,7 @@ agri-video/
 └── tests/                   pytest suite (65 tests) + fixtures/sample-episode
 ```
 
-### 3.1 Five runtimes, deliberately separated
+### 3.1 Separate runtimes, deliberately isolated
 
 | Runtime | Where | Why separate |
 |---|---|---|
@@ -134,6 +140,7 @@ agri-video/
 | TTS MLX env (3.12) | `tts-mlx/.venv` via `uv sync` in `tts-mlx/` | Production voices on Apple Silicon (MLX). mlx-audio pins a recent transformers; separate from Parler's pinned one. |
 | TTS Python env (3.12) | `tts/.venv` via `uv sync` in `tts/` | `parler-tts` pins `transformers==4.46.1` and pulls torch; keeping it isolated stops it from constraining the main env. Called as a **subprocess** with JSON in and out. |
 | ASR Python env (3.12) | `asr/.venv` via `uv sync` in `asr/` | mlx-whisper pulls torch, numba and MLX; only needed to score narration takes. Subprocess, JSON in and out. |
+| VLM Python env (3.12) | `vlm/.venv` via `uv sync` in `vlm/` | mlx-vlm for the local inspection trial (§7.6b); pins its own transformers/MLX. Subprocess, JSON in and out. |
 | mflux | `uv tool install mflux==0.24.0` (per user, `~/.local/bin`) | A CLI tool with its own MLX/torch stack, called as a subprocess. |
 | Node / Remotion | `remotion/node_modules` | Rendering in headless Chrome; TypeScript compositions. |
 
@@ -266,6 +273,18 @@ Every stage skips outputs that already exist unless `--force`, and takes `--scen
 
 ---
 
+### 6.4 Control room (`dashboard/`, 2026-11-20)
+
+`uv run python -m dashboard` serves a local page (127.0.0.1:8765, stdlib only) that shows every episode's status rail, each stage's last run from `log.md`, scenes with audio and shots (inspection badges), outputs, and a job console. It runs the same `python -m pipeline.<stage>` commands as a queue, **one job at a time** (16 GB Mac), each in its own process group so **Stop** ends the whole tree (Remotion, mflux, TTS workers); stages save per item, so running again resumes. **Retry** re-queues the same command. ETAs come from per-unit rates learned from all episodes' history (seconds per image, per TTS take, per second of rendered video) and live progress parsed from the output (image notes, take files written, Remotion frame counts). It never edits `episode.json` and never passes `--allow-unapproved`: status changes go through `validate --set-status`, and checkpoint 1/2/3 actions need the user to tick an approval box. It also lists pipeline processes started elsewhere (e.g. by Claude in a terminal) with a Stop button. Job history and logs: `dashboard/runs/` (gitignored).
+
+**Usage & cost** (`dashboard/usage.py`, 2026-11-20). The goal is to see where compute and money go, so work can move from Claude to local models where it pays off. Two meters, one shared list of steps (script, narration, images, image inspection, render, review, package, checks, pipeline development, other):
+- *Local, measured.* A sampler thread watches every pipeline run, both dashboard jobs and `python -m pipeline.*` started from a terminal (it skips the wrapping shell). Every 2 s it reads `ps` (CPU time and memory per process, grouped into FLUX image model / TTS voice model / Whisper scoring / Remotion browser / Remotion node / ffmpeg / pipeline python), Apple GPU busy % (`ioreg IOAccelerator`) and whole-Mac power (`ioreg AppleSmartBattery` `SystemLoad`, mW). All three work without sudo. macOS refreshes the power figure only about once a minute, so energy for runs under a minute is rough, and it covers the whole Mac (screen included). Dashboard jobs get exact CPU seconds from `os.wait4()` rusage, which includes every worker the job waited for. Finished runs are appended to `dashboard/runs/usage.jsonl`, with up to 240 samples each for the CPU/GPU sparkline. Runs from before metering existed only have wall time, taken from each episode's `log.md`.
+- *Claude, priced.* It reads this project's Claude Code transcripts (`~/.claude/projects/<repo-slug>/*.jsonl`) incrementally, counts each assistant message's usage once (one message spans several lines), and prices it with `config.yaml: costs.claude_usd_per_mtok`. On 2026-11-20 this matched Claude Code's own session cost to within about 2%; the gap is side calls that aren't in the transcript. Each message gets the step of the tool it used (reading `images/*.png` = image inspection, writing `script.md`/`sources/` = script, `pipeline.<stage>` commands = that stage, editing `pipeline/`, `remotion/`, `dashboard/`, `docs/`, `tests/` = pipeline development) and the episode its tool inputs name. A message without a tool inherits the session's current step. Pipeline development has no episode. On a subscription this is the API-equivalent value, not the bill.
+
+**Pipeline flow** (`dashboard/flow.py`, `/api/flow/<episode>`, 2026-11-20). The default view of an episode's stages is a Jenkins-style graph: one column per stage (script → CP1 → spoken text → narration → images → image inspection → draft render → CP2 → final render → review → package → CP3), each with its steps and **where each step executes**: *This Mac · GPU* (MLX/Metal models: TTS voice, Whisper, FLUX, local VLM), *This Mac · CPU* (Python, ffmpeg, Remotion's headless Chrome), *Cloud API* (Claude today) or *You* (checkpoints). The executor and engine name are read from `config.yaml` (episode voice preset, `narration.asr`, `images`, `render`), and any backend not in `flow.LOCAL_GPU_BACKENDS` shows as Cloud API, so moving a stage to a hosted service needs no dashboard change. Each step carries this episode's measured CPU for its process group (sampler components), each Claude step its $, and each column its share of the episode's cost (Claude + electricity) and local stage time, with the largest marked. While a dashboard job, a terminal run or Claude works on the episode, the busy steps pulse with live CPU and memory. The old card list is still there under *List* (run options per scene/shot live there).
+
+The page shows headline tiles, a ₹ split (Claude vs electricity), tables by step and by episode, Claude spend by day, local CPU by process, and recent measured runs. Each stage card also shows its Claude cost for the episode, and a running stage shows live CPU cores, GPU %, W, memory and a per-process CPU split. The top bar shows live local load and Claude spend over the last 10 minutes.
+
 ## 7. Stages in detail
 
 ### 7.1 `new_episode`
@@ -348,7 +367,7 @@ These heuristics came from real defects ("कौन | सा", "बिना | �
 ### 7.6 `images` (and the inspection gate)
 - **Backend:** `mflux-generate-flux2` running **FLUX.2 [klein] 4B, pre-quantized 4-bit** (`mflux-community/flux2-klein-4b-mflux-q4`), 4 steps, guidance 1.0. About 18–22 s per image including model load; peak ≈3.7 GB RAM.
 - **Size by format:** 1344×768 (long) or 768×1344 (short), multiples of 16. Remotion scales to cover the frame, and the slow zoom hides the upscaling.
-- **Prompt** = scene prompt + `images.style_suffix` ("…, no readable signs, no captions, no watermark": it asks for no readable text, but doesn't push the model toward blank paper or bare walls). Prompts must be concrete about people, clothing, crop **and stage**, the tool and grip, what **both hands** are doing, and the setting.
+- **Prompt** = cast preamble + shot prompt with its `{kind:key}` tokens expanded from `assets/visual_rules.yaml` + `images.style_suffix` ("photorealistic documentary photograph, rural North India, natural daylight, sharp focus"). The whole prompt is linted before generating; negations are rejected (§7.6c). Prompts must be concrete about framing, people, what **both hands** are doing, the tool and grip, crop **and stage**, the setting and the light, in that order.
 - **Seeds:** `sha1(episode_id:scene_id:attempt)`, deterministic, so reruns reproduce and retries differ. Stored per scene.
 - **Attempts:** each saved as `scene-XX-aN.png`. After `max_attempts` (3) the stage writes a **FLAG** to `log.md` instead of generating more; `--extra-attempt` exists only for when the user explicitly asks for another try.
 - **Inspection** (mandatory and enforced):
@@ -362,10 +381,78 @@ These heuristics came from real defects ("कौन | सा", "बिना | �
 ### 7.6a Shots and the recurring cast (2026-11-19)
 - **Shots.** A scene held one still for 10–17 s, which felt static. An image scene now holds 1–3 `shots`, each starting at a narration sentence (`at_segment`). The cut sits in the middle of the pause before that sentence (`common.shot_starts_sec` = `timing.ts: shotStartFrames`); without segment timings, shots split the scene evenly. Each shot gets its own Ken Burns move, and the next shot dissolves in over `SHOT_FADE_FRAMES` (6). Validate warns for shots under 2.5 s or over 9 s.
 - **Cast.** Recurring synthetic characters live in `assets/cast/<id>/` (`schema.CastMember`: name_hi, name_en, role, gender, `look`, `wardrobe`). `cast candidates` makes 4 full-figure references (plain wall, final costume, face sharp). Claude inspects them, `cast sheet` makes a numbered sheet, **the user picks**, and `cast approve` records the file's SHA-1.
-- **Consistency mechanism.** A shot with `characters` runs `mflux-generate-flux2-edit` (same FLUX.2 klein 4B q4, Apache-2.0) with the reference images, and the prompt starts with `cast.reference_preamble()`: "<Name> is the man in reference image 1: keep exactly his face … and his clothes (<wardrobe>); nothing else added on the head." Tests (`samples/character-test/`): the face, hair and beard carried over well across field, close-up and lab shots, and two characters with two references stayed distinct. Klein takes clothes from the **prompt** more than from the reference and adds headwear on its own, hence the explicit wardrobe and "nothing added". Cost: ~40 s per shot with one reference, ~90 s with two (vs ~19 s).
+- **Consistency mechanism.** A shot with `characters` runs `mflux-generate-flux2-edit` (same FLUX.2 klein 4B q4, Apache-2.0) with the reference images, and the prompt starts with `cast.reference_preamble()`: "<Name> is the man in reference image 1: keep exactly his face … and his clothes (<wardrobe>); <accessories>." Tests (`samples/character-test/`): the face, hair and beard carried over well across field, close-up and lab shots, and two characters with two references stayed distinct. Klein takes clothes from the **prompt** more than from the reference and adds headwear, watches and rings on its own, hence the explicit wardrobe and the positive `accessories` ("hair uncovered, bare wrists, bare fingers"; until 2026-11-20 it said "nothing else added on the head", see §7.6c). Cost: ~40 s per shot with one reference, ~90 s with two (vs ~19 s).
 - **Identity inspection.** `--crops` also writes `<shot>-vs-<id>.png` (reference | shot). Checklist item "Identity"; `--inspect pass` on a cast shot requires the notes to mention identity. Each shot stores the reference SHA-1 it was made from, so re-approving a reference flags every older shot.
 - **Action & physics inspection** (D29). Every pass note needs `action: ...`: poured/thrown material traced to an open hand or tilted container, landing that matches the action, nothing floating; plus a narration & good-practice check (crop stage, method, quantity, clean equipment). `images.pass_notes_problem` refuses passes without it; `validate` errors on any inspection recorded from `ACTION_RULE_SINCE` (2026-11-20) without it. If the model cannot draw a step correctly after its attempts, drop the shot or use a graphic rather than keep a misleading picture.
 - Fallbacks if references stop being enough: a second, close-up face reference per character; a character LoRA (`mflux-train` on klein base 4B, larger download). Face swap (InsightFace) is excluded: non-commercial.
+
+### 7.6b Local vision-model pre-screen (trial, 2026-11-20)
+
+**Goal.** Move part of image inspection from Claude to a model running on this Mac, so obvious failures are retried before anyone looks. **Advisory only**: `pipeline/vlm_inspect.py` never writes an inspection record. The official pass/fail stays with Claude's full-size + zoomed inspection via `images --inspect` (CLAUDE.md), and `validate` still gates on that.
+
+**How it asks.** Small models answer narrow questions far better than the 13-item checklist, so each shot gets separate questions, run in the isolated `vlm/` env (`vlm_worker.py`: one model load, a list of jobs, JSON in and out):
+- *full*: the whole image, its image prompt and the narration sentence over it. The model lists every issue and rates it **MAJOR** (a farmer watching on a phone for 3 s would notice it, or it teaches the wrong thing: a one-armed look, merged people, pouring from a closed fist or upright container, a broken tool, wrong crop, stage or method, a non-North-Indian setting, readable text) or **minor** (only visible close up, or doesn't change what the viewer understands).
+- *identity*: the `<shot>-vs-<id>.png` pair for each cast member, differences rated the same way.
+- *crops* (`--crops`, off by default): the four 2× quarters, v1 only.
+
+A shot fails if any question reports a MAJOR issue, or if an answer can't be parsed (unsure = fail). Minor issues are listed but never fail a shot. Complaints that are only about illegible text are dropped in code (`illegible_text_only`), because the model raised them despite the prompt.
+
+**Eval.** `vlm_inspect --eval [--model REPO]` rebuilds a labelled set from every episode's `log.md`: each `inspection PASS|FAIL` line is matched to the image attempt that was current at that moment, and the latest verdict per attempt wins. That gave 77 shots (20 fail, 57 pass). Answers stream to `samples/vlm-eval/<model>-<prompt version>/results.jsonl`, which makes runs resumable; answers are cached by question id, so a prompt change needs a new `PROMPT_VERSION`. The report gives fails caught and good shots wrongly failed, per question type and overall. Generated crops and pairs go to `samples/vlm-eval/work/<episode>/`. Attempt names repeat across episodes, and before 2026-11-20 one shared folder let one episode's crops overwrite another's.
+
+**Findings so far (Qwen3.5-9B 4-bit, ~7.4 GB peak, ~14 s per question, ~17% slower by the end of a 95-minute run on the fanless Air):**
+- *v1, strict checklist with zoom crops:* caught 20/20 failures but wrongly failed 48/57 good shots (84%). The full-image question alone caught all 20; the crops added only wrong fails.
+- *User review of 65 of its reported flaws* (`samples/vlm-eval/review-v1.html`, marks in `user-marks-2026-11-20.txt`): 0 major, 19 real but minor, 46 not real. Every "missing arm / missing fingers" zoom claim was invented. On the two real failures reviewed, its stated reasons were wrong even though its verdict was right, so its recall came mostly from failing almost everything.
+- *v2, MAJOR/minor (`sev2`, full image + identity), all 77 shots:*
+
+  | Model (4-bit MLX) | Fails caught | Good shots wrongly failed | Per question | Peak memory |
+  |---|---|---|---|---|
+  | Qwen3.5-9B | 19/20 | 40/57 (70%) | ~14 s | 7.4 GB |
+  | Qwen3-VL 8B Instruct | 7/20 | 5/57 (9%) | ~5 s | 6.7 GB |
+  | InternVL 3.5 8B (converted locally) | 7/20 | 13/57 (23%) | ~6 s | 6.2 GB |
+
+  Qwen3.5 still invents MAJOR defects (floating buckets, missing arms) and 14 of its answers looped until the token limit. Qwen3-VL listed an issue on only 4 of 77 full images and missed the one-armed couple, a third hand, two buckets and standing wheat; most of its catches came from stock identity phrases. InternVL listed an issue on 1 of 77 full images, and its identity answers copy the categories from the prompt ("face shape or age", "beard or moustache", "clothes") for almost every cast shot. **No model names the real defects** (hidden arms, extra hands, fused objects, wrong crop stage, costume swaps), so none is used. The harness stays: a new model can be scored in ~15–40 min with `--eval --model`.
+- *Round 2, 2026-11-21: three newer open models on a 20-shot sample* (`--sample 20`: 10 fails + 10 passes drawn with a fixed seed, so every model sees the same shots; the earlier three re-scored on the same 20 from cached answers):
+
+  | Model (4-bit MLX) | Fails caught | Good shots wrongly failed | Per shot | Peak memory |
+  |---|---|---|---|---|
+  | Qwen3.5-9B | 9/10 | 5/10 | ~20 s | 7.4 GB |
+  | Qwen3-VL 8B | 4/10 | 0/10 | ~7 s | 6.7 GB |
+  | InternVL 3.5 8B | 5/10 | 1/10 | ~8 s | 6.2 GB |
+  | Gemma 4 E4B | 4/10 | 0/10 | ~5 s | 5.9 GB |
+  | Molmo2 8B | 0/10 | 1/10 | ~13 s | 8.6 GB |
+  | **Ministral 3 14B** | **9/10** | **0/10** | ~50 s | 10.8 GB |
+
+  Ministral is the first model that mostly names the *real* defect: standing wheat, kitchen jars, steam, wristwatch + palms, palms, and the costume swap (identity: "right person wears a white lab coat"). It missed the closed-fist broadcast (called "slightly closed fist" minor) and gave a wrong reason on one right verdict (trenches with water → "standing crop"). Caveat: most of the 10 sampled fails are scene-level, and several of their old prompts still said "no palm/steam/watch", which hands the model the answer; hand and limb defects (one-armed look, third hand) are under-represented. Its one false fail came from blank `severity` entries ("... so this is not an issue"), which the parser counted as MAJOR; a blank severity now follows the model's verdict. Next step: the full 77 with Ministral (~1 h).
+- *InternVL conversion notes:* no MLX build is published. `mlx_vlm convert` from `OpenGVLab/InternVL3_5-8B-HF` needs `text_config.tie_word_embeddings: false` added (the HF config omits it; the checkpoint has a separate `lm_head`) and `chat_template.jinja` copied into the output by hand, otherwise the model answers as raw text completion. Conversion took 11 s with a 9.6 GB peak.
+
+`uv run python -m pipeline.vlm_compare` builds `samples/vlm-eval/compare.html`: a scoreboard per run, then every labelled shot with Claude's note, the user's marks and each model's MAJOR/minor reasons, to check that a model names the real problem.
+
+**Bar for using it as a pre-screen:** nearly all real failures caught, fewer than ~1 in 4 good shots wrongly failed, and stated reasons that are real.
+
+### 7.6c Prompt rules: library, lint and must-show (`pipeline/visual_rules.py`, 2026-11-20)
+
+**Why.** Of the 20 logged image failures, most contained exactly what the prompt said "no" to: "no palm trees" → palms, "no wristwatch" → a watch, "no bucket" → two buckets, "no water" → standing water, "no steam" → steam. FLUX.2 klein runs at guidance 1.0, with no negative prompt, so a named object is a requested object. A same-seed A/B (old prompt vs a positive rewrite, 3 seeds × 2 shots) confirmed it: palms 1/3 → 0/3, "harvested" field drawn as seedling rows 2/3 → 0/3; bucket counts and watches didn't differ. The aim is to make generation right more often, so inspection finds less and is more certain.
+
+**One file, both sides** (`assets/visual_rules.yaml`):
+- `settings` / `stages` / `props` / `actions`: tested phrases, used in a shot prompt as `{kind:key}` tokens and expanded by `images.full_prompt`. Each has `tested:` (date, seeds, result, rejected wordings) and `must_show` items for inspection. A new phrase starts `tested: null` and gets a 3-seed A/B before an episode relies on it.
+- `risky_words`: words that draw the wrong thing ("wheat" → a standing crop with ears, "khurpi" → a garden trowel, "jar" → a kitchen). Lint warns; checked only on the words written in the shot, not inside tested phrases.
+- `narration`: keyword (Hindi or English, substring of the shot's narration sentence or prompt) → `must_show` + `hint` tokens, e.g. कटाई → "bare soil and short cut stubble, no standing crop".
+
+**Lint.** `images.check_prompt` lints preamble + prompt + style suffix before every generation (episode and one-off). Negations (*no, not, without, nothing, none, never, nor, instead of, avoid, except, n't*) and unknown tokens are errors; risky words are warnings. The style suffix and the cast preamble were rewritten to positive wording: the suffix lost "no readable signs, no captions, no watermark", and `CastMember.accessories` ("his short grey-black hair uncovered, bare wrists, bare fingers") replaced "nothing else added on the head".
+
+**Must-show.** `images --checklist episodes/<id> --scene N --shot K` prints the general checklist plus the shot's narration sentence, its must-show items (from its tokens and matching narration rules) and suggested tokens; the items are also printed after generating. Claude checks them during inspection.
+
+**Prompt template** (visuals skill): framing and camera → who and what both hands do → props with grip and state → setting and crop stage → light. Framing goes first because klein ignored "close medium shot" at the end in 2 of 3 seeds.
+
+**Rerun of past failures (2026-11-20).** 12 shots that failed their first attempt (10 from v3, 2 from the pilot) were regenerated once with library prompts at their original first-attempt seeds (`samples/prompt-ab-2026-11-20/rerun/`). **7/12 passed first time** (0/12 before); **10/12** after the user ruled small rings and bangles minor (2026-11-21), leaving the third hand (v3-05-s2) and the second bucket (v3-09-s2). Fixed: closed-fist broadcasting, ears on young wheat, lab drawn as a kitchen, steam, palms, trenches with water, big letters on the sack, an extra bucket, a third hand, and the four-part soil division (failed 3 times in v3). Still failing: jewellery added on cast members (rings on Ramesh 2/5 shots, rings and bangles on Sunita 1/2) despite "bare fingers"; a third hand where the prompt put Sunita's resting hand on the side away from the bench; a spade in one hand turned into a second bucket. These became rules in the visuals skill.
+
+**Feedback loop.** After every failed inspection, the phrase, risky word or narration rule that would have prevented it is fixed in the YAML, so a mistake is learned once rather than per episode.
+
+**Library A/B results (2026-11-20, seeds 11/22/33; images and scripts in `samples/prompt-ab-2026-11-20/`, gitignored):**
+- `north_field_bg`: "UP farmland, slender eucalyptus and rounded neem trees, plastered brick houses with flat roofs, a thatched buffalo shed" read as North India 9/9, with one small palm far behind (1/9). Rejected: "broad-crowned neem and shisham, unplastered red-brick houses" (African savanna 3/3); "Punjab plains, a straight row of eucalyptus" (European poplars). With no background phrase, palms appeared 2/6.
+- `young_wheat`: "young wheat seedlings three weeks after sowing: each plant a small tuft of three or four thin green leaves, ankle-high…": no ears 3/3. "Ankle-high young wheat, leaves only" gave ears 2/3; "tillering, shin-high" gave ears 3/3.
+- `harvested_stubble`: "bare brown soil with short dry cut stubble stumps": 6/6.
+- `khurpi`: klein doesn't know the word and draws a shiny Western trowel 6/6. Described by shape ("a fist-length wooden handle and a dark forged iron blade shaped like a flat pointed leaf"), the blade comes out right 3/3, but the handle is long 3/3. A **prop reference** was tested as well: the best of 15 generated tool photos (side and top views, 5 wordings) went in as reference image 2 in edit mode. It gave a short handle in 1/3 at twice the cost, so props don't get references for now. Where the narration says "फावड़े या खुरपी", a spade is the safer picture; a close-up meant to show a khurpi won't read as one. Next step if it matters: a small prop LoRA (§7.6a fallbacks).
 
 ### 7.7 B-roll (optional)
 The library lives in `assets/broll/`. `broll index` probes new clips (duration, size, fps, orientation), writes a three-frame contact strip to `frames/<id>.jpg`, and adds a **stub** entry. Claude then fills in descriptions (English and Hindi), tags (crop, activity, setting, season, shot type), usable segments, quality notes, `people_visible`, source and **license**. A clip with any field missing is **unusable**: `broll check` fails, `validate` rejects it, and `list` marks it. Most episodes use generated images only; the visuals skill skips B-roll entirely when no complete clips exist.
@@ -433,7 +520,7 @@ Claude-specific judgement steps (cannot be scripted): writing Hindi copy, resolv
 | `tts.default_voice`, `tts.voices.<preset>` | presets with `speaker`, `wpm` (measured), `description` (`{speaker}` placeholder) |
 | `audio.target_lufs/true_peak_db` | −14 LUFS, −1.5 dBTP |
 | `narration.*` | `mode` (segments/scene), `takes` (a voice preset may override, e.g. Veena 6), `pauses_sec` per pause kind, `room_tone_db`, `styles` (Parler descriptions + tempo), `auto_style` rules, `asr` (whisper model), `score_weights` |
-| `images.*` | backend, command, model, base_model, steps, guidance, quantize, `style_suffix`, `max_attempts`, **`inspection_checklist`** |
+| `images.*` | backend, command, model, base_model, steps, guidance, quantize, `style_suffix` (positive wording only, linted), `max_attempts`, **`inspection_checklist`** (per-shot must-show items come from `assets/visual_rules.yaml`, §7.6c) |
 | `captions.max_words_per_chunk`, `captions.font_size_px` | 6 words per chunk (long default); caption size per format `{long: 56, short: 64}` px at full resolution, passed by `render.py` as the `captionFontSize` prop (falls back to the theme) |
 | `render.*` | draft scale 0.5, concurrency 4, hardware acceleration, crossfade frames (must match `theme.ts`) |
 | `review.*` | frame interval 2 s, 12 frames per sheet |
@@ -497,7 +584,9 @@ Decisions made during the v0 build, with what was considered.
 | D30 | **Word timing = Whisper word timestamps aligned to the script by letters, snapped to silences, clamped to sentence spans** (2026-11-20) | Forced alignment model (MMS/wav2vec2 CTC); trust Whisper's words directly; keep proportional timing | No new model or licence (mlx-whisper is already in `asr/`); measured accurate enough on v3 (§7.4a). The script is the truth for *what* was said, Whisper only for *when*; the known sentence spans bound any error. A CTC forced aligner stays the fallback if a voice or episode measures worse. |
 | D31 | **Word-timed captions with a colour-only highlight of the spoken word** (2026-11-20) | Keep proportional timing; karaoke fill (spoken words stay coloured); bold/scale the current word | User chose the spoken word in brand colour. Colour only, so the line doesn't reflow; only the current word, so the viewer's eye is led to one place; unlit in pauses. Chunking unchanged, so the phrase-break fixes of §7.5 still hold. |
 | D32 | **Graphics appear on cue, matched automatically from the point's words; explicit cue as override** (2026-11-20) | Fixed even schedule (v0); require a cue phrase for every point in the script | Points used to appear before the narrator reached them (scene 6 showed all 12 parameters while the voice was still at सल्फर). Automatic matching needs no script changes (all 17 v3 cues were right); explicit cues cover paraphrases the matcher can't place. Tags and title cards stay at scene start because they label the topic. |
+| D33 | **Local vision-model pre-screen is advisory and uses a MAJOR/minor threshold, not perfection** (2026-11-20) | Replace Claude's inspection with a local model; flag every flaw (v1) | Generated images are never flawless, and Claude and the user already pass shots with small flaws. A model that reports every imperfection failed 84% of good shots, so it can't save any work. Only a MAJOR issue fails a shot. The official verdict stays with Claude (CLAUDE.md). Models are chosen by eval on past verdicts, not by spec sheets (§7.6b). |
 | D29 | **Action & physics check on every image, enforced in code** (2026-11-20) | Limb/finger checklist only | At checkpoint 2 the user found a passed shot where khaad poured out of a closed fist gripping an upright bucket. User: make it a rule so it never repeats. The re-check of all 26 shots then caught a water-filled sampling bucket, steam from cold flasks, an oversized sample pit and a dirty 'clean bag'. |
+| D34 | **Image prompts are positive-only and built from a tested library** (`assets/visual_rules.yaml`, lint enforced; 2026-11-20) | Keep "no X" clauses; a separate local VLM critic; vendoring a generic prompt-engineer skill (msitarzewski/agency-agents) | klein has no negative prompt, and the failure log plus a same-seed A/B showed named exclusions get drawn. The generic skill's 5-layer order (framing, subject, setting, light, style) was adopted in the visuals skill, but it has no farming knowledge and recommends negative prompts. One YAML drives both prompt phrases and per-shot must-show checks, so generation and inspection stay in step (§7.6c). |
 
 ---
 
@@ -508,6 +597,7 @@ Decisions made during the v0 build, with what was considered.
 - **Hand-synced mirrors.** `schema.py` ↔ `types.ts` and `common.episode_frames` ↔ `timing.ts` are kept in sync by hand. `tests/test_phase5.py` checks the timing math against a real render.
 - **Captions fall back to character-proportional timing** when a scene has no word timings (scene-mode narration, or narration edited after `--align-only`); `validate` warns.
 - **Word timing edge cases:** a word right after a consonant closure can be timed up to ~0.4 s late; a word Whisper didn't hear is spread by letter count (`timed: false`).
+- **Local vision models invent defects.** Asked to find problems, a 9B model reports some on almost every image: missing arms and fingers that are there, "readable" text that is gibberish. Never trust its verdict without the eval numbers, and never let it record an inspection.
 - **Memory:** FLUX.2 klein loads a Qwen3-4B text encoder besides the image model, and Parler-TTS needs several GB too. Keep only one heavy job running at a time.
 - **Gated model:** Indic Parler-TTS requires accepting its Hugging Face terms and `hf auth login` once per machine.
 - **`--allow-unapproved` and `--extra-attempt` bypass gates.** Use the first only for tests and the second only on explicit user request; both appear in `log.md`.

@@ -50,8 +50,8 @@ def test_index_check_list(tmp_path: Path):
 
 
 def test_image_helpers():
-    cfg = {"style_suffix": "photorealistic, no text"}
-    assert full_prompt("A farmer in a field.", cfg) == "A farmer in a field, photorealistic, no text"
+    cfg = {"style_suffix": "photorealistic"}
+    assert full_prompt("A farmer in a field.", cfg) == "A farmer in a field, photorealistic"
     assert default_seed("ep", 1, 1) == default_seed("ep", 1, 1)
     assert default_seed("ep", 1, 1) != default_seed("ep", 1, 2)
 

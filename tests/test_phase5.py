@@ -62,6 +62,10 @@ def test_caption_font_size_from_config():
     assert caption_font_size({}, "long") is None
 
 
-def test_style_suffix_allows_incidental_text():
+def test_style_suffix_is_positive_only():
+    """klein has no negative prompt: the suffix must not name what it doesn't want (A/B 2026-11-20),
+    and must not push toward blank paper or bare walls either."""
+    from pipeline.visual_rules import lint
     suffix = load_config()["images"]["style_suffix"]
-    assert "no text" not in suffix and "no readable signs" in suffix
+    errors, _ = lint(suffix)
+    assert errors == [] and "no text" not in suffix

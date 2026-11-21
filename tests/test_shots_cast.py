@@ -64,7 +64,8 @@ def cast_lib(tmp_path, monkeypatch):
     import pipeline.cast as cast
     monkeypatch.setattr(cast, "CAST_DIR", tmp_path / "cast")
     c = cast.CastMember(id="ramesh", name_hi="रमेश जी", name_en="Ramesh", role="farmer", gender="male",
-                        look="a 48-year-old farmer, grey moustache", wardrobe="white kurta, green gamchha")
+                        look="a 48-year-old farmer, grey moustache", wardrobe="white kurta, green gamchha",
+                        accessories="hair uncovered, bare wrists")
     cast.save_character(c)
     return cast
 
@@ -85,7 +86,9 @@ def test_reference_needs_user_approval(cast_lib):
 def test_reference_preamble_names_and_wardrobe(cast_lib):
     pre = cast_lib.reference_preamble([cast_lib.load_character("ramesh")])
     assert "Ramesh is the man in reference image 1" in pre
-    assert "white kurta, green gamchha" in pre and "nothing else added on the head" in pre
+    assert "white kurta, green gamchha" in pre and "hair uncovered, bare wrists" in pre
+    from pipeline.visual_rules import lint
+    assert lint(pre)[0] == []   # positive wording only: klein has no negative prompt
 
 
 def test_validate_cast_shots(tmp_path, cast_lib):

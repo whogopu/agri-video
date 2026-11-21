@@ -27,3 +27,10 @@ episodes/*/images/inspect/
 
 # cast: candidates are working files; ref.png + character.json are committed
 assets/cast/*/candidates/
+
+# dashboard job history + logs
+dashboard/runs/
+
+# locally converted vision models (pipeline/vlm_inspect.py trial)
+vlm/models/
+

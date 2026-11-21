@@ -38,3 +38,12 @@ Rule: company project, so **no non-commercial licenses**. Check before adopting 
 | Noto Sans Devanagari (variable) | captions/graphics font | SIL OFL 1.1 | yes | 2026-11-19 | bundled in `remotion/public/fonts/` with `OFL.txt`; from google/fonts repo |
 | B-roll clips | footage | per clip (`assets/broll/index.json: license`) | checked per clip | — | `broll check` and `validate` reject clips without a license |
 | ffmpeg 9.0.2 (Homebrew) | media processing | LGPL/GPL (Homebrew build) | yes, as an external CLI | 2026-11-19 | called as a separate program, not linked. Homebrew build has **no `drawtext` filter** (no freetype) |
+| mlx-vlm 0.7.12 | local vision-language runner (image inspection trial) | MIT | yes | 2026-11-20 | `vlm/` env only (`pipeline/vlm_inspect.py`), advisory, never records an inspection |
+| **Qwen3.5-9B** (`mlx-community/Qwen3.5-9B-4bit` / `-8bit`) | local image inspection candidate | Apache-2.0 | yes | 2026-11-20 | 6.0 GB (4-bit), 10.5 GB (8-bit) |
+| **Gemma 4 12B** (`mlx-community/gemma-4-12B-it-4bit`) | local image inspection candidate | Apache-2.0 | yes | 2026-11-20 | 6.8 GB. Gemma 4 moved to Apache-2.0 (checked on `google/gemma-4-12B-it`) |
+| **Qwen3-VL 8B Instruct** (`mlx-community/Qwen3-VL-8B-Instruct-4bit`) | local image inspection candidate | Apache-2.0 | yes | 2026-11-20 | 5.8 GB (4-bit) |
+| **InternVL 3.5 8B** (`OpenGVLab/InternVL3_5-8B-HF`) | local image inspection candidate | Apache-2.0 | yes | 2026-11-20 | no MLX build published: 17.1 GB download (user approved 2026-11-20), converted locally to 4-bit MLX in `vlm/models/` (gitignored) |
+| **Gemma 4 E4B** (`mlx-community/gemma-4-e4b-it-4bit`) | local image inspection candidate | Apache-2.0 | yes | 2026-11-21 | 5.1 GB (4-bit) |
+| **Molmo2 8B** (`mlx-community/Molmo2-8B-4bit`) | local image inspection candidate | Apache-2.0 | yes | 2026-11-21 | 6.4 GB (4-bit), user approved download |
+| **Ministral 3 14B Instruct 2512** (`mlx-community/Ministral-3-14B-Instruct-2512-4bit`) | local image inspection candidate (best so far) | Apache-2.0 | yes | 2026-11-21 | 8.4 GB (4-bit), user approved download |
+| Qwen3.8-27B, Gemma 4 26B/31B | — | Apache-2.0 | yes, but don't fit | 2026-11-20 | 15.6–19 GB at 4-bit: too big for 16 GB alongside macOS |

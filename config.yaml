@@ -164,11 +164,22 @@ images:
   guidance: 1.0
   quantize: null          # weights are already quantized
   # image size comes from formats.<format>.image_size (multiples of 16)
-  style_suffix: "photorealistic, rural India, natural daylight, documentary photography, no readable signs, no captions, no watermark"  # illegible incidental text is fine (see inspection_checklist)
+  # Positive words only: klein has no negative prompt, so "no readable signs" / "no palm trees" tend to add
+  # what they name (A/B 2026-11-20). Prompts are linted for this (pipeline/visual_rules.py, assets/visual_rules.yaml).
+  style_suffix: "photorealistic documentary photograph, rural North India, natural daylight, sharp focus"
   max_attempts: 3
   # Checked for EVERY generated image, at full size + zoomed crops (`images --crops`), person by person.
   # Recorded with `images --inspect pass|fail`; validate blocks visuals_ready until each image passes.
   # Shown by images.py, written into review.md, and used for rendered frames in the review stage.
+  # Local inspection TRIAL (pipeline/vlm_inspect.py, vlm/ env): advisory pre-screen only, never records
+  # an inspection. Scored against past verdicts with `vlm_inspect --eval` (samples/vlm-eval/<model>-<prompt version>/report.md).
+  # Only MAJOR issues fail a shot; minor ones are listed (user decision 2026-11-20).
+  vlm_inspect:
+    model: mlx-community/Qwen3.5-9B-4bit
+    max_tokens: 1200
+    max_pixels: 1600000    # image detail sent to the model (Qwen: ~1 token per 28×28 px)
+    thinking: false
+    crops: false           # v1 2x-zoom questions; off: they failed most good shots (eval 2026-11-20)
   inspection_checklist:
     - "Hands & arms: every person has exactly 2 arms and 2 hands, each hand connected to its own arm; no extra, missing or floating hands. Both hands should normally be VISIBLE and doing something natural; a person whose second arm is hidden behind the body or clothing looks one-armed and fails (exception: the person is cropped by the frame edge or it's a close-up of hands only)"
     - "Separate people: hands, arms and bodies of different people never merge or fuse. Where people touch or pass an object (a hand-over, a handshake), every hand is complete and clearly separate, with a visible gap or the object between them; you can tell whose hand is whose by following each arm"
@@ -178,7 +189,7 @@ images:
     - "Dress: correct and consistent for rural India and the role (kurta-pyjama, dhoti, saree/salwar, turban; officer in a plain shirt), no garment merging into skin, ground or objects"
     - "Tools & objects: one tool = one blade and one handle, held the right way by hands that belong to the person (spade blade in soil, bucket by its handle, paper by its edges); no tools fused to each other or to buckets"
     - "Faces & people: natural faces, no duplicated or merged people, no stray limbs from out-of-frame people"
-    - "Identity (cast shots): compare with the reference side by side (`--crops` writes *-vs-<id>.png). Same face, hair and hairline, facial hair, age and build; same clothes and colours; nothing added (turban, cap, glasses, jewellery) unless the shot asks for it. Another face = fail, even if the image is otherwise fine"
+    - "Identity (cast shots): compare with the reference side by side (`--crops` writes *-vs-<id>.png). Same face, hair and hairline, facial hair, age and build; same clothes and colours; nothing added (turban, cap, glasses, wristwatch) unless the shot asks for it. Small rings and bangles are minor: note them, don't fail (user 2026-11-21). Another face = fail, even if the image is otherwise fine"
     - "Action & physics (user rule 2026-11-20): trace every poured, thrown, sprayed or falling material (khaad, seed, water, soil, spray) back to a believable source: an OPEN throwing hand, the mouth of a TILTED container, a nozzle. It must never come out of a closed fist, a hand gripping a handle, an upright bucket or thin air. Container angle matches the flow; the landing matches the action (broadcasting spreads thinly, it doesn't form one heap); objects rest on something or are held; nothing floats or passes through solids. A hand posed to throw must actually throw. Notes for every pass need 'action: ...' ('action: static' for a still scene)"
     - "Narration & good practice: the picture shows what the narration says, and the farming in it is correct: crop and stage (no wheat ears on 'young wheat'; urea on a growing crop, not one that has headed), method, tool, quantity looks plausible (half a kilo is not a pinch), clean equipment where the script says clean. A picture that teaches the wrong thing fails even if every hand is perfect"
     - "Context: Indian rural setting (North India for our audience: mud-brick or brick houses, neem/shisham/peepal; no coastal palm groves or painted concrete bungalows) and the right crop/stage for the narration"
@@ -211,3 +222,17 @@ review: { frame_interval_sec: 2, frames_per_sheet: 12 }
 package:
   thumbnail_size: { long: [1280, 720], short: [1080, 1920] }
   disclaimer_hi: "यह वीडियो सामान्य जानकारी के लिए है। किसी भी खाद, दवा या योजना से जुड़ा फैसला लेने से पहले उत्पाद का लेबल पढ़ें और अपने नज़दीकी कृषि विज्ञान केंद्र (KVK) या कृषि अधिकारी से सलाह लें।"
+
+# Usage & cost view in the dashboard (dashboard/usage.py). Claude prices are API list prices in USD per
+# million tokens (checked 2026-11-20); on a Claude subscription the bill is the flat plan fee, so the
+# dashboard shows these as the API-equivalent value of the work. Local cost = measured energy × tariff.
+costs:
+  claude_default_model: claude-opus-5-5     # prices used for a model not listed below
+  claude_usd_per_mtok:
+    claude-opus-5-5:   { input: 4.00, output: 20.00, cache_read: 0.20, cache_write_5m: 5.00,  cache_write_1h: 8.00 }
+    claude-sonnet-5-5: { input: 2.00, output: 10.00, cache_read: 0.10, cache_write_5m: 2.50,  cache_write_1h: 4.00 }
+    claude-haiku-5-5:  { input: 0.10, output: 0.50,  cache_read: 0.01, cache_write_5m: 0.125, cache_write_1h: 0.20 }
+    claude-fable-5-2:  { input: 8.00, output: 40.00, cache_read: 0.20, cache_write_5m: 10.00, cache_write_1h: 16.00 }
+  claude_web_search_usd_per_1k: 10.0
+  usd_to_inr: 88.0                 # for showing Claude and electricity in one currency; update as needed
+  electricity_inr_per_kwh: 8.0     # your tariff

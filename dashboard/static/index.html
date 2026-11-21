@@ -1,0 +1,802 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pipeline Control Room</title>
+<style>
+:root{
+  --bg:#f5f6f4; --panel:#ffffff; --panel2:#f0f2ef; --line:#dde2dc; --text:#1b231d; --muted:#647067;
+  --brand:#3fb660; --brand-dark:#0a6132; --brand-soft:#e3f4e8;
+  --run:#2f6fe0; --run-soft:#e4ecfc; --warn:#b7791f; --warn-soft:#fbf1dc; --bad:#c53030; --bad-soft:#fbe4e4;
+  --idle:#a3ada5; --console:#0f1511; --console-text:#cfe3d4;
+  --radius:10px; --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1311; --panel:#171c19; --panel2:#1d2420; --line:#2a332d; --text:#e4ebe6; --muted:#8c9a90;
+  --brand-soft:#173322; --run-soft:#182544; --warn-soft:#3a2c12; --bad-soft:#3d1a1a; --idle:#56625a;
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans Devanagari",sans-serif}
+button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:7px;padding:5px 11px}
+button:hover{border-color:var(--brand)}
+button.primary{background:var(--brand-dark);border-color:var(--brand-dark);color:#fff}
+button.primary:hover{background:#0c7a3f}
+button.danger{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 40%,var(--line))}
+button.danger:hover{background:var(--bad-soft)}
+button.ghost{border-color:transparent;background:transparent;color:var(--muted)}
+button.ghost:hover{color:var(--text);background:var(--panel2)}
+button:disabled{opacity:.45;cursor:not-allowed}
+button.sm{padding:2px 8px;font-size:12.5px}
+a{color:var(--brand-dark)}
+@media (prefers-color-scheme: dark){a{color:var(--brand)}}
+.muted{color:var(--muted)} .mono{font-family:var(--mono);font-size:12.5px}
+.app{display:grid;grid-template-columns:270px 1fr 420px;grid-template-rows:52px 1fr;height:100vh}
+header.top{grid-column:1/-1;display:flex;align-items:center;gap:14px;padding:0 18px;border-bottom:1px solid var(--line);background:var(--panel)}
+header.top h1{font-size:15px;margin:0;font-weight:650;letter-spacing:.2px}
+header.top .logo{width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,var(--brand),var(--brand-dark))}
+.nowbar{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:13px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:550;background:var(--panel2);color:var(--muted);white-space:nowrap}
+.pill.ok,.pill.done{background:var(--brand-soft);color:var(--brand-dark)}
+@media (prefers-color-scheme: dark){.pill.ok,.pill.done{color:var(--brand)}}
+.pill.running{background:var(--run-soft);color:var(--run)}
+.pill.failed{background:var(--bad-soft);color:var(--bad)}
+.pill.stopped,.pill.queued,.pill.cancelled,.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.dot{width:8px;height:8px;border-radius:50%;background:currentColor;display:inline-block}
+.running .dot{animation:pulse 1.2s infinite}
+@keyframes pulse{50%{opacity:.25}}
+
+aside.eps{border-right:1px solid var(--line);overflow:auto;background:var(--panel)}
+aside.eps .ep{padding:10px 14px;border-bottom:1px solid var(--line);cursor:pointer}
+aside.eps .ep:hover{background:var(--panel2)}
+aside.eps .ep.sel{background:var(--brand-soft);box-shadow:inset 3px 0 0 var(--brand-dark)}
+aside.eps .ep .t{font-weight:600;font-size:13.5px}
+aside.eps .ep .id{font-size:11.5px;color:var(--muted);font-family:var(--mono);word-break:break-all}
+aside.eps .ep .meta{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap}
+.minirail{display:flex;gap:2px;margin-top:6px}
+.minirail i{flex:1;height:4px;border-radius:2px;background:var(--line)}
+.minirail i.on{background:var(--brand)}
+
+main{overflow:auto;padding:20px 24px 60px}
+.ephead{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.ephead h2{margin:0;font-size:20px}
+.ephead .sub{color:var(--muted);font-size:12.5px;font-family:var(--mono)}
+.rail{display:flex;align-items:center;margin:18px 0 6px;overflow-x:auto;padding-bottom:4px}
+.rail .st{display:flex;flex-direction:column;align-items:center;min-width:92px;text-align:center;font-size:11.5px;color:var(--muted);position:relative}
+.rail .st .c{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);background:var(--panel);display:grid;place-items:center;font-size:11px;margin-bottom:4px;z-index:1}
+.rail .st.done .c{background:var(--brand);border-color:var(--brand);color:#fff}
+.rail .st.cur .c{background:var(--panel);border-color:var(--brand-dark);box-shadow:0 0 0 4px var(--brand-soft)}
+.rail .st.cur{color:var(--text);font-weight:650}
+.rail .bar{flex:1;min-width:14px;height:2px;background:var(--line);margin-top:-18px}
+.rail .bar.done{background:var(--brand)}
+.rail .cp{position:absolute;top:-16px;font-size:10px;color:var(--warn);font-weight:700;letter-spacing:.3px}
+.advance{display:flex;gap:10px;align-items:center;margin:8px 0 18px;flex-wrap:wrap}
+
+.section-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin:22px 0 10px}
+.stages{display:flex;flex-direction:column;gap:8px}
+.stage{display:grid;grid-template-columns:26px 1fr auto;gap:12px;align-items:start;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px}
+.stage .ic{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;margin-top:1px}
+.stage.done .ic{background:var(--brand-soft);color:var(--brand-dark)}
+.stage.ready .ic{background:var(--panel2);color:var(--text);box-shadow:inset 0 0 0 2px var(--brand)}
+.stage.blocked{opacity:.6}
+.stage.blocked .ic{background:var(--panel2);color:var(--idle)}
+.stage.failed .ic{background:var(--bad-soft);color:var(--bad)}
+.stage.running{border-color:var(--run);box-shadow:0 0 0 3px var(--run-soft)}
+.stage.running .ic{background:var(--run-soft);color:var(--run)}
+.stage .name{font-weight:650;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.stage .what{color:var(--muted);font-size:12.5px;margin-top:2px}
+.stage .info{font-size:12.5px;margin-top:6px;display:flex;gap:14px;flex-wrap:wrap;color:var(--muted)}
+.stage .info b{color:var(--text);font-weight:600}
+.stage .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.prog{height:8px;background:var(--panel2);border-radius:99px;overflow:hidden;margin-top:8px}
+.prog > div{height:100%;background:var(--run);border-radius:99px;transition:width .6s}
+.prog.indet > div{width:30%!important;animation:indet 1.4s infinite ease-in-out}
+@keyframes indet{0%{margin-left:-30%}100%{margin-left:100%}}
+.progline{display:flex;justify-content:space-between;font-size:12.5px;margin-top:5px;gap:10px}
+.opts{display:none;margin-top:10px;padding:10px;background:var(--panel2);border-radius:8px;gap:12px;flex-wrap:wrap;align-items:center;font-size:13px}
+.opts.open{display:flex}
+.opts input[type=text],.opts input[type=number]{width:90px;padding:4px 6px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--text)}
+
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:26px 0 14px}
+.tabs button{border:none;border-bottom:2px solid transparent;border-radius:0;background:none;padding:8px 12px;color:var(--muted);font-weight:600}
+.tabs button.on{color:var(--text);border-bottom-color:var(--brand-dark)}
+.scenes{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:12px}
+.scene{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:12px;display:flex;flex-direction:column;gap:8px}
+.scene .h{display:flex;gap:8px;align-items:center}
+.scene .h b{font-size:13px}
+.scene .txt{font-size:14px;line-height:1.55}
+.scene audio{width:100%;height:30px}
+.shots{display:flex;gap:6px;flex-wrap:wrap}
+.shot{position:relative;width:128px;cursor:pointer;border-radius:6px;overflow:hidden;border:2px solid var(--line);background:var(--panel2)}
+.shot img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}
+.shot.portrait img{aspect-ratio:9/16}
+.shot .b{position:absolute;left:4px;top:4px;font-size:10.5px;padding:1px 6px;border-radius:99px;font-weight:700}
+.shot.pass{border-color:var(--brand)} .shot.pass .b{background:var(--brand);color:#fff}
+.shot.fail{border-color:var(--bad)} .shot.fail .b{background:var(--bad);color:#fff}
+.shot.todo .b{background:var(--warn);color:#fff}
+.shot .missing{aspect-ratio:16/9;display:grid;place-items:center;color:var(--muted);font-size:12px}
+.filters{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.filters button.on{background:var(--brand-dark);color:#fff;border-color:var(--brand-dark)}
+.outputs{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:12px}
+.card h4{margin:0 0 8px;font-size:13.5px;display:flex;gap:8px;align-items:center}
+.card video{width:100%;border-radius:6px;background:#000}
+.sheets img{width:100%;border-radius:6px;margin-bottom:8px;cursor:zoom-in}
+pre.doc{white-space:pre-wrap;font:12.5px/1.55 var(--mono);background:var(--panel2);padding:12px;border-radius:8px;max-height:520px;overflow:auto;margin:0}
+.loglist .e{display:grid;grid-template-columns:150px 1fr 70px;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:13px}
+.loglist .e .notes{color:var(--muted);font-size:12px}
+
+aside.jobs{border-left:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column;min-height:0}
+.jobs .now{padding:14px;border-bottom:1px solid var(--line)}
+.jobs .now h3,.jobs .hist h3{margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted)}
+.console{background:var(--console);color:var(--console-text);font:11.5px/1.5 var(--mono);padding:10px;border-radius:8px;height:260px;overflow:auto;white-space:pre-wrap;word-break:break-word;margin-top:10px}
+.console .err{color:#ff9b9b} .console .note{color:#9fe0b0}
+.jobs .hist{padding:14px;overflow:auto;flex:1}
+.job{padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+.job .r1{display:flex;align-items:center;gap:8px}
+.job .r1 .l{font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.job .r2{display:flex;gap:10px;color:var(--muted);font-size:12px;margin-top:2px;align-items:center}
+.job .r2 .sp{flex:1}
+.ext{background:var(--warn-soft);border-radius:8px;padding:8px 10px;margin-top:10px;font-size:12.5px}
+
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.modal-bg.open{display:flex}
+.modal{background:var(--panel);border-radius:12px;max-width:980px;width:100%;max-height:92vh;overflow:auto;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal h3{margin:0 0 10px}
+.modal .row{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap}
+.cpbox{background:var(--warn-soft);border-radius:8px;padding:10px 12px;margin:10px 0;display:flex;gap:10px;align-items:flex-start}
+.lb{display:grid;grid-template-columns:1fr 280px;gap:14px}
+.lb img{width:100%;border-radius:8px;background:#000}
+.lb .side{font-size:13px;display:flex;flex-direction:column;gap:10px}
+.attempts{display:flex;gap:6px;flex-wrap:wrap}
+.attempts img{width:84px;border-radius:4px;cursor:pointer;border:2px solid transparent}
+.attempts img.cur{border-color:var(--brand)}
+.empty{padding:60px;text-align:center;color:var(--muted)}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:9px 16px;border-radius:8px;font-size:13px;z-index:60;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+/* usage & cost */
+:root{--claude:#2a78d6;--local:#eb6834;--gpu:#6250d6;
+  --c3:#1baf7a;--c4:#eda100;--c5:#e87ba4;--c6:#008300;--c7:#6250d6;--c8:#e34948;--cgray:#a3ada5}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--claude:#3987e5;--local:#d95926;--gpu:#9085e9;
+  --c3:#199e70;--c4:#c98500;--c5:#d55181;--c6:#0ca30c;--c7:#9085e9;--c8:#e66767;--cgray:#56625a}}
+:root[data-theme="dark"]{--claude:#3987e5;--local:#d95926;--gpu:#9085e9;--c3:#199e70;--c4:#c98500;--c5:#d55181;--c6:#0ca30c;--c7:#9085e9;--c8:#e66767;--cgray:#56625a}
+.key{display:inline-block;width:10px;height:10px;border-radius:3px;vertical-align:-1px;margin-right:5px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin:14px 0}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px}
+.tile .k{font-size:12px;color:var(--muted);font-weight:600}
+.tile .v{font-size:24px;font-weight:700;margin:2px 0;font-variant-numeric:tabular-nums}
+.tile .s{font-size:12px;color:var(--muted)}
+.split{display:flex;height:14px;border-radius:4px;overflow:hidden;gap:2px;background:var(--panel)}
+.split > i{display:block;height:100%;min-width:2px}
+.utable{width:100%;border-collapse:collapse;font-size:13px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.utable th{text-align:left;font-size:11.5px;color:var(--muted);font-weight:650;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.utable td{padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+.utable tr:last-child td{border-bottom:none}
+.utable td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.hbar{display:flex;align-items:center;gap:8px;min-width:150px}
+.hbar .tr{flex:1;height:10px;background:var(--panel2);border-radius:0 4px 4px 0;min-width:60px}
+.hbar .tr > i{display:block;height:100%;border-radius:0 4px 4px 0}
+.hbar span{font-variant-numeric:tabular-nums;white-space:nowrap;min-width:92px;font-size:12.5px}
+.live{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;margin-top:8px;color:var(--muted)}
+.live b{color:var(--text);font-variant-numeric:tabular-nums}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:5px}
+.legend b{color:var(--text);font-weight:600}
+.insight{background:var(--panel2);border-radius:8px;padding:10px 12px;font-size:13px;margin:6px 0 4px}
+.utable-wrap{overflow-x:auto}
+/* pipeline flow (Jenkins-style stage view) */
+:root{--k-gpu:var(--gpu);--k-cpu:var(--local);--k-api:var(--claude);--k-human:var(--warn)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;margin-left:10px;vertical-align:middle}
+.seg button{border:none;border-radius:0;padding:2px 10px;font-size:12px;text-transform:none;letter-spacing:0;font-weight:600;color:var(--muted)}
+.seg button.on{background:var(--brand-dark);color:#fff}
+.flowlegend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:0 0 8px}
+.flowlegend b{color:var(--text);font-weight:600}
+.flow{display:flex;align-items:stretch;overflow-x:auto;padding:4px 2px 12px;gap:0}
+.fconn{flex:none;width:16px;align-self:center;height:2px;background:var(--line)}
+.fconn.done{background:var(--brand)}
+.fcol{flex:none;width:218px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);display:flex;flex-direction:column;overflow:hidden}
+.fcol .sbar{height:5px;background:var(--line)}
+.fcol.done .sbar{background:var(--brand)} .fcol.partial .sbar{background:linear-gradient(90deg,var(--brand) 50%,var(--line) 50%)}
+.fcol.failed .sbar{background:var(--bad)} .fcol.warn .sbar,.fcol.waiting .sbar{background:var(--warn)}
+.fcol.running{border-color:var(--run);box-shadow:0 0 0 3px var(--run-soft)}
+.fcol.running .sbar{background:repeating-linear-gradient(45deg,var(--run) 0 10px,color-mix(in srgb,var(--run) 55%,var(--panel)) 10px 20px);background-size:28px 28px;animation:stripes 1s linear infinite}
+@keyframes stripes{to{background-position:28px 0}}
+.fcol.blocked{opacity:.55}
+.fcol .fh{padding:9px 11px 6px;display:flex;gap:7px;align-items:center}
+.fcol .fh b{font-size:13.5px;flex:1}
+.fcol .fh .ic{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;background:var(--panel2);color:var(--muted);flex:none}
+.fcol.done .fh .ic{background:var(--brand-soft);color:var(--brand-dark)} .fcol.running .fh .ic{background:var(--run-soft);color:var(--run)}
+.fcol.failed .fh .ic{background:var(--bad-soft);color:var(--bad)} .fcol.warn .fh .ic,.fcol.waiting .fh .ic{background:var(--warn-soft);color:var(--warn)}
+.fcol .fsub{padding:0 11px 6px;font-size:11.5px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap}
+.fcol .fsub b{color:var(--text);font-weight:600}
+.fmini{height:4px;background:var(--panel2);border-radius:99px;overflow:hidden;margin:0 11px 6px}
+.fmini > i{display:block;height:100%;background:var(--brand)}
+.fsteps{display:flex;flex-direction:column;gap:5px;padding:0 8px 8px;flex:1}
+.fstep{border-left:3px solid var(--cgray);background:var(--panel2);border-radius:0 6px 6px 0;padding:6px 8px;font-size:12px}
+.fstep.k-gpu{border-left-color:var(--k-gpu)} .fstep.k-cpu{border-left-color:var(--k-cpu)} .fstep.k-api{border-left-color:var(--k-api)}
+.fstep .l{font-weight:600;font-size:12.5px;display:flex;gap:6px;align-items:center}
+.fstep .w{display:flex;gap:6px;align-items:center;margin-top:3px;flex-wrap:wrap}
+.chip{display:inline-block;line-height:1.6;font-size:10.5px;font-weight:700;padding:0 6px;border-radius:99px;color:#fff;white-space:nowrap}
+.chip.k-gpu{background:var(--k-gpu)} .chip.k-cpu{background:var(--k-cpu)} .chip.k-api{background:var(--k-api)} .chip.k-human{background:var(--k-human)}
+.fstep .e{font:11px/1.35 var(--mono);color:var(--muted);margin-top:2px;word-break:break-word}
+.fstep .m{margin-top:3px;color:var(--text);font-variant-numeric:tabular-nums}
+.fstep .m .muted{font-size:11px}
+.fstep.active{background:var(--run-soft);box-shadow:inset 0 0 0 1px var(--run)}
+.fstep.active .l::after{content:"";width:7px;height:7px;border-radius:50%;background:var(--run);animation:pulse 1s infinite}
+.fstep .lv{color:var(--run);font-weight:600;margin-top:2px}
+.ffoot{border-top:1px solid var(--line);padding:7px 11px;font-size:11.5px;display:flex;flex-direction:column;gap:4px}
+.ffoot .r{display:flex;align-items:center;gap:6px}
+.ffoot .r .t{flex:1;height:6px;background:var(--panel2);border-radius:0 3px 3px 0}
+.ffoot .r .t > i{display:block;height:100%;border-radius:0 3px 3px 0}
+.ffoot .r span{min-width:96px;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ffoot .acts{display:flex;gap:6px;justify-content:flex-end;margin-top:2px}
+.fcp{flex:none;width:104px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;font-size:11.5px;color:var(--muted);padding:0 4px}
+.fcp .dia{width:30px;height:30px;transform:rotate(45deg);border:2px solid var(--line);background:var(--panel);display:grid;place-items:center;border-radius:5px}
+.fcp .dia span{transform:rotate(-45deg);font-size:13px;font-weight:700}
+.fcp.done .dia{background:var(--brand);border-color:var(--brand);color:#fff}
+.fcp.waiting .dia{border-color:var(--warn);background:var(--warn-soft);color:var(--warn);animation:pulse 1.6s infinite}
+.fcp b{color:var(--text);font-size:12px}
+.badge-top{font-size:10px;font-weight:700;padding:0 6px;border-radius:99px;background:var(--bad-soft);color:var(--bad);white-space:nowrap}
+@media (max-width:1250px){.app{grid-template-columns:230px 1fr}aside.jobs{grid-column:1/-1;border-left:none;border-top:1px solid var(--line)} .app{grid-template-rows:52px 1fr auto;height:auto;min-height:100vh}}
+@media (max-width:760px){header.top{flex-wrap:wrap;padding:8px 16px;gap:8px}header.top > span.muted{display:none}.nowbar{margin-left:0;flex-wrap:wrap}.app{grid-template-rows:auto 1fr auto}
+.app{grid-template-columns:1fr}aside.eps{max-height:220px}main{padding:16px}.lb{grid-template-columns:1fr}.stage{grid-template-columns:26px 1fr}.stage .acts{grid-column:1/-1;justify-content:flex-start}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="logo"></div><h1>Pipeline control room</h1>
+    <span class="muted" style="font-size:12.5px">AgriGate Hindi videos · one heavy job at a time</span>
+    <button class="sm" id="usagebtn" onclick="showUsage()">Usage &amp; cost</button>
+    <div class="nowbar" id="nowbar"></div>
+  </header>
+  <aside class="eps" id="eps"></aside>
+  <main id="main"><div class="empty">Pick an episode on the left.</div></main>
+  <aside class="jobs">
+    <div class="now" id="now"></div>
+    <div class="hist"><h3>Jobs</h3><div id="hist"></div></div>
+  </aside>
+</div>
+<div class="modal-bg" id="modalbg"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const S = {view:"episode", usage:null, epUsage:null, eps:[], sel:null, ep:null, jobs:null, tab:"scenes", shotFilter:"all", openOpts:null, watchJob:null, consoleFrom:0, lastRunningId:null};
+S.stagesView = "flow"; S.flow = null;
+try { S.sel = localStorage.getItem("cr.sel"); S.tab = localStorage.getItem("cr.tab") || "scenes"; S.stagesView = localStorage.getItem("cr.sv") || "flow"; } catch {}
+
+function fmtDur(s){ if(s==null||isNaN(s)) return "—"; if(s<1) return "<1s"; s=Math.round(s); if(s<60) return s+"s"; const m=Math.floor(s/60), r=s%60; if(m<60) return m+"m "+String(r).padStart(2,"0")+"s"; return Math.floor(m/60)+"h "+(m%60)+"m"; }
+function ago(t){ if(!t) return ""; const d=(Date.now()/1000-t); if(d<60) return "just now"; if(d<3600) return Math.floor(d/60)+" min ago"; if(d<86400) return Math.floor(d/3600)+" h ago"; return Math.floor(d/86400)+" d ago"; }
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("on"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("on"),2600); }
+async function api(path, body){ const r = await fetch(path, body===undefined?{}:{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}); const j = await r.json(); if(!r.ok) throw new Error(j.error||r.statusText); return j; }
+const STATUS_LABEL = {draft:"Draft",script_approved:"Script approved",narrated:"Narrated",visuals_ready:"Visuals ready",draft_rendered:"Draft rendered",final_rendered:"Final rendered",reviewed:"Reviewed",packaged:"Packaged"};
+const STATUSES = Object.keys(STATUS_LABEL);
+
+// ---------------- episodes list
+async function loadEps(){
+  S.eps = await api("/api/episodes");
+  const real = S.eps.filter(e=>!e.test), test = S.eps.filter(e=>e.test);
+  $("#eps").innerHTML = [...real, ...test].map(e => {
+    const r = STATUSES.indexOf(e.status);
+    return `<div class="ep ${e.id===S.sel?"sel":""}" data-id="${esc(e.id)}">
+      <div class="t">${esc(e.title||e.id)}</div><div class="id">${esc(e.id)}</div>
+      <div class="meta"><span class="pill ${e.status==="packaged"?"ok":""}">${esc(STATUS_LABEL[e.status]||e.status)}</span>
+      <span class="pill">${esc(e.format)}</span>${e.voice?`<span class="pill">${esc(e.voice)}</span>`:""}${e.test?'<span class="pill warn">test</span>':""}</div>
+      <div class="minirail">${STATUSES.map((_,i)=>`<i class="${i<=r?"on":""}"></i>`).join("")}</div></div>`;
+  }).join("") || '<div class="empty">No episodes</div>';
+  document.querySelectorAll("#eps .ep").forEach(el => el.onclick = () => selectEp(el.dataset.id));
+  if(!S.sel && real.length) selectEp(real[0].id);
+}
+async function selectEp(id){
+  S.sel = id; S.view = "episode"; S.epUsage = null; try{localStorage.setItem("cr.sel",id)}catch{}
+  $("#usagebtn").classList.remove("primary");
+  document.querySelectorAll("#eps .ep").forEach(el=>el.classList.toggle("sel", el.dataset.id===id));
+  S.ep = null; S.flow = null; $("#main").innerHTML = '<div class="empty">Loading…</div>';
+  await loadEp();
+}
+async function loadEp(){
+  if(!S.sel) return;
+  if(S.view!=="episode") return;
+  try { S.ep = await api("/api/episode/"+encodeURIComponent(S.sel)); if(S.view==="episode") renderMain(); if(!S.epUsage) loadEpUsage(); loadFlow(true); }
+  catch(e){ $("#main").innerHTML = `<div class="empty">Could not load: ${esc(e.message)}</div>`; }
+}
+
+// ---------------- main view
+function runningJobFor(stageKey){
+  const r = S.jobs?.running; if(!r || r.episode!==S.sel) return null;
+  return r.stage===stageKey ? r : null;
+}
+function queuedFor(stageKey){ return (S.jobs?.jobs||[]).filter(j=>j.state==="queued"&&j.episode===S.sel&&j.stage===stageKey).length; }
+
+function renderMain(){
+  const ep = S.ep; if(!ep) return;
+  const keepScroll = $("#main").scrollTop;
+  const r = STATUSES.indexOf(ep.status);
+  const rail = STATUSES.map((s,i)=>{
+    const cp = ep.checkpoints[s] ? `<span class="cp">CP${Object.keys(ep.checkpoints).indexOf(s)+1}</span>` : "";
+    const st = `<div class="st ${i<r?"done":i===r?"cur done":""}" title="${esc(ep.checkpoints[s]||"")}">${cp}<div class="c">${i<=r?"✓":i+1}</div>${esc(STATUS_LABEL[s])}</div>`;
+    return (i?`<div class="bar ${i<=r?"done":""}"></div>`:"") + st;
+  }).join("");
+  const nxt = ep.next_status;
+  const c = ep.counts;
+  $("#main").innerHTML = `
+    <div class="ephead"><div style="flex:1;min-width:260px"><h2>${esc(ep.title||ep.id)}</h2>
+      <div class="sub">${esc(ep.id)} · ${esc(ep.format)} · voice ${esc(ep.voice)} · ${c.scenes} scenes · ~${fmtDur(ep.video_sec)} video</div></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <span class="pill ${c.audio===c.scenes?"ok":""}">audio ${c.audio}/${c.scenes}</span>
+        <span class="pill ${c.shots&&c.inspected_pass===c.shots?"ok":"warn"}">images inspected ${c.inspected_pass}/${c.shots}</span>
+        ${c.verify?`<span class="pill failed">${c.verify} [VERIFY]</span>`:""}
+      </div></div>
+    <div class="rail">${rail}</div>
+    <div class="advance">
+      <button onclick="checkValidate()">Check episode (validate)</button>
+      ${nxt?`<button class="primary" onclick="advance('${nxt}')">Advance → ${esc(STATUS_LABEL[nxt])}${ep.checkpoints[nxt]?" (checkpoint)":""}</button>`:'<span class="pill ok">Complete</span>'}
+      <span class="muted" style="font-size:12.5px">Status only moves through <span class="mono">validate --set-status</span>, which checks first.</span>
+    </div>
+    <div class="section-title">Pipeline <span class="seg"><button class="${S.stagesView==="flow"?"on":""}" onclick="setStagesView('flow')">Flow</button><button class="${S.stagesView==="list"?"on":""}" onclick="setStagesView('list')">List</button></span></div>
+    ${S.stagesView==="flow"?`<div id="flowbox">${flowHtml()}</div>`:`<div class="stages">${ep.stages.map(stageCard).join("")}</div>`}
+    <div class="tabs">${["scenes","outputs","usage","log"].map(t=>`<button class="${S.tab===t?"on":""}" onclick="setTab('${t}')">${{scenes:"Scenes & shots",outputs:"Outputs",usage:"Usage & cost",log:"Run history (log.md)"}[t]}</button>`).join("")}</div>
+    <div id="tab"></div>`;
+  renderTab();
+  $("#main").scrollTop = keepScroll;
+}
+
+function stageCard(st){
+  const run = runningJobFor(st.key);
+  const q = queuedFor(st.key);
+  const state = run ? "running" : st.state;
+  const icon = {done:"✓",ready:"▶",blocked:"·",failed:"!",running:"⟳"}[state];
+  const last = st.last;
+  const lastTxt = last ? `last run <b>${esc(last.started)}</b> · ${fmtDur(last.duration)} · <span style="color:${last.outcome==="ok"?"var(--brand-dark)":"var(--bad)"}">${esc(last.outcome)}</span>` : "never run";
+  const est = st.estimate?.seconds!=null ? `estimate <b>~${fmtDur(st.estimate.seconds)}</b> <span title="${esc(st.estimate.basis)}">ⓘ</span>` : "";
+  let prog = "";
+  if(run){
+    const p = run.progress||{}; const f = p.fraction;
+    prog = `<div class="prog ${f==null?"indet":""}"><div style="width:${Math.round((f||0)*100)}%"></div></div>
+      <div class="progline"><span>${esc(p.phase||"working")}${p.total?` · <b>${p.done||0}/${p.total}</b> ${esc(run.est?.unit_label||"")}`:""}</span>
+      <span>elapsed <b>${fmtDur(run.elapsed)}</b> · ETA <b>${p.remaining!=null?fmtDur(p.remaining):"…"}</b></span></div>`;
+  }
+  const canRun = st.state!=="blocked";
+  const hasScenes = ["narration","images","text_normalize"].includes(st.key);
+  const lastJob = (S.jobs?.jobs||[]).find(j=>j.episode===S.sel&&j.stage===st.key&&j.state!=="queued");
+  return `<div class="stage ${state}">
+    <div class="ic">${icon}</div>
+    <div><div class="name">${esc(st.label)} ${st.heavy?'<span class="pill">GPU</span>':""} ${st.checkpoint?'<span class="pill warn">after checkpoint 2</span>':""}
+        ${q?`<span class="pill queued"><span class="dot"></span>${q} queued</span>`:""}
+        ${state==="blocked"?`<span class="muted" style="font-size:12px">needs status ${esc(STATUS_LABEL[st.needs])}</span>`:""}</div>
+      <div class="what">${esc(st.what)}</div>
+      <div class="info"><span>${lastTxt}</span>${st.runs>1?`<span>${st.runs} runs</span>`:""}<span>${est}</span>${stageUsageTxt(st.key)}</div>
+      ${prog}${run?liveBlock(liveFor(run.id)):""}
+      <div class="opts ${S.openOpts===st.key?"open":""}" id="opts-${st.key}">
+        ${hasScenes?`<label>Scenes <input type="text" id="sc-${st.key}" placeholder="e.g. 3,7"></label>`:""}
+        ${st.key==="images"?`<label>Shot <input type="text" id="sh-${st.key}" placeholder="e.g. 2"></label><label><input type="checkbox" id="rt-${st.key}"> Retry (new seed)</label>`:""}
+        ${st.key==="narration"?`<label>Takes/sentence <input type="number" min="1" max="8" id="tk-${st.key}" placeholder="cfg"></label>`:""}
+        <label><input type="checkbox" id="fc-${st.key}"> Force (redo existing)</label>
+        <button class="primary sm" onclick="runStage('${st.key}',true)">Run with options</button>
+      </div>
+    </div>
+    <div class="acts">
+      ${run?`<button class="danger" onclick="stopJob('${run.id}')">■ Stop</button><button onclick="watch('${run.id}')">Log</button>`:
+        `<button class="${st.state==="ready"||st.state==="failed"?"primary":""}" ${canRun?"":"disabled"} onclick="runStage('${st.key}')">${st.state==="failed"?"↻ Retry":st.state==="done"?"Run again":"▶ Run"}</button>
+         <button class="ghost" ${canRun?"":"disabled"} onclick="toggleOpts('${st.key}')" title="scene, force, retry…">⋯</button>`}
+      ${lastJob&&!run?`<button class="ghost" onclick="watch('${lastJob.id}')" title="output of the last run from this dashboard">Log</button>`:""}
+    </div></div>`;
+}
+function toggleOpts(k){ S.openOpts = S.openOpts===k?null:k; document.querySelectorAll(".opts").forEach(o=>o.classList.toggle("open", o.id==="opts-"+S.openOpts)); }
+const nums = v => (v||"").split(/[ ,]+/).map(x=>parseInt(x)).filter(x=>!isNaN(x));
+
+async function runStage(key, withOpts){
+  const st = S.ep.stages.find(s=>s.key===key);
+  const body = {episode:S.sel, stage:key};
+  if(withOpts){
+    body.scenes = nums($("#sc-"+key)?.value); body.shots = nums($("#sh-"+key)?.value);
+    body.force = $("#fc-"+key)?.checked; body.retry = $("#rt-"+key)?.checked;
+    const tk = $("#tk-"+key)?.value; if(tk) body.takes = +tk;
+  }
+  if(st?.checkpoint){
+    const ok = await confirmCheckpoint(st.checkpoint, `Start <b>${esc(st.label)}</b> for ${esc(S.sel)}.`);
+    if(!ok) return; body.confirmed = true;
+  }
+  await submit(body);
+}
+async function submit(body){
+  try { const j = await api("/api/jobs", body); toast(S.jobs?.running?`Queued: ${j.label} (waits for the running job)`:`Started: ${j.label}`); S.openOpts=null; S.watchJob=j.id; S.consoleFrom=0; $("#console")&&($("#console").innerHTML=""); pollJobs(); }
+  catch(e){ toast("Not started: "+e.message); }
+}
+async function stopJob(id){
+  const j = (S.jobs?.jobs||[]).find(x=>x.id===id);
+  if(j?.state==="running" && !confirm(`Stop "${j.label}"?\n\nFinished work is kept (stages save per item); running it again resumes.`)) return;
+  await api(`/api/jobs/${id}/stop`, {}); toast("Stop sent"); pollJobs();
+}
+async function retryJob(id){ const j = await api(`/api/jobs/${id}/retry`, {}); toast("Queued again: "+j.label); S.watchJob=j.id; S.consoleFrom=0; pollJobs(); }
+
+// ---------------- validate / advance / checkpoints
+function modal(html){ $("#modal").innerHTML = html; $("#modalbg").classList.add("open"); }
+function closeModal(){ $("#modalbg").classList.remove("open"); }
+$("#modalbg").onclick = e => { if(e.target.id==="modalbg") closeModal(); };
+document.addEventListener("keydown", e => { if(e.key==="Escape") closeModal(); });
+
+function confirmCheckpoint(text, intro){
+  return new Promise(res => {
+    modal(`<h3>Human checkpoint</h3><div>${intro}</div>
+      <label class="cpbox"><input type="checkbox" id="cpok"> <span><b>${esc(text)}.</b><br><span class="muted">This is your approval; Claude never ticks this for you.</span></span></label>
+      <div class="row"><button onclick="closeModal()" id="cpno">Cancel</button><button class="primary" id="cpyes" disabled>Approve and continue</button></div>`);
+    $("#cpok").onchange = e => $("#cpyes").disabled = !e.target.checked;
+    $("#cpyes").onclick = () => { closeModal(); res(true); };
+    $("#cpno").onclick = () => { closeModal(); res(false); };
+  });
+}
+async function checkValidate(as){
+  modal(`<h3>Validate ${as?"as "+esc(STATUS_LABEL[as]):"(current status)"}</h3><pre class="doc">running…</pre>`);
+  const r = await api("/api/validate", {episode:S.sel, as});
+  modal(`<h3>Validate ${as?"as "+esc(STATUS_LABEL[as]):"(current status)"} — <span class="pill ${r.ok?"ok":"failed"}">${r.ok?"PASS":"FAIL"}</span></h3><pre class="doc">${esc(r.output)}</pre><div class="row"><button onclick="closeModal()">Close</button></div>`);
+  return r;
+}
+async function advance(to){
+  modal(`<h3>Advance → ${esc(STATUS_LABEL[to])}</h3><pre class="doc">checking with validate --as ${esc(to)}…</pre>`);
+  const r = await api("/api/validate", {episode:S.sel, as:to});
+  const cp = S.ep.checkpoints[to];
+  modal(`<h3>Advance → ${esc(STATUS_LABEL[to])} <span class="pill ${r.ok?"ok":"failed"}">${r.ok?"checks pass":"checks fail"}</span></h3>
+    <pre class="doc" style="max-height:300px">${esc(r.output)}</pre>
+    ${r.ok && cp?`<label class="cpbox"><input type="checkbox" id="cpok"> <span><b>${esc(cp)}.</b><br><span class="muted">This is your approval; Claude never ticks this for you.</span></span></label>`:""}
+    ${r.ok?"":'<p class="muted">Fix the errors above first; status can’t move until validation passes.</p>'}
+    <div class="row"><button onclick="closeModal()">Cancel</button>${r.ok?`<button class="primary" id="advgo" ${cp?"disabled":""}>Set status ${esc(to)}</button>`:""}</div>`);
+  if(!r.ok) return;
+  if(cp) $("#cpok").onchange = e => $("#advgo").disabled = !e.target.checked;
+  $("#advgo").onclick = async () => { closeModal(); await submit({episode:S.sel, stage:"advance", to, confirmed:!!cp}); };
+}
+
+// ---------------- tabs
+function setTab(t){ S.tab=t; try{localStorage.setItem("cr.tab",t)}catch{}; document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on", b.textContent.toLowerCase().startsWith(t.slice(0,3)))); renderTab(); }
+const fileUrl = rel => `/files/${encodeURIComponent(S.sel)}/${rel.split("/").map(encodeURIComponent).join("/")}`;
+const bust = () => "?v=" + Math.floor(Date.now()/10000);
+
+function renderTab(){
+  const ep = S.ep, el = $("#tab"); if(!el) return;
+  if(S.tab==="scenes"){
+    const f = S.shotFilter;
+    const portrait = ep.format==="short";
+    const scenes = ep.scenes.filter(s => f==="all" || (f==="todo" && s.shots.some(sh=>!sh.inspection)) || (f==="fail" && s.shots.some(sh=>sh.inspection&&!sh.inspection.passed)) || (f==="noaudio" && !s.audio));
+    el.innerHTML = `<div class="filters">${[["all","All"],["todo","Shots not inspected"],["fail","Failed inspection"],["noaudio","No audio"]].map(([k,l])=>`<button class="sm ${f===k?"on":""}" onclick="S.shotFilter='${k}';renderTab()">${l}</button>`).join("")}</div>
+    <div class="scenes">${scenes.map(s=>`<div class="scene">
+      <div class="h"><b>Scene ${s.id}</b><span class="pill">${esc(s.purpose)}</span><span class="pill">${esc(s.visual||"—")}${s.template?" · "+esc(s.template):""}</span>
+        ${s.duration?`<span class="muted" style="font-size:12px">${s.duration.toFixed(1)}s</span>`:""}${s.verify?'<span class="pill failed">VERIFY</span>':""}
+        <span style="flex:1"></span>
+        <button class="ghost sm" title="Redo this scene's narration (TTS takes + scoring)" onclick="sceneJob('narration',${s.id})">↻ voice</button></div>
+      <div class="txt">${esc(s.text)}</div>
+      ${s.on_screen?`<div class="muted" style="font-size:12.5px">on screen: ${esc(s.on_screen)}</div>`:""}
+      ${s.audio?`<audio controls preload="none" src="${fileUrl(s.audio)}${bust()}"></audio>`:""}
+      ${s.shots.length?`<div class="shots">${s.shots.map(sh=>{
+        const cls = !sh.exists?"todo":!sh.inspection?"todo":sh.inspection.passed?"pass":"fail";
+        const badge = !sh.exists?"no image":!sh.inspection?"not inspected":sh.inspection.passed?"pass":"fail";
+        return `<div class="shot ${cls} ${portrait?"portrait":""}" onclick="openShot(${s.id},${sh.k})" title="shot ${sh.k} · attempt ${sh.attempts}">
+          ${sh.exists?`<img loading="lazy" src="${fileUrl(sh.file)}${bust()}">`:'<div class="missing">no image yet</div>'}<span class="b">${sh.k} · ${badge}</span></div>`;}).join("")}</div>`:""}
+    </div>`).join("")}</div>`;
+  } else if(S.tab==="outputs"){
+    const has = r => ep.files[r];
+    const vid = (r,t) => has(r)?`<div class="card"><h4>${t}<span class="muted mono">${(has(r).size/1e6).toFixed(0)} MB · ${ago(has(r).mtime)}</span></h4><video controls preload="metadata" src="${fileUrl(r)}${bust()}"></video></div>`:"";
+    const docs = ["script.md","review/review.md","youtube.md","audio/takes.md","brief.md"].filter(has);
+    el.innerHTML = `<div class="outputs">${vid("render/draft.mp4","Draft render")}${vid("render/video.mp4","Final video")}
+      ${has("render/thumbnail.png")?`<div class="card"><h4>Thumbnail</h4><img style="width:100%;border-radius:6px" src="${fileUrl("render/thumbnail.png")}${bust()}"></div>`:""}
+      ${ep.sheets.length?`<div class="card sheets"><h4>Review contact sheets <span class="muted">${ep.sheets.length}</span></h4>${ep.sheets.map(n=>`<img loading="lazy" src="${fileUrl("review/"+n)}${bust()}" onclick="window.open(this.src)">`).join("")}</div>`:""}
+    </div>
+    <div class="section-title">Documents</div>
+    <div class="filters">${docs.map(d=>`<button class="sm" onclick="showDoc('${d}')">${d}</button>`).join("")||'<span class="muted">none yet</span>'}</div>
+    <div id="docview"></div>`;
+  } else if(S.tab==="usage"){
+    if(!S.epUsage){ el.innerHTML = '<div class="empty">Loading usage…</div>'; loadEpUsage().then(()=>S.tab==="usage"&&renderTab()); return; }
+    renderUsage(S.epUsage, el, false);
+  } else {
+    el.innerHTML = `<div class="loglist">${ep.log.slice().reverse().map(e=>`<div class="e"><div class="mono muted">${esc(e.started)}</div>
+      <div><b>${esc(e.stage)}</b> <span class="pill ${e.outcome==="ok"?"ok":e.outcome==="flag"?"warn":"failed"}">${esc(e.outcome)}</span><div class="notes">${e.notes.slice(0,6).map(esc).join("<br>")}${e.notes.length>6?`<br>… ${e.notes.length-6} more`:""}</div></div>
+      <div class="mono" style="text-align:right">${fmtDur(e.duration)}</div></div>`).join("")||'<div class="empty">No runs logged yet.</div>'}</div>`;
+  }
+}
+async function showDoc(rel){ const t = await (await fetch(fileUrl(rel)+bust())).text(); $("#docview").innerHTML = `<div class="card"><h4>${esc(rel)}</h4><pre class="doc">${esc(t)}</pre></div>`; }
+async function sceneJob(stage, scene){
+  if(stage==="narration" && !confirm(`Redo narration for scene ${scene} (new TTS takes, --force)?`)) return;
+  submit({episode:S.sel, stage, scenes:[scene], force:true});
+}
+
+function openShot(sid, k){
+  const s = S.ep.scenes.find(x=>x.id===sid), sh = s.shots.find(x=>x.k===k);
+  const ins = sh.inspection;
+  modal(`<h3>Scene ${sid} · shot ${k} <span class="pill">${esc(s.purpose)}</span> ${ins?`<span class="pill ${ins.passed?"ok":"failed"}">inspection ${ins.passed?"pass":"fail"}</span>`:'<span class="pill warn">not inspected</span>'}</h3>
+   <div class="lb"><div>${sh.exists?`<a href="${fileUrl(sh.file)}" target="_blank"><img id="lbimg" src="${fileUrl(sh.file)}${bust()}"></a>`:'<div class="empty">No image yet</div>'}
+     ${sh.attempt_files.length>1?`<div class="section-title">Attempts</div><div class="attempts">${sh.attempt_files.map(a=>`<img src="${fileUrl("images/"+a)}" title="${esc(a)}" class="${a.endsWith("-a"+sh.attempts+".png")?"cur":""}" onclick="$('#lbimg').src=this.src">`).join("")}</div>`:""}</div>
+   <div class="side">
+     <div><b>Sentence</b><br>${esc(s.text)}</div>
+     <div><b>Prompt</b><br><span class="muted">${esc(sh.prompt)}</span></div>
+     ${sh.characters.length?`<div><b>Cast</b> ${sh.characters.map(esc).join(", ")}</div>`:""}
+     <div><b>Attempt</b> ${sh.attempts}</div>
+     ${ins?`<div><b>Inspection</b> <span class="muted">${esc(ins.at)}</span><br>${esc(ins.notes)}</div>`:'<div class="muted">Inspection is recorded by Claude with <span class="mono">images --inspect</span> after a full-size and zoomed check.</div>'}
+     <div style="display:flex;gap:6px;flex-wrap:wrap">
+       <button class="primary" onclick="closeModal();submit({episode:S.sel,stage:'images',scenes:[${sid}],shots:[${k}],retry:true})">↻ Retry (new seed)</button>
+       <button onclick="closeModal();submit({episode:S.sel,stage:'images',scenes:[${sid}],shots:[${k}],force:true})">Regenerate same seed</button>
+       <button onclick="closeModal();submit({episode:S.sel,stage:'image_inspect_crops',scene:${sid},shot:${k}})">Make zoom crops</button>
+     </div>
+     <div class="muted" style="font-size:12px">A new image clears its inspection; it must be inspected again before visuals_ready.</div>
+   </div></div><div class="row"><button onclick="closeModal()">Close</button></div>`);
+}
+
+// ---------------- jobs panel
+function jobRow(j){
+  return `<div class="job"><div class="r1"><span class="pill ${j.state}"><span class="dot"></span>${j.state}</span><span class="l" title="${esc(j.cmd)}">${esc(j.label)}</span></div>
+    <div class="r2"><span class="mono">${esc(j.episode.replace(/^\d{4}-/,""))}</span><span>${j.elapsed!=null?fmtDur(j.elapsed):j.est?.seconds?"~"+fmtDur(j.est.seconds):""}</span><span class="sp"></span>
+    <button class="ghost sm" onclick="watch('${j.id}')">log</button>
+    ${j.state==="running"||j.state==="queued"?`<button class="ghost sm" style="color:var(--bad)" onclick="stopJob('${j.id}')">${j.state==="queued"?"cancel":"stop"}</button>`:`<button class="ghost sm" onclick="retryJob('${j.id}')" title="run the same command again">↻ retry</button>`}</div></div>`;
+}
+function renderJobs(){
+  const J = S.jobs; if(!J) return;
+  const r = J.running;
+  $("#nowbar").innerHTML = nowMeters(J.usage_live) + (r ? `<span class="pill running"><span class="dot"></span>${esc(r.label)}</span><span class="muted">${esc(r.episode)}</span><span>ETA <b>${r.progress.remaining!=null?fmtDur(r.progress.remaining):"…"}</b></span>${J.queued?`<span class="pill queued">${J.queued} queued</span>`:""}`
+    : `<span class="pill ok"><span class="dot"></span>idle</span>${J.queued?`<span class="pill queued">${J.queued} queued</span>`:""}`);
+  const w = J.jobs.find(j=>j.id===S.watchJob) || r || J.jobs[0];
+  const ext = (J.external||[]).map(p=>`<div class="ext">Running outside the dashboard (e.g. from Claude): <b class="mono">${esc(p.module)}</b> <span class="mono">${esc(p.args)}</span> · ${esc(p.etime)} <button class="sm danger" onclick="stopExt(${p.pid})">Stop</button>${liveBlock(liveFor("t", p.pid))}</div>`).join("");
+  let head = '<h3>Console</h3><div class="muted">No jobs yet. Press ▶ Run on a stage.</div>';
+  if(w){
+    const p = w.progress||{};
+    head = `<h3>Console</h3><div class="r1" style="display:flex;gap:8px;align-items:center"><span class="pill ${w.state}"><span class="dot"></span>${w.state}</span><b style="flex:1">${esc(w.label)}</b>
+      ${w.state==="running"?`<button class="danger sm" onclick="stopJob('${w.id}')">■ Stop</button>`:w.state==="queued"?`<button class="sm" onclick="stopJob('${w.id}')">Cancel</button>`:`<button class="sm" onclick="retryJob('${w.id}')">↻ Retry</button>`}</div>
+      <div class="mono muted" style="margin-top:4px;word-break:break-all">${esc(w.cmd)}</div>
+      ${w.state==="running"?`<div class="prog ${p.fraction==null?"indet":""}"><div style="width:${Math.round((p.fraction||0)*100)}%"></div></div>
+        <div class="progline"><span>${esc(p.phase||"working")}${p.total?` · ${p.done||0}/${p.total}`:""}</span><span>${fmtDur(w.elapsed)} · ETA <b>${p.remaining!=null?fmtDur(p.remaining):"…"}</b></span></div>
+        <div class="muted" style="font-size:11.5px;margin-top:2px">${esc(w.est?.basis||"")}</div>`:
+        `<div class="muted" style="font-size:12px;margin-top:4px">${w.elapsed!=null?"took "+fmtDur(w.elapsed):""}${w.returncode!=null?" · exit "+w.returncode:""}${w.est?.seconds?" · estimated ~"+fmtDur(w.est.seconds):""}</div>`}`;
+  }
+  const nowEl = $("#now");
+  if(nowEl.dataset.job !== (w?.id||"")){ nowEl.dataset.job = w?.id||""; S.consoleFrom = 0; nowEl.innerHTML = `<div id="nowhead"></div><div class="console" id="console"></div><div id="ext"></div>`; }
+  $("#nowhead").innerHTML = head; $("#ext").innerHTML = ext;
+  $("#hist").innerHTML = J.jobs.map(jobRow).join("") || '<div class="muted">—</div>';
+  if(w) pullConsole(w.id);
+}
+async function pullConsole(id){
+  if(S._pulling) return; S._pulling = true;
+  try{
+    const d = await api(`/api/jobs/${id}/log?from=${S.consoleFrom}`);
+    const c = $("#console"); if(!c || $("#now").dataset.job!==id) return;
+    if(d.lines.length){
+      const atBottom = c.scrollHeight - c.scrollTop - c.clientHeight < 40;
+      c.insertAdjacentHTML("beforeend", d.lines.map(l=>`<div class="${/error|Error|failed|Traceback|SystemExit|■ (failed|stopped)/.test(l)?"err":/INFO|→|■ ok/.test(l)?"note":""}">${esc(l)}</div>`).join(""));
+      while(c.childElementCount>4000) c.firstChild.remove();
+      if(atBottom || S.consoleFrom===0) c.scrollTop = c.scrollHeight;
+    }
+    S.consoleFrom = d.next;
+  } finally { S._pulling = false; }
+}
+function watch(id){ S.watchJob = id; $("#now").dataset.job = ""; renderJobs(); }
+async function stopExt(pid){ if(!confirm("Stop this pipeline process (SIGTERM to it and its children)?")) return; const r = await api(`/api/external/${pid}/stop`, {}); toast(r.result); }
+
+async function pollJobs(){
+  try{
+    const J = await api("/api/jobs");
+    const prevRun = S.lastRunningId;
+    S.jobs = J; S.lastRunningId = J.running?.id || null;
+    renderJobs();
+    // a job finished or started → refresh the episode and the list
+    if(prevRun !== S.lastRunningId){ S.epUsage = null; S.usage = null; await loadEp(); loadEps(); if(S.view==="usage") showUsage(true); }
+    else if(S.view==="episode" && S.ep && J.running && J.running.episode===S.sel){
+      renderMainIfNoOpts();  // live-update the stage cards (progress bar, ETA)
+    }
+    if(S.view==="episode" && S.ep && flowLive()) loadFlow();   // live executor view (also terminal runs + Claude)
+  } catch(e){ $("#nowbar").innerHTML = `<span class="pill failed">server not reachable</span>`; }
+}
+function renderMainIfNoOpts(){ if(!S.openOpts && !$("#modalbg").classList.contains("open")){ const stages = document.querySelector(".stages"); if(stages) stages.innerHTML = S.ep.stages.map(stageCard).join(""); renderFlowBox(); } }
+
+// ---------------- pipeline flow (where each step runs)
+function setStagesView(v){ S.stagesView = v; try{localStorage.setItem("cr.sv",v)}catch{}; renderMain(); if(v==="flow") loadFlow(true); }
+async function loadFlow(force){
+  if(!S.sel || S.view!=="episode" || S.stagesView!=="flow") return;
+  if(S._flowBusy || (!force && Date.now()-(S._flowAt||0) < 2500)) return;
+  S._flowBusy = true;
+  try{ const f = await api("/api/flow/"+encodeURIComponent(S.sel)); if(f.episode===S.sel){ S.flow = f; S._flowAt = Date.now(); renderFlowBox(); } }
+  catch(e){ S.flowError = e.message; const box = $("#flowbox");
+    if(box && !S.flow) box.innerHTML = `<div class="insight">Pipeline view not available: <b>${esc(e.message)}</b>.
+      ${/not found/i.test(e.message)?"The dashboard server is running older code. Restart it (Ctrl-C, then <span class='mono'>uv run python -m dashboard</span>) to load the flow view. Meanwhile use <b>List</b>.":""}</div>`; }
+  finally{ S._flowBusy = false; }
+}
+function renderFlowBox(){
+  const box = $("#flowbox"); if(!box) return;
+  const sc = box.querySelector(".flow")?.scrollLeft || 0;
+  box.innerHTML = flowHtml();
+  const fl = box.querySelector(".flow"); if(fl) fl.scrollLeft = sc;
+}
+function flowLive(){   // something for this episode is running (dashboard job, terminal run, or Claude)
+  const J = S.jobs; if(!J) return false;
+  if(J.running?.episode===S.sel) return true;
+  if((J.usage_live?.runs||[]).some(r=>r.episode===S.sel)) return true;
+  const c = J.usage_live?.claude; return !!(c?.active && c.episode===S.sel);
+}
+function flowHtml(){
+  const F = S.flow;
+  if(!F || F.episode!==S.sel) return '<div class="empty" style="padding:30px">Loading pipeline…</div>';
+  const K = F.kinds, T = F.totals;
+  const kindChip = k => `<span class="chip k-${k}" title="${esc(K[k]?.hint||"")}">${esc(K[k]?.label||k)}</span>`;
+  const byKey = Object.fromEntries(F.stages.map(s=>[s.key,s]));
+  const top = (k, what) => { const s = byKey[k]; if(!s) return ""; const sh = what==="cost"?s.metrics.cost_share:s.metrics.time_share;
+    const kinds = [...new Set(s.steps.filter(x=>what==="cost"?x.claude_usd>0||x.cpu_sec>0:x.kind!=="api").map(x=>x.kind))];
+    return `<b>${esc(s.label)}</b> ${Math.round(sh*100)}% ${kinds.map(kindChip).join(" ")}`; };
+  let h = `<div class="flowlegend">${["gpu","cpu","api","human"].map(k=>`<span title="${esc(K[k].hint)}">${kindChip(k)} ${esc(K[k].hint)}</span>`).join("")}</div>`;
+  h += `<div class="insight">This episode: <b>${inr(T.cost_inr)}</b> (Claude ${usd(T.claude_usd)}${T.energy_wh>0?` + electricity ${wh(T.energy_wh)}`:", no metered local runs yet"}) · <b>${fmtDur(T.wall_sec)}</b> of local stage time.
+    ${T.top_cost?` Most cost: ${top(T.top_cost,"cost")}.`:""}${T.top_time?` Most time: ${top(T.top_time,"time")}.`:""}
+    ${T.other_claude_usd>0.01?`<span class="muted"> Plus ${usd(T.other_claude_usd)} of Claude conversation &amp; checks not tied to one stage.</span>`:""}</div>`;
+  const maxCost = Math.max(0,...F.stages.filter(s=>!s.checkpoint).map(s=>s.metrics.cost_inr));
+  const maxTime = Math.max(0,...F.stages.filter(s=>!s.checkpoint).map(s=>s.metrics.wall_sec));
+  const cols = F.stages.map((s,i)=>{
+    const conn = i ? `<div class="fconn ${["done","partial"].includes(F.stages[i-1].state)?"done":""}"></div>` : "";
+    if(s.checkpoint){
+      return conn + `<div class="fcp ${s.state}" title="Human checkpoint: ${esc(s.what)}"><div class="dia"><span>${s.state==="done"?"✓":"✋"}</span></div>
+        <b>${esc(s.label)}</b><span>${esc(s.what)}</span>${kindChip("human")}<span>${s.state==="waiting"?"waiting for you":s.state==="done"?"approved":"not yet"}</span></div>`;
+    }
+    const m = s.metrics, job = runningJobFor(s.run||"");
+    const icon = {done:"✓",ready:"▶",blocked:"·",failed:"!",running:"⟳",warn:"!",partial:"½",waiting:"…"}[s.state]||"·";
+    const pr = s.progress;
+    const steps = s.steps.map(x=>{
+      const meas = [];
+      if(x.claude_usd>0) meas.push(`<b>${usd(x.claude_usd)}</b> <span class="muted">${x.claude_msgs} replies</span>`);
+      if(x.cpu_sec>0) meas.push(`CPU <b>${fmtDur(x.cpu_sec)}</b>`);
+      return `<div class="fstep k-${x.kind} ${x.active?"active":""}">
+        <div class="l">${esc(x.label)}</div>
+        <div class="w">${kindChip(x.kind)}</div>
+        <div class="e">${esc(x.engine)}</div>
+        ${x.live?`<div class="lv">now: CPU ${Math.round(x.live.cpu_pct)}% of Mac · ${(x.live.rss_mb/1000).toFixed(1)} GB</div>`:x.active&&x.kind==="api"?`<div class="lv">Claude working on this now</div>`:""}
+        ${meas.length?`<div class="m">${meas.join(" · ")}</div>`:""}
+        ${x.note?`<div class="e">${esc(x.note)}</div>`:""}</div>`;
+    }).join("");
+    const lv = s.live;
+    const acts = s.run ? (job ? `<button class="danger sm" onclick="stopJob('${job.id}')">■ Stop</button><button class="sm" onclick="watch('${job.id}')">Log</button>`
+      : `<button class="sm ${s.state==="ready"||s.state==="failed"?"primary":""}" ${s.state==="blocked"?"disabled":""} onclick="runStage('${s.run}')">${s.state==="failed"?"↻ Retry":s.state==="done"?"Run again":"▶ Run"}</button>`)
+      : `<span class="muted" style="font-size:11px">run by Claude</span>`;
+    return conn + `<div class="fcol ${s.state}"><div class="sbar"></div>
+      <div class="fh"><span class="ic">${icon}</span><b>${esc(s.label)}</b>${T.top_cost===s.key?'<span class="badge-top" title="largest share of this episode’s cost">top cost</span>':T.top_time===s.key?'<span class="badge-top" title="most local stage time">most time</span>':""}</div>
+      <div class="fsub">${m.last?`last <b>${fmtDur(m.last.duration)}</b>`:s.run?(s.state==="done"?"done":"never run"):(s.state==="done"?"done by Claude":"by Claude")}${m.runs>1?` · ${m.runs} runs`:""}${job?` · ETA <b>${job.progress.remaining!=null?fmtDur(job.progress.remaining):"…"}</b>`:""}${pr?` · <b>${pr.done}/${pr.total}</b> ${esc(pr.unit)}`:""}</div>
+      ${pr?`<div class="fmini"><i style="width:${pr.total?100*pr.done/pr.total:0}%"></i></div>`:""}
+      ${lv&&lv.cpu_pct!=null?`<div class="fsub" style="color:var(--run)">now: CPU <b>${Math.round(lv.cpu_pct)}%</b> · GPU <b>${lv.gpu_pct!=null?Math.round(lv.gpu_pct)+"%":"—"}</b> · <b>${lv.power_w?lv.power_w.toFixed(0)+" W":"—"}</b></div>`:""}
+      <div class="fsteps">${steps}</div>
+      <div class="ffoot">
+        <div class="r" title="share of this episode's cost (Claude + electricity)"><span style="min-width:34px;text-align:left" class="muted">cost</span><div class="t"><i style="width:${maxCost?100*m.cost_inr/maxCost:0}%;background:var(--claude)"></i></div><span>${m.cost_inr?inr(m.cost_inr)+" · "+Math.round(m.cost_share*100)+"%":"—"}</span></div>
+        <div class="r" title="local stage time from log.md, all runs"><span style="min-width:34px;text-align:left" class="muted">time</span><div class="t"><i style="width:${maxTime?100*m.wall_sec/maxTime:0}%;background:var(--local)"></i></div><span>${m.wall_sec?fmtDur(m.wall_sec)+" · "+Math.round(m.time_share*100)+"%":"—"}</span></div>
+        ${m.energy_wh?`<div class="muted">measured: CPU ${fmtDur(m.cpu_sec)} · GPU busy ${fmtDur(m.gpu_sec)} · ${wh(m.energy_wh)}</div>`:""}
+        <div class="acts">${acts}</div></div></div>`;
+  }).join("");
+  h += `<div class="flow">${cols}</div>
+    <div class="muted" style="font-size:11.5px">Where each step runs comes from <span class="mono">config.yaml</span> (a backend that isn’t local shows as Cloud API). Cost = Claude API-equivalent + metered electricity; CPU per step is measured from runs since metering started. Active steps are the processes busy right now.</div>`;
+  return h;
+}
+
+// ---------------- usage & cost
+const STAGE_STEP = {text_normalize:"text_normalize",narration:"narration",images:"images",render_draft:"render",render_final:"render",review_draft:"review",review:"review",package:"package"};
+const COMP_COLOR = {"FLUX image model":"--c3","TTS voice model":"--c4","Whisper scoring":"--c5","Remotion browser (frames)":"--c6","Remotion (node)":"--c7","ffmpeg":"--c8","pipeline (python)":"--cgray","other":"--cgray"};
+const compColor = n => `var(${COMP_COLOR[n]||"--cgray"})`;
+const usd = v => v==null?"—":(v>0&&v<0.01)?"<$0.01":"$"+(v>=100?Math.round(v).toLocaleString():v.toFixed(2));
+const inr = v => v==null?"—":(v>0&&v<0.01)?"<₹0.01":"₹"+(v>=100?Math.round(v).toLocaleString("en-IN"):v.toFixed(2));
+const wh = v => v==null?"—":v>=1000?(v/1000).toFixed(2)+" kWh":v.toFixed(v<10?2:0)+" Wh";
+const pct = (a,t) => t>0?Math.round(100*a/t)+"%":"—";
+
+function liveFor(id, pid){
+  const runs = S.jobs?.usage_live?.runs||[];
+  return pid!=null ? runs.find(r=>r.source==="terminal" && r.id.endsWith("-"+pid)) : runs.find(r=>r.id===id);
+}
+function liveBlock(r){
+  if(!r || r.cpu_pct==null) return "";
+  const comps = (r.components||[]).filter(c=>c.cpu_pct>=0.5);
+  const tot = comps.reduce((a,c)=>a+c.cpu_pct,0);
+  return `<div class="live"><span>CPU <b>${r.cores.toFixed(1)} cores</b> (${Math.round(r.cpu_pct)}% of Mac)</span>
+      <span>GPU <b>${r.gpu_pct!=null?Math.round(r.gpu_pct)+"%":"—"}</b></span><span>Power <b>${r.power_w?r.power_w.toFixed(1)+" W":"—"}</b></span>
+      <span>Memory <b>${(r.rss_mb/1000).toFixed(1)} GB</b></span>
+      <span>So far: CPU <b>${fmtDur(r.so_far.cpu_sec)}</b> · GPU busy <b>${fmtDur(r.so_far.gpu_sec)}</b> · <b>${wh(r.so_far.energy_wh)}</b></span></div>
+    ${tot>0?`<div class="split" style="margin-top:6px" title="CPU right now, by process">${comps.map(c=>`<i style="width:${100*c.cpu_pct/tot}%;background:${compColor(c.name)}" title="${esc(c.name)}: ${Math.round(c.cpu_pct)}% of Mac"></i>`).join("")}</div>
+      <div class="legend">${comps.map(c=>`<span><i class="key" style="background:${compColor(c.name)}"></i>${esc(c.name)} <b>${pct(c.cpu_pct,tot)}</b></span>`).join("")}</div>`:""}`;
+}
+function nowMeters(u){
+  if(!u) return "";
+  const sys = u.system||{}, c = u.claude;
+  const loc = (u.runs||[]).length ? `<span class="pill" title="Pipeline runs on this Mac right now"><i class="key" style="background:var(--local)"></i>Local · CPU ${u.runs.reduce((a,r)=>a+(r.cores||0),0).toFixed(1)} cores · GPU ${sys.gpu_pct!=null?Math.round(sys.gpu_pct)+"%":"—"} · ${sys.power_w?sys.power_w.toFixed(0)+" W":"—"}</span>` : "";
+  const cl = c&&c.active ? `<span class="pill" title="Claude Code activity in this project (API-equivalent cost)"><i class="key" style="background:var(--claude)"></i>Claude · ${esc(c.step_label)} · ${usd(c.usd_10m)} / 10 min</span>` : "";
+  return loc + cl;
+}
+function stageUsageTxt(key){
+  const u = S.epUsage; if(!u||!u.steps) return "";
+  const step = STAGE_STEP[key]; const row = u.steps.find(s=>s.key===step);
+  const parts = [];
+  if(row?.claude_usd) parts.push(`Claude <b>${usd(row.claude_usd)}</b>`);
+  if(key==="images"){ const ins = u.steps.find(s=>s.key==="image_inspection"); if(ins?.claude_usd) parts.push(`inspection <b>${usd(ins.claude_usd)}</b>`); }
+  if(row?.metered?.energy_wh) parts.push(`local <b>${wh(row.metered.energy_wh)}</b>`);
+  return parts.length ? `<span title="This episode, this step: Claude API-equivalent cost and measured local energy">${parts.join(" · ")}</span>` : "";
+}
+async function loadEpUsage(){
+  if(!S.sel) return;
+  try{ const d = await api("/api/usage?episode="+encodeURIComponent(S.sel)); if(d.ready===false){ setTimeout(loadEpUsage,2000); return; } S.epUsage = d;
+       if(S.view==="episode" && S.ep) renderMainIfNoOpts(); } catch{}
+}
+async function showUsage(silent){
+  S.view = "usage"; $("#usagebtn").classList.add("primary");
+  document.querySelectorAll("#eps .ep").forEach(el=>el.classList.remove("sel"));
+  if(!silent || !S.usage) $("#main").innerHTML = '<div class="empty">Reading usage…</div>';
+  const d = await api("/api/usage");
+  if(d.ready===false){ $("#main").innerHTML = '<div class="empty">Reading the Claude Code transcripts…</div>'; setTimeout(()=>S.view==="usage"&&showUsage(),2000); return; }
+  S.usage = d; if(S.view!=="usage") return;
+  const keep = $("#main").scrollTop;
+  $("#main").innerHTML = `<div class="ephead"><div style="flex:1"><h2>Usage &amp; cost</h2><div class="sub">all episodes · Claude (remote) vs this Mac (local)</div></div></div><div id="usagebody"></div>`;
+  renderUsage(d, $("#usagebody"), true);
+  $("#main").scrollTop = keep;
+}
+function hbar(v, max, color, text){
+  return `<div class="hbar"><div class="tr"><i style="width:${max>0?Math.max(v>0?1.5:0,100*v/max):0}%;background:${color}"></i></div><span>${text}</span></div>`;
+}
+function spark(samples){
+  if(!samples||samples.length<2) return '<span class="muted">—</span>';
+  const W=150,H=30,T=samples[samples.length-1][0]||1;
+  const line = (i) => samples.map(s=>`${(W*s[0]/T).toFixed(1)},${(H-1-(H-2)*Math.min(s[i],100)/100).toFixed(1)}`).join(" ");
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="CPU and GPU over the run"><line x1="0" y1="${H-1}" x2="${W}" y2="${H-1}" stroke="var(--line)"/>
+    <polyline fill="none" stroke="var(--local)" stroke-width="2" points="${line(1)}"/><polyline fill="none" stroke="var(--gpu)" stroke-width="2" stroke-dasharray="4 2" points="${line(2)}"/></svg>`;
+}
+function renderUsage(d, el, full){
+  const C = d.claude, L = d.local, M = L.metered, R = d.rates;
+  const tok = C.tokens||{}; const tokAll = Object.values(tok).reduce((a,b)=>a+b,0);
+  const money = [["Claude (API-equivalent)", C.inr, "--claude"], ["Electricity (metered)", M.inr, "--local"]];
+  const moneyTot = money.reduce((a,m)=>a+(m[1]||0),0);
+  const steps = d.steps||[];
+  const cMax = Math.max(0,...steps.map(s=>s.claude_usd)), gMax = Math.max(0,...steps.map(s=>s.logged_wall_sec));
+  const cTot = steps.reduce((a,s)=>a+s.claude_usd,0), gTot = steps.reduce((a,s)=>a+s.logged_wall_sec,0);
+  const topC = steps.filter(s=>s.claude_usd>0).sort((a,b)=>b.claude_usd-a.claude_usd).slice(0,3);
+  const topL = steps.filter(s=>s.logged_wall_sec>0).sort((a,b)=>b.logged_wall_sec-a.logged_wall_sec)[0];
+  const since = L.metering_since ? new Date(L.metering_since*1000).toLocaleString() : null;
+  let h = `<div class="tiles">
+    <div class="tile"><div class="k"><i class="key" style="background:var(--claude)"></i>Claude · remote</div><div class="v">${usd(C.usd)}</div>
+      <div class="s">${inr(C.inr)} · ${C.messages} replies · ${(tokAll/1e6).toFixed(1)}M tokens (${pct(tok.cache_read_input_tokens||0,tokAll)} cache reads)</div></div>
+    <div class="tile"><div class="k"><i class="key" style="background:var(--local)"></i>This Mac · measured</div><div class="v">${wh(M.energy_wh)}</div>
+      <div class="s">${inr(M.inr)} electricity · CPU ${fmtDur(M.cpu_sec)} · GPU busy ${fmtDur(M.gpu_sec)} · ${M.runs} run${M.runs===1?"":"s"}</div></div>
+    <div class="tile"><div class="k"><i class="key" style="background:var(--local)"></i>This Mac · stage time</div><div class="v">${fmtDur(L.logged_wall_sec)}</div>
+      <div class="s">wall time of local stages in log.md (all runs, incl. before metering)</div></div>
+  </div>`;
+  if(moneyTot>0) h += `<div class="section-title">Where the money goes (₹)</div>
+    <div class="split" role="img" aria-label="Money split">${money.filter(m=>m[1]>0).map(m=>`<i style="width:${100*m[1]/moneyTot}%;background:var(${m[2]})" title="${m[0]}: ${inr(m[1])}"></i>`).join("")}</div>
+    <div class="legend">${money.map(m=>`<span><i class="key" style="background:var(${m[2]})"></i>${m[0]} <b>${inr(m[1])}</b> (${pct(m[1]||0,moneyTot)})</span>`).join("")}</div>`;
+  if(topC.length) h += `<div class="insight">Most Claude spend: ${topC.map(s=>`<b>${esc(s.label)}</b> ${pct(s.claude_usd,cTot)}`).join(" · ")}.${topL?` Most local time: <b>${esc(topL.label)}</b> ${pct(topL.logged_wall_sec,gTot)}.`:""}
+     ${!M.runs?`<br><span class="muted">No metered runs${full?"":" for this episode"} yet. CPU, GPU and power are measured for every pipeline run from now on (dashboard jobs and terminal runs).</span>`:""}</div>`;
+  h += `<div class="section-title">By step</div><div class="utable-wrap"><table class="utable"><thead><tr><th>Step</th>
+      <th><i class="key" style="background:var(--claude)"></i>Claude (API $)</th><th><i class="key" style="background:var(--local)"></i>Local stage time</th>
+      <th>Measured CPU</th><th>GPU busy</th><th>Energy</th></tr></thead><tbody>
+    ${steps.map(s=>{ const m = s.metered||{}; return `<tr><td><b>${esc(s.label)}</b>${s.claude_msgs?`<div class="muted" style="font-size:11.5px">${s.claude_msgs} Claude replies</div>`:""}</td>
+      <td>${hbar(s.claude_usd,cMax,"var(--claude)",s.claude_usd?`${usd(s.claude_usd)} · ${pct(s.claude_usd,cTot)}`:"—")}</td>
+      <td>${hbar(s.logged_wall_sec,gMax,"var(--local)",s.logged_wall_sec?`${fmtDur(s.logged_wall_sec)} · ${pct(s.logged_wall_sec,gTot)}`:"—")}</td>
+      <td class="num">${m.cpu_sec?fmtDur(m.cpu_sec):"—"}</td><td class="num">${m.gpu_sec?fmtDur(m.gpu_sec):"—"}</td><td class="num">${m.energy_wh?wh(m.energy_wh):"—"}</td></tr>`; }).join("")}
+    </tbody></table></div>`;
+  if(full && d.episodes?.length){
+    const eps = d.episodes, ecMax = Math.max(...eps.map(e=>e.claude_usd)), egMax = Math.max(...eps.map(e=>e.logged_wall_sec));
+    h += `<div class="section-title">By episode</div><div class="utable-wrap"><table class="utable"><thead><tr><th>Episode</th><th><i class="key" style="background:var(--claude)"></i>Claude (API $)</th><th><i class="key" style="background:var(--local)"></i>Local stage time</th><th>Energy</th></tr></thead><tbody>
+      ${eps.map(e=>`<tr><td>${e.episode==="(no episode)"?'<b>Pipeline development</b><div class="muted" style="font-size:11.5px">code, docs, tests, tools</div>':`<a href="#" onclick="selectEp('${esc(e.episode)}');return false" class="mono">${esc(e.episode)}</a>`}${e.test?' <span class="pill warn">test</span>':""}</td>
+        <td>${hbar(e.claude_usd,ecMax,"var(--claude)",e.claude_usd?usd(e.claude_usd):"—")}</td><td>${hbar(e.logged_wall_sec,egMax,"var(--local)",e.logged_wall_sec?fmtDur(e.logged_wall_sec):"—")}</td>
+        <td class="num">${e.metered?.energy_wh?wh(e.metered.energy_wh):"—"}</td></tr>`).join("")}</tbody></table></div>`;
+  }
+  const comps = Object.entries(M.components||{}); const compTot = comps.reduce((a,c)=>a+c[1],0);
+  if(compTot>0) h += `<div class="section-title">Local CPU by process (measured runs)</div>
+    <div class="split">${comps.map(([n,v])=>`<i style="width:${100*v/compTot}%;background:${compColor(n)}" title="${esc(n)}: ${fmtDur(v)}"></i>`).join("")}</div>
+    <div class="legend">${comps.map(([n,v])=>`<span><i class="key" style="background:${compColor(n)}"></i>${esc(n)} <b>${pct(v,compTot)}</b> (${fmtDur(v)})</span>`).join("")}</div>`;
+  const days = Object.entries(C.by_day||{}).filter(([k])=>k);
+  if(full && days.length){ const dMax = Math.max(...days.map(x=>x[1]));
+    h += `<div class="section-title">Claude by day</div><div class="utable-wrap"><table class="utable"><tbody>${days.map(([k,v])=>`<tr><td class="num" style="width:110px">${esc(k)}</td><td>${hbar(v,dMax,"var(--claude)",usd(v))}</td></tr>`).join("")}</tbody></table></div>`; }
+  const runs = d.recent_runs||[];
+  if(runs.length) h += `<div class="section-title">Measured runs</div>
+    <div class="legend" style="margin-bottom:6px"><span><svg width="18" height="6"><line x1="0" y1="3" x2="18" y2="3" stroke="var(--local)" stroke-width="2"/></svg> CPU % of Mac</span><span><svg width="18" height="6"><line x1="0" y1="3" x2="18" y2="3" stroke="var(--gpu)" stroke-width="2" stroke-dasharray="4 2"/></svg> GPU busy %</span><span>(0–100% scale)</span></div>
+    <div class="utable-wrap"><table class="utable"><thead><tr><th>Run</th><th>Over time</th><th>Wall</th><th>CPU</th><th>GPU busy</th><th>Energy</th><th>Peak mem</th><th>Biggest process</th></tr></thead><tbody>
+    ${runs.map(r=>{ const top = Object.entries(r.components||{})[0]; return `<tr><td><b>${esc(r.label)}</b><div class="muted mono" style="font-size:11px">${esc(r.episode||"")} · ${r.source} · ${new Date(r.started*1000).toLocaleString()}</div></td>
+      <td>${spark(r.samples)}</td><td class="num">${fmtDur(r.wall_sec)}</td><td class="num">${fmtDur(r.cpu_sec)}</td><td class="num">${fmtDur(r.gpu_sec)}</td><td class="num">${wh(r.energy_wh)}</td>
+      <td class="num">${(r.peak_rss_mb/1000).toFixed(1)} GB</td><td>${top?`<i class="key" style="background:${compColor(top[0])}"></i>${esc(top[0])} ${pct(top[1],r.cpu_sec)}`:"—"}</td></tr>`;}).join("")}</tbody></table></div>`;
+  h += `<div class="section-title">How this is counted</div><div class="muted" style="font-size:12.5px;line-height:1.6">
+    <b>Claude:</b> ${esc(d.notes.claude)} Each reply is assigned to the step of the tool it used (reading shot images = image inspection, writing script.md = script, editing pipeline code = pipeline development); replies without a tool count toward the step in progress.<br>
+    <b>Local:</b> ${esc(d.notes.local)}${R.idle_w?` Idle draw of this Mac right now ≈ ${R.idle_w.toFixed(1)} W, so energy includes the screen and background apps.`:""} ${since?`Metering since ${esc(since)}.`:""}<br>
+    <b>Stage time:</b> ${esc(d.notes.logged)}<br>
+    Rates (config.yaml <span class="mono">costs</span>): $1 = ₹${R.usd_to_inr} · electricity ₹${R.electricity_inr_per_kwh}/kWh.</div>`;
+  el.innerHTML = h;
+}
+
+loadEps().then(()=>{ if(S.sel && !S.ep) loadEp(); });
+pollJobs(); setInterval(pollJobs, 1500);
+setInterval(()=>{ if(!S.jobs?.running) loadEp(); }, 15000);
+setInterval(()=>{ if(S.view==="usage") showUsage(true); }, 30000);
+</script>
+</body>
+</html>

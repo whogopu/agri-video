@@ -2,7 +2,7 @@
 
     uv run python -m pipeline.cast list
     uv run python -m pipeline.cast new ramesh --name-hi "रमेश जी" --name-en Ramesh --gender male \
-        --role "farmer, main character" --look "..." --wardrobe "..."
+        --role "farmer, main character" --look "..." --wardrobe "..." [--accessories "bare wrists, ..."]
     uv run python -m pipeline.cast candidates ramesh [--n 4] [--force]   # reference candidates (text-to-image)
     uv run python -m pipeline.cast sheet ramesh                          # numbered sheet of candidates for the USER
     uv run python -m pipeline.cast approve ramesh 2                      # ONLY after the user picked candidate 2
@@ -85,20 +85,22 @@ def reference_problems(c: CastMember) -> list[str]:
 def reference_preamble(chars: list[CastMember]) -> str:
     """Prompt text tying each name to its reference image, with look + fixed wardrobe.
     Repeating the wardrobe matters: tests showed klein takes clothes from the prompt more than from
-    the reference, and adds headwear unless told not to."""
+    the reference. Accessories are stated positively ("hair uncovered, bare wrists"): klein has no
+    negative prompt, and "no wristwatch" / "nothing added" tended to add them (A/B 2026-11-20)."""
     parts = []
     for i, c in enumerate(chars, 1):
         pron = "his" if c.gender == "male" else "her"
         parts.append(
             f"{c.name_en} is the {'man' if c.gender == 'male' else 'woman'} in reference image {i}: "
             f"keep exactly {pron} face, hair, facial features, age and build ({c.look}) and {pron} clothes "
-            f"({c.wardrobe}); nothing else added on the head.")
+            f"({c.wardrobe}){'; ' + c.accessories if c.accessories else ''}.")
     return " ".join(parts)
 
 
 def reference_prompt(c: CastMember) -> str:
     """Text-to-image prompt for a reference candidate: full figure, face clear, plain wall, final costume."""
-    return (f"Character reference photo of {c.look}, wearing {c.wardrobe}, nothing on the head, "
+    return (f"Character reference photo of {c.look}, wearing {c.wardrobe}"
+            f"{', ' + c.accessories if c.accessories else ''}, "
             f"standing facing the camera with a calm natural expression, full figure visible from head to feet, "
             f"in front of a plain whitewashed mud wall, soft even daylight, sharp focus on the face, "
             f"both hands relaxed at the sides")
@@ -171,7 +173,7 @@ def cmd_new(args: argparse.Namespace) -> None:
     if f.exists() and not args.force:
         raise SystemExit(f"{rel(f)} exists (use --force to overwrite)")
     c = CastMember(id=args.id, name_hi=args.name_hi, name_en=args.name_en, role=args.role, gender=args.gender,
-                   look=args.look, wardrobe=args.wardrobe)
+                   look=args.look, wardrobe=args.wardrobe, accessories=args.accessories)
     save_character(c)
     print(rel(f))
 
@@ -195,6 +197,8 @@ def main() -> None:
     for a in ("--name-hi", "--name-en", "--role", "--look", "--wardrobe"):
         n.add_argument(a, required=True)
     n.add_argument("--gender", choices=["male", "female"], required=True)
+    n.add_argument("--accessories", default="",
+                   help='positive wording, e.g. "hair uncovered, bare wrists, bare fingers" (never "no ...")')
     n.add_argument("--force", action="store_true")
     c = sub.add_parser("candidates")
     c.add_argument("id")
