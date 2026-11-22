@@ -22,6 +22,7 @@ class Status(str, Enum):
     draft = "draft"
     script_approved = "script_approved"
     narrated = "narrated"
+    shots_approved = "shots_approved"   # checkpoint: the user approved the shot plan, specs and prompts (2026-11-22)
     visuals_ready = "visuals_ready"
     draft_rendered = "draft_rendered"
     final_rendered = "final_rendered"
@@ -70,13 +71,28 @@ class ImageInspection(_Model):
     inspected_at: str = ""
 
 
+class SpecInfo(_Model):
+    """How a shot's spec was made and revised (pipeline/shot_specs.py)."""
+    writer: str = ""                   # "llm:<model>", "claude" or "user"
+    rounds: int = 0                    # repair rounds the LLM needed (0 = first answer passed the checks)
+    flags: list[str] = Field(default_factory=list)     # problems left after the repair rounds: needs Claude/user
+    warnings: list[str] = Field(default_factory=list)  # prompt-lint warnings (risky words)
+    revisions: int = 0                 # automatic rewrites after a failed inspection
+    revised_because: str = ""          # the inspection notes or the user's note behind the last rewrite
+    # A second automatic revision of the same shot waits for the user (user decision 2026-11-22):
+    # images refuses the shot until `shot_specs --approve --scene N --shot K`.
+    needs_approval: bool = False
+
+
 class Shot(_Model):
     """One still inside an image scene. Shots cut on sentence boundaries of the scene's narration."""
     at_segment: int = Field(0, ge=0)   # the shot starts with this narration segment (0 = scene start)
+    framing: str | None = None         # key in config shot_specs.framings, chosen by the shot plan (code)
     # Either a free-text prompt or a scene spec (pipeline/scene_spec.py, slots in bakeoff/shots.yaml);
     # a spec is linted and rendered into the prompt in code. Not both.
     image_prompt: str | None = None
     spec: dict[str, Any] | None = None
+    spec_info: SpecInfo | None = None
     prompt_sent: str | None = None     # the full prompt the current image was generated from (preamble + style)
     characters: list[str] = Field(default_factory=list)  # cast ids shown; their references condition the image
     seed: int | None = None

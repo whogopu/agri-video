@@ -212,6 +212,25 @@ shots:
   min_shot_sec: 2.5        # validate warns below this: a picture needs time to be read
   max_shot_sec: 9          # validate warns above this: a still held longer feels static
   fade_frames: 6           # quick dissolve between shots inside a scene (SHOT_FADE_FRAMES in theme.ts)
+  max_per_scene: 3         # pipeline.shot_specs plans 1–3 shots per image scene
+
+# Shot specs (pipeline/shot_specs.py, plan docs/plans/local-shot-specs.md). Code plans the shots (how many,
+# at_segment, framing); a local LLM in the vlm/ env (text-only) writes each shot's spec content; code lints
+# it and sends errors back for repair. User decisions 2026-11-22.
+shot_specs:
+  model: mlx-community/Ministral-3-14B-Instruct-2512-4bit   # Apache-2.0; chosen in P4 (samples/shot-specs-eval/report.md)
+  max_tokens: 1800
+  temperature: 0.2
+  max_repair_rounds: 3     # after the first answer; a shot still failing is flagged for Claude/the user
+  examples: 4              # approved bake-off specs shown as examples (most similar by keywords)
+  max_cast_per_shot: 2
+  # Framing per shot, chosen by code: a scene opens wide (where we are), then medium (what is done), then
+  # close-up (hands, soil, card); a one-shot scene is medium-wide. Never the same framing twice in a row.
+  framings:
+    wide: "wide shot at eye level, 28 mm lens, the whole place in view and every person's whole body from head to feet in frame"
+    medium_wide: "medium-wide shot at eye level, 35 mm lens, every person's whole body from head to feet in frame"
+    medium: "medium shot at eye level, 50 mm lens, people from the knees up, their hands and what they hold clearly visible"
+    close: "close-up, 85 mm lens, the hands and the object they work on filling most of the frame"
 
 captions:
   max_words_per_chunk: 6                 # long format; Shorts use formats.short.caption_max_words

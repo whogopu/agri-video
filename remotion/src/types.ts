@@ -12,9 +12,16 @@ export type GraphicTemplate = "TitleCard" | "KeyPoints" | "BigNumber";
 export type Shot = {
   /** the shot starts with this narration segment (0 = scene start) */
   at_segment: number;
+  /** framing key (config shot_specs.framings), chosen by the shot plan */
+  framing?: string | null;
   image_prompt?: string | null;
   /** scene spec (pipeline/scene_spec.py); rendered into the prompt by images.py */
   spec?: Record<string, unknown> | null;
+  /** how the spec was written / revised (pipeline/shot_specs.py) */
+  spec_info?: {
+    writer?: string; rounds?: number; flags?: string[]; warnings?: string[];
+    revisions?: number; revised_because?: string; needs_approval?: boolean;
+  } | null;
   /** full prompt the current image was generated from */
   prompt_sent?: string | null;
   characters?: string[];
