@@ -6,6 +6,8 @@ AgriGate's pipeline for Hindi educational videos for farmers (YouTube, 3–5 min
 
 ## Setup
 
+**New Mac: run `./scripts/setup.sh`.** It installs and checks everything, and you can re-run it any time. See [docs/SETUP_NEW_MAC.md](docs/SETUP_NEW_MAC.md). The manual steps below are kept for reference.
+
 Requirements: macOS on Apple Silicon, [uv](https://docs.astral.sh/uv/), Node 20+, Homebrew.
 
 ```bash

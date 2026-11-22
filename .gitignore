@@ -40,3 +40,6 @@ bakeoff/logs/
 bakeoff/blind/
 bakeoff/crops/
 .DS_Store
+
+# setup script state + log
+.setup/
