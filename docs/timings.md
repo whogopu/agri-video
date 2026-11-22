@@ -25,6 +25,8 @@ MacBook Air M5, 16 GB unified memory, fanless. Heavy jobs run one at a time; lon
 | 2026-11-22 | mflux, FLUX.3 Klein q8 edit, 2 head-crop references | 1344×768 | ok | ~260 s (257–273) | full-figure references instead: 475 s |
 | 2026-11-22 | mflux, FLUX.3 Klein q8 edit, 1 reference, production `images` one-off | 768×1344 (Short) | ok | 140 s | |
 | 2026-11-22 | mflux, FLUX.3 Klein base q8 (pre-saved, 50 steps) | 1344×768 | ok | ~713 s | peak 11.2 GB; not used |
+| 2026-11-22 | vlm/vlm_worker.py text-only (`images: []`), Ministral 3 14B 4-bit | one shot spec (JSON) from a Hindi sentence + 2 example specs, 1.5k prompt tokens | ok | 60 s + 8 s load | peak 9.2 GB, 782 tokens; plan P2 |
+| 2026-11-22 | same, Qwen3.5 9B 4-bit | same | ok | 41 s + 2 s load | peak 7.1 GB, 923 tokens |
 | 2026-11-19 | broll index | 2 short test clips | ok | <1s | probe + 3-frame contact strip |
 | 2026-11-19 | narration, real episode (4 scenes, 30 s audio) | Rohit, MPS | ok | 59s TTS + 1s post | 1.8–2.1 s compute per s audio. Loudness −14.4 LUFS after adding the compressor (−15.4 before) |
 | 2026-11-19 | render draft (540p, scale 0.5) | 30.6 s long video | ok | 14s | 12.6 MB |
