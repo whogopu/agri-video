@@ -13,6 +13,10 @@ export type Shot = {
   /** the shot starts with this narration segment (0 = scene start) */
   at_segment: number;
   image_prompt?: string | null;
+  /** scene spec (pipeline/scene_spec.py); rendered into the prompt by images.py */
+  spec?: Record<string, unknown> | null;
+  /** full prompt the current image was generated from */
+  prompt_sent?: string | null;
   characters?: string[];
   seed?: number | null;
   attempts?: number;

@@ -29,6 +29,12 @@ An image scene holds `visual.shots` (1–3). Each shot starts at a narration **s
   {"at_segment": 1, "characters": [], "image_prompt": "Close-up of dry cracked brown soil ..."}]}
 ```
 
+### Scene specs (preferred for shots with people or actions)
+Instead of `image_prompt`, a shot can carry a structured `spec`: what it teaches, framing, setting, crop stage, each person with **both hands' grip and what they hold**, every object with what supports it, every flow (material, source = open hand / tilted container mouth / nozzle, landing), contacts, and `inspector_notes` (never sent to the model). The slots and 12 approved examples are in `bakeoff/shots.yaml`. Code lints the spec (an unaccounted hand, a held object not in `objects[]`, a pour without a flow, a flow from a closed fist are rejected) and renders the prompt, so the picture is fully specified before a generation is spent. Specs passed 35/39 in the bake-off.
+- Cast people: `cast: ramesh` plus role, gender, posture, gaze and hands. Leave out clothes, age and build; the character's wardrobe and reference supply them. `characters` is filled from the spec.
+- Write one in episode.json (`"spec": {...}`) or in a YAML file and set it with `images ... --scene N --shot K --spec f.yaml`. Check with `--dry-run` (prints the full prompt, generates nothing).
+- `image_prompt` and `spec` are exclusive; `--prompt` switches a shot back to free text.
+
 ## Cast shots (consistent characters)
 - Shots with `characters` run FLUX.2 klein **edit mode** with the characters' approved reference images (`assets/cast/<id>/ref.png`). `images.py` adds the preamble automatically: "Ramesh is the man in reference image 1: keep exactly his face … and his clothes (…); his short grey-black hair uncovered, bare wrists, bare fingers." (`accessories` in `character.json`, positive wording). So in `image_prompt` just call him by name and describe the action, pose, framing and setting. Don't describe his face or clothes again, and don't contradict them.
 - ~40 s per shot with one character, ~90 s with two. At most 2 characters per shot.

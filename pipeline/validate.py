@@ -192,8 +192,14 @@ def _check_cast(ep: Episode, rep: Report, need_reference: bool) -> None:
 
 def _check_shot(ep: Episode, ep_dir: Path, tag: str, scene_id: int, k: int, sh, rep: Report) -> None:
     from pipeline.cast import load_character
-    if not sh.image_prompt:
-        rep.error(f"{tag}: no image_prompt")
+    if sh.spec:
+        from pipeline.scene_spec import cast_ids, lint as spec_lint
+        for e in spec_lint(sh.spec, tag):
+            rep.error(f"spec incomplete: {e}")
+        if cast_ids(sh.spec) != sh.characters:
+            rep.error(f"{tag}: spec cast {cast_ids(sh.spec)} differs from characters {sh.characters}")
+    elif not sh.image_prompt:
+        rep.error(f"{tag}: no image_prompt or spec")
     if sh.seed is None:
         rep.error(f"{tag}: no seed")
     for cid in sh.characters:

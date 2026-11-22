@@ -73,7 +73,11 @@ class ImageInspection(_Model):
 class Shot(_Model):
     """One still inside an image scene. Shots cut on sentence boundaries of the scene's narration."""
     at_segment: int = Field(0, ge=0)   # the shot starts with this narration segment (0 = scene start)
+    # Either a free-text prompt or a scene spec (pipeline/scene_spec.py, slots in bakeoff/shots.yaml);
+    # a spec is linted and rendered into the prompt in code. Not both.
     image_prompt: str | None = None
+    spec: dict[str, Any] | None = None
+    prompt_sent: str | None = None     # the full prompt the current image was generated from (preamble + style)
     characters: list[str] = Field(default_factory=list)  # cast ids shown; their references condition the image
     seed: int | None = None
     attempts: int = 0
@@ -82,6 +86,12 @@ class Shot(_Model):
     reference_sha1: dict[str, str] = Field(default_factory=dict)
     inspection: ImageInspection | None = None
     notes: str | None = None
+
+    @model_validator(mode="after")
+    def _one_prompt_source(self) -> "Shot":
+        if self.image_prompt and self.spec:
+            raise ValueError("a shot has either image_prompt or spec, not both")
+        return self
 
 
 class Visual(_Model):

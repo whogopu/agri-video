@@ -274,7 +274,7 @@ def shot_info(ep: dict, scene_id: int, k: int | None) -> dict | None:
         sh = shots[(k or 1) - 1] if (k or 1) <= len(shots) else None
         if not sh:
             return None
-        return {"prompt": sh.get("image_prompt") or "", "characters": sh.get("characters") or [],
+        return {"prompt": sh.get("prompt_sent") or sh.get("image_prompt") or "", "characters": sh.get("characters") or [],
                 "sentence": shot_sentence(sc, sh, shots)}
     return {"prompt": v.get("image_prompt") or "", "characters": v.get("characters") or [],
             "sentence": shot_sentence(sc, {}, [])}

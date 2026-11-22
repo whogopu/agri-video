@@ -45,28 +45,20 @@ def specs() -> dict[str, Any]:
     return scene_spec.load(REPO_ROOT / cfg()["specs"])
 
 
-def cast_ids(shot: dict[str, Any]) -> list[str]:
-    """Recurring characters in a spec (people with `cast:`), in order = reference image order."""
-    return [p["cast"] for p in shot.get("people") or [] if p.get("cast")]
+cast_ids = scene_spec.cast_ids
 
 
 def cast_shot(shot: dict[str, Any]) -> tuple[dict[str, Any], str, list[Path]]:
     """For a cast model: the spec with each cast person's clothes set to the character's fixed wardrobe
     (age/build dropped, the reference sets them), the reference preamble, and the head-crop references."""
-    import copy
     from pipeline.cast import load_character, reference_head_path, reference_preamble, reference_problems
-    s = copy.deepcopy(shot)
     chars = []
-    for p in s.get("people") or []:
-        if p.get("cast"):
-            c = load_character(p["cast"])
-            if reference_problems(c):
-                raise SystemExit("; ".join(reference_problems(c)))
-            chars.append(c)
-            p["clothes"] = c.wardrobe
-            p.pop("age", None)
-            p.pop("build", None)
-    return s, reference_preamble(chars), [reference_head_path(c) for c in chars]
+    for cid in cast_ids(shot):
+        c = load_character(cid)
+        if reference_problems(c):
+            raise SystemExit("; ".join(reference_problems(c)))
+        chars.append(c)
+    return scene_spec.for_cast(shot, chars), reference_preamble(chars), [reference_head_path(c) for c in chars]
 
 
 def prompts(cast: bool = False) -> dict[str, str]:

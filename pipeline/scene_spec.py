@@ -7,12 +7,19 @@ any of that open, because the image models fill gaps with something (a closed fi
 framing → setting → crop → people (body, clothes, posture, each hand) → objects → flows → contacts → style.
 The rendered prompt then goes through visual_rules.lint (no negations, known risky words).
 
+Used by the bake-off (bakeoff/shots.yaml, which documents every slot) and by production: a shot in
+episode.json with `spec` instead of `image_prompt` gets its prompt from here (pipeline/images.py).
+A person with `cast: <id>` is a recurring character: `for_cast()` replaces their clothes with the
+character's fixed wardrobe and drops age/build (the reference image and preamble set face and body),
+so such a person needs no clothes/age/build in the spec.
+
     uv run python -m pipeline.scene_spec bakeoff/shots.yaml            # lint + render all, word counts
     uv run python -m pipeline.scene_spec bakeoff/shots.yaml --shot B01 # print one prompt
 """
 from __future__ import annotations
 
 import argparse
+import copy
 import re
 import sys
 from pathlib import Path
@@ -41,10 +48,34 @@ def _all_text(shot: dict[str, Any]) -> str:
     return yaml.safe_dump(keep, allow_unicode=True)
 
 
-def lint(shot: dict[str, Any]) -> list[str]:
+def cast_ids(shot: dict[str, Any]) -> list[str]:
+    """Recurring characters in a spec (people with `cast:`), in order = reference image order."""
+    return [p["cast"] for p in shot.get("people") or [] if p.get("cast")]
+
+
+def for_cast(shot: dict[str, Any], chars: list[Any]) -> dict[str, Any]:
+    """A copy of the spec for an edit-mode generation: each `cast:` person wears the character's fixed
+    wardrobe and loses age/build (the reference sets them). `chars` are CastMember objects for cast_ids()."""
+    s = copy.deepcopy(shot)
+    by_id = {c.id: c for c in chars}
+    for p in s.get("people") or []:
+        if p.get("cast"):
+            c = by_id[p["cast"]]
+            p["clothes"] = c.wardrobe
+            p.pop("age", None)
+            p.pop("build", None)
+    return s
+
+
+def spec_text(shot: dict[str, Any]) -> str:
+    """The spec's prompt-relevant text with {kind:key} tokens unexpanded (for must-show rules)."""
+    return _all_text({k: v for k, v in shot.items() if k != "inspector_notes"})
+
+
+def lint(shot: dict[str, Any], label: str | None = None) -> list[str]:
     """Problems that make a spec incomplete. Empty list = ready to render."""
     errs: list[str] = []
-    sid = shot.get("id", "?")
+    sid = label or shot.get("id", "?")
     for key in ("teaches", "framing", "setting"):
         if not str(shot.get(key) or "").strip():
             errs.append(f"{sid}: missing {key}")
@@ -61,7 +92,7 @@ def lint(shot: dict[str, Any]) -> list[str]:
         who = p.get("role", "person")
         if p.get("gender") not in ("man", "woman"):
             errs.append(f"{sid}: {who}: gender must be man or woman")
-        for k in ("clothes", "posture"):
+        for k in ("posture",) if p.get("cast") else ("clothes", "posture"):
             if not p.get(k):
                 errs.append(f"{sid}: {who}: missing {k}")
         for side in ("left_hand", "right_hand"):
@@ -135,14 +166,15 @@ def render(shot: dict[str, Any], style: str = "") -> str:
     return expand(" ".join(p for p in parts if p))
 
 
-def check(shot: dict[str, Any], style: str = "") -> tuple[list[str], list[str], str]:
+def check(shot: dict[str, Any], style: str = "", label: str | None = None) -> tuple[list[str], list[str], str]:
     """(errors, warnings, prompt): spec lint + prompt lint on the rendered text."""
-    errs = lint(shot)
+    sid = label or shot.get("id", "?")
+    errs = lint(shot, sid)
     if errs:
         return errs, [], ""
     prompt = render(shot, style)
     p_errs, warns = prompt_lint(prompt)
-    return [f"{shot['id']}: {e}" for e in p_errs], [f"{shot['id']}: {w}" for w in warns], prompt
+    return [f"{sid}: {e}" for e in p_errs], [f"{sid}: {w}" for w in warns], prompt
 
 
 def main(argv: list[str] | None = None) -> None:

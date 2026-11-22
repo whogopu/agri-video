@@ -44,6 +44,7 @@ uv run python -m pipeline.cast list | new <id> ... | candidates <id> | sheet <id
 uv run python -m pipeline.images episodes/<id> [--scene N --shot K --retry --prompt "..."]   # FLUX.3 Klein via mflux (edit mode with cast references)
 uv run python -m pipeline.visual_rules --list | --lint "prompt"              # tested prompt phrases ({kind:key}) + lint (no negations)
 uv run python -m pipeline.images episodes/<id> --scene N --shot K --checklist  # checklist + this shot's must-show items
+uv run python -m pipeline.images episodes/<id> --scene N --shot K --spec f.yaml [--dry-run]  # shot from a scene spec (pipeline/scene_spec.py)
 uv run python -m pipeline.broll index|check|list                              # B-roll library (optional; usually empty)
 uv run python -m pipeline.render episodes/<id> [--draft] [--force]            # Remotion → render/draft.mp4 | video.mp4
 uv run python -m pipeline.review episodes/<id> [--draft]                      # contact sheets + checks → review/review.md
@@ -59,7 +60,7 @@ cd remotion && npx remotion still src/index.ts FontTest out/font-test.png
 
 ## Conventions
 
-- Image scenes hold several **shots** (`visual.shots[]`, schema v2), each starting at a narration sentence (`at_segment`); v1 files migrate on load. `pipeline.common.shot_starts_sec` mirrors `remotion/src/timing.ts: shotStartFrames`: change both together.
+- Image scenes hold several **shots** (`visual.shots[]`, schema v2), each starting at a narration sentence (`at_segment`); v1 files migrate on load. A shot has a free-text `image_prompt` or a structured `spec` (slots in `bakeoff/shots.yaml`), never both; specs are linted and rendered into the prompt in code. `pipeline.common.shot_starts_sec` mirrors `remotion/src/timing.ts: shotStartFrames`: change both together.
 - `episodes/<id>/episode.json` is the single source of truth; every stage reads it and writes results back (`pipeline/schema.py`, saved atomically via `pipeline.common.save_episode`).
 - Status flow: draft → script_approved → narrated → visuals_ready → draft_rendered → final_rendered → reviewed → packaged. Advance status only via `validate --set-status`, which validates at the target level first.
 - Stages are idempotent and per-scene: skip existing outputs unless `--force`; `--scene N` redoes one scene.

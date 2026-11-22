@@ -616,7 +616,7 @@ def episode_detail(ep_id: str) -> dict:
             attempts = sorted(p.name for p in (ep_dir / "images").glob(f"scene-{s['id']:02d}-s{k}-a*.png"))
             shots.append({"k": k, "file": f, "exists": bool(f and (ep_dir / f).exists()),
                           "attempts": sh.get("attempts", 0), "attempt_files": attempts,
-                          "characters": sh.get("characters", []), "prompt": sh.get("image_prompt") or "",
+                          "characters": sh.get("characters", []), "prompt": sh.get("prompt_sent") or sh.get("image_prompt") or "",
                           "at_segment": sh.get("at_segment", 0),
                           "inspection": None if not ins else {"passed": ins.get("passed"),
                                                                "notes": ins.get("notes", ""),

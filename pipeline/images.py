@@ -1,13 +1,20 @@
 """Image stage: generate the stills (shots) of every scene whose visual.type is "image".
 
     uv run python -m pipeline.images episodes/<id> [--scene N [--shot K]] [--force]
-    uv run python -m pipeline.images episodes/<id> --scene N --shot K --retry [--prompt "..."]   # next attempt, new seed
+    uv run python -m pipeline.images episodes/<id> --scene N --shot K --retry [--prompt "..." | --spec f.yaml]   # next attempt, new seed
+    uv run python -m pipeline.images episodes/<id> [--scene N [--shot K]] --dry-run   # print the prompts, generate nothing
     uv run python -m pipeline.images --prompt "..." --format short --out x.png [--seed 7] [--cast ramesh]  # one-off test
     uv run python -m pipeline.images episodes/<id> --scene N [--shot K] --crops     # zoomed quarters (+ reference side-by-side)
     uv run python -m pipeline.images episodes/<id> --scene N --shot K --inspect pass --notes "..."
     uv run python -m pipeline.images episodes/<id> --scene N --shot K --use-attempt 1   # go back to an earlier attempt
     uv run python -m pipeline.images --checklist                                   # print the inspection checklist
     uv run python -m pipeline.images episodes/<id> --scene N --shot K --checklist   # + this shot's must-show items
+
+A shot gives its picture either as a free-text `image_prompt` or as a scene `spec` (pipeline/scene_spec.py,
+slots documented in bakeoff/shots.yaml): every hand, held object and poured material spelled out; the spec
+is linted (incomplete specs are rejected) and rendered into the prompt in code. `--spec FILE` (YAML/JSON,
+one spec) sets a shot's spec; `--prompt` sets free text. Either clears the other. The full prompt sent for
+each attempt is saved next to it (images/scene-XX-sK-aN.txt) and as shot.prompt_sent.
 
 Prompts may use {kind:key} tokens from assets/visual_rules.yaml (tested phrases); every prompt is linted
 before generating (pipeline/visual_rules.py): naming what you don't want ("no palm trees") is rejected,
@@ -49,6 +56,7 @@ from pipeline.common import (
     REPO_ROOT, append_log, format_config, load_config, load_episode, resolve_episode_dir,
     save_episode, selected_scenes, setup_logging, stage_timer,
 )
+from pipeline import scene_spec
 from pipeline.schema import Episode, ImageInspection, Scene, Shot
 from pipeline.visual_rules import expand, lint, must_show, prompt_hints, shot_sentence
 
@@ -118,10 +126,61 @@ def check_prompt(prompt: str, icfg: dict[str, Any], preamble: str = "", where: s
         raise SystemExit(f"{tag}image prompt rejected:\n  " + "\n  ".join(errors))
 
 
+def prompt_source(shot: Shot) -> str:
+    """The shot's own prompt text with tokens unexpanded: the free-text prompt or the spec's slots."""
+    return scene_spec.spec_text(shot.spec) if shot.spec else (shot.image_prompt or "")
+
+
+def shot_label(shot: Shot) -> str:
+    """Short description for listings: the spec's `teaches`, else the start of the prompt."""
+    if shot.spec:
+        return "spec: " + str(shot.spec.get("teaches") or "")[:60]
+    return (shot.image_prompt or "")[:60]
+
+
 def shot_must_show(scene: Scene, shot: Shot) -> list[str]:
     """This shot's must-show items (visual_rules.yaml) from its prompt tokens and its narration sentence."""
     sentence = shot_sentence(scene.model_dump(), shot.model_dump(), [x.model_dump() for x in scene.visual.shots])
-    return must_show(shot.image_prompt or "", sentence)
+    return must_show(prompt_source(shot), sentence)
+
+
+def shot_prompt(ep: Episode, shot: Shot, icfg: dict[str, Any], where: str) -> tuple[str, list[Path], dict[str, str]]:
+    """(full prompt, reference images, reference SHA-1s) for one shot, linted; stops the stage on errors.
+    A spec's `cast:` people must match shot.characters (filled from the spec when characters is empty)."""
+    if shot.spec:
+        ids = scene_spec.cast_ids(shot.spec)
+        if ids and not shot.characters:
+            shot.characters = list(ids)
+        elif ids != shot.characters:
+            raise SystemExit(f"{where}: spec people with cast: {ids} differ from shot.characters {shot.characters}")
+    elif not shot.image_prompt:
+        raise SystemExit(f"{where}: no image_prompt or spec")
+    refs, preamble, ref_sha = cast_references(ep, shot)
+    if not shot.spec:
+        check_prompt(shot.image_prompt, icfg, preamble, where)
+        return full_prompt(shot.image_prompt, icfg, preamble), refs, ref_sha
+    chars = [load_character(cid) for cid in shot.characters]
+    errors, warnings, body = scene_spec.check(scene_spec.for_cast(shot.spec, chars),
+                                              icfg.get("style_suffix", "").strip(), where)
+    p_errors, p_warnings = lint(preamble) if preamble else ([], [])
+    for w in warnings + p_warnings:
+        print(f"  prompt warning {w}", file=sys.stderr)
+    if errors or p_errors:
+        raise SystemExit(f"{where}: spec rejected:\n  " + "\n  ".join(errors + p_errors))
+    return (f"{preamble} {body}" if preamble else body), refs, ref_sha
+
+
+def load_spec_file(path: str) -> dict[str, Any]:
+    """One scene spec from a YAML or JSON file (a bare spec, or {shots: [one spec]})."""
+    import yaml
+    data = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+    if isinstance(data, dict) and isinstance(data.get("shots"), list):
+        if len(data["shots"]) != 1:
+            raise SystemExit(f"{path}: holds {len(data['shots'])} specs; give a file with one")
+        data = data["shots"][0]
+    if not isinstance(data, dict):
+        raise SystemExit(f"{path}: not a spec (expected a mapping)")
+    return data
 
 
 def file_sha1(path: Path) -> str:
@@ -224,11 +283,23 @@ def shot_reference(c) -> Path:
     return reference_head_path(c) if crop == "head" else reference_path(c)
 
 
+class _DryRun:
+    """Stands in for stage_timer on --dry-run: nothing is generated, so nothing goes into log.md."""
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+    def note(self, msg: str) -> None:
+        print(msg)
+
+
 def run_episode(args: argparse.Namespace) -> None:
     ep_dir = resolve_episode_dir(args.episode)
     cfg = load_config()
     icfg = cfg["images"]
-    with stage_timer(ep_dir, "images") as run:
+    with (_DryRun() if args.dry_run else stage_timer(ep_dir, "images")) as run:
         ep = load_episode(ep_dir)
         width, height = format_config(cfg, ep.format)["image_size"]
         backend = get_backend(icfg)
@@ -241,15 +312,18 @@ def run_episode(args: argparse.Namespace) -> None:
             if not s.visual.shots:
                 raise SystemExit(f"scene {s.id}: image scene without shots (visual.shots)")
             todo = selected_shots(s, args.shots)
-            if args.prompt and len(todo) != 1:
-                raise SystemExit("--prompt needs exactly one shot (--scene N --shot K)")
+            if (args.prompt or args.spec) and len(todo) != 1:
+                raise SystemExit("--prompt/--spec need exactly one shot (--scene N --shot K)")
             for k, sh in todo:
                 if args.prompt:
-                    sh.image_prompt = args.prompt
-                if not sh.image_prompt:
-                    raise SystemExit(f"scene {s.id} shot {k}: no image_prompt")
-                refs, preamble, ref_sha = cast_references(ep, sh)
-                check_prompt(sh.image_prompt, icfg, preamble, f"scene {s.id} shot {k}")
+                    sh.image_prompt, sh.spec = args.prompt, None
+                if args.spec:
+                    sh.image_prompt, sh.spec = None, load_spec_file(args.spec)
+                prompt, refs, ref_sha = shot_prompt(ep, sh, icfg, f"scene {s.id} shot {k}")
+                if args.dry_run:
+                    who = f"  [cast {'+'.join(sh.characters)}]" if sh.characters else ""
+                    print(f"\nscene {s.id} shot {k}{who} ({len(prompt.split())} words):\n{prompt}")
+                    continue
                 stale = bool(sh.characters) and sh.reference_sha1 != ref_sha and sh.image_file is not None
                 current = ep_dir / sh.image_file if sh.image_file else None
                 if current and current.exists() and not (args.force or args.retry or stale):
@@ -270,10 +344,10 @@ def run_episode(args: argparse.Namespace) -> None:
                 stem = shot_stem(s.id, k)
                 attempt_file = ep_dir / "images" / f"{stem}-a{attempt}.png"
                 final = ep_dir / "images" / f"{stem}.png"
-                secs = backend.generate(full_prompt(sh.image_prompt, icfg, preamble), seed, width, height,
-                                        attempt_file, refs)
+                secs = backend.generate(prompt, seed, width, height, attempt_file, refs)
+                attempt_file.with_suffix(".txt").write_text(prompt + "\n", encoding="utf-8")
                 shutil.copyfile(attempt_file, final)
-                sh.seed, sh.attempts, sh.reference_sha1 = seed, attempt, ref_sha
+                sh.seed, sh.attempts, sh.reference_sha1, sh.prompt_sent = seed, attempt, ref_sha, prompt
                 sh.inspection = None  # new pixels → must be inspected again
                 sh.image_file = f"images/{final.name}"
                 save_episode(ep_dir, ep)  # save after each image so a crash keeps finished work
@@ -282,11 +356,13 @@ def run_episode(args: argparse.Namespace) -> None:
                 run.note(f"scene {s.id} shot {k}: attempt {attempt}, seed {seed}{who}, {secs:.1f}s → {attempt_file.name}")
         if flagged:
             print(f"Flagged for the user (max attempts reached): shots {flagged}", file=sys.stderr)
+    if args.dry_run:
+        return
     print("Inspect EVERY shot at full size, plus zoomed crops (--crops), person by person, against:")
     print(checklist_text(icfg))
     print("Then record each result:  --scene N --shot K --inspect pass|fail --notes \"<per-person counts; identity>\"")
     for s, k, sh in made:
-        print(f"  {ep_dir.name}/{sh.image_file}  (scene {s.id} shot {k}: {sh.image_prompt[:60]})")
+        print(f"  {ep_dir.name}/{sh.image_file}  (scene {s.id} shot {k}: {shot_label(sh)})")
         for m in shot_must_show(s, sh):
             print(f"      must show: {m}")
 
@@ -305,8 +381,10 @@ def print_shot_rules(args: argparse.Namespace) -> None:
                 print(f"  [ ] must show: {m}")
             if not items:
                 print("  (no shot-specific rules matched)")
-            for h in prompt_hints(sentence, sh.image_prompt or ""):
+            for h in prompt_hints(sentence, prompt_source(sh)):
                 print(f"  prompt hint: {h}")
+            for n in (sh.spec or {}).get("inspector_notes") or []:
+                print(f"  [ ] spec note: {n}")
 
 
 def run_inspection_tools(args: argparse.Namespace) -> None:
@@ -329,7 +407,9 @@ def run_inspection_tools(args: argparse.Namespace) -> None:
                 if args.seed is not None:
                     sh.seed = args.seed
                 if args.prompt:
-                    sh.image_prompt = args.prompt
+                    sh.image_prompt, sh.spec = args.prompt, None
+                sent = src.with_suffix(".txt")
+                sh.prompt_sent = sent.read_text(encoding="utf-8").strip() if sent.exists() else None
                 sh.inspection = None  # different pixels → inspect again
                 run.note(f"scene {s.id} shot {k}: now using {src.name} (seed {sh.seed})")
             save_episode(ep_dir, ep)
@@ -387,6 +467,8 @@ def main() -> None:
     p.add_argument("--force", action="store_true", help="regenerate existing images (same seed)")
     p.add_argument("--retry", action="store_true", help="next attempt with a new seed (counts toward max_attempts)")
     p.add_argument("--prompt", help="set/replace the shot's image prompt (episode mode) or the prompt to test")
+    p.add_argument("--spec", help="episode mode: set the shot's scene spec from a YAML/JSON file (clears image_prompt)")
+    p.add_argument("--dry-run", action="store_true", help="episode mode: lint and print the prompts, generate nothing")
     p.add_argument("--seed", type=int)
     p.add_argument("--format", default="long", choices=["long", "short"], help="one-off mode only")
     p.add_argument("--out", help="one-off mode: output file")
