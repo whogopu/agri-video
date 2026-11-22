@@ -3,6 +3,9 @@
     uv run python -m pipeline.shot_specs episodes/<id> [--scene N] [--force]       # plan shots + write specs
     uv run python -m pipeline.shot_specs episodes/<id> --plan-only                 # shot plan by code, no LLM
 
+The spec writer is pipeline/spec_writer.py (local LLM via the vlm/ env, pipeline/local_llm.py). Every LLM
+answer is appended to review/shot_specs_llm.jsonl.
+
 Runs after `narrated` (segment timings are known), on scenes with visual.type == "image". Graphics and
 B-roll scenes are untouched. User decisions 2026-11-22 (docs/plans/local-shot-specs.md):
 
@@ -20,8 +23,13 @@ Existing shots are kept unless --force (idempotent and per-scene like every stag
 from __future__ import annotations
 
 import itertools
+import re
+import sys
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
+
+from pipeline.common import save_episode
 
 from pipeline.schema import Episode, Scene
 
@@ -129,9 +137,110 @@ def apply_plan(ep: Episode, cfg: dict[str, Any], scene_ids: list[int] | None, fo
     return notes
 
 
+SENT_SPLIT = re.compile(r"(?<=[।?!])\s+")
+
+
+def scene_sentences(scene: Scene) -> list[str]:
+    """Display sentences of a scene, split like visual_rules.shot_sentence (markup removed)."""
+    text = re.sub(r"\{[a-z]+\}|\|+", "", scene.narration_display).strip()
+    return [p.strip() for p in SENT_SPLIT.split(text) if p.strip()]
+
+
+def cast_info(ep: Episode) -> list[dict[str, str]]:
+    from pipeline.cast import load_character
+    out = []
+    for cid in ep.cast:
+        c = load_character(cid)
+        out.append({"id": c.id, "gender": "man" if c.gender == "male" else "woman", "role": c.role})
+    return out
+
+
+def shot_context(ep: Episode, scene: Scene, k: int, cfg: dict[str, Any], cast: list[dict[str, str]]):
+    """Everything the spec writer gets for shot k (1-based) of an image scene."""
+    from pipeline.spec_writer import ShotContext
+    shots = scene.visual.shots
+    sh = shots[k - 1]
+    parts = scene_sentences(scene)
+    a = sh.at_segment
+    b = shots[k].at_segment if k < len(shots) else len(parts)
+    sentence = " ".join(parts[a:b]) or " ".join(parts)
+    idx = [s.id for s in ep.scenes].index(scene.id)
+    before = parts[a - 1] if a > 0 else (scene_sentences(ep.scenes[idx - 1])[-1:] or [""])[0] if idx > 0 else ""
+    after = parts[b] if b < len(parts) else (
+        (scene_sentences(ep.scenes[idx + 1])[:1] or [""])[0] if idx + 1 < len(ep.scenes) else "")
+    others = []
+    for j, o in enumerate(shots, 1):
+        if j != k:
+            oe = shots[j].at_segment if j < len(shots) else len(parts)
+            others.append(" ".join(parts[o.at_segment:oe]))
+    framings = cfg["shot_specs"]["framings"]
+    framing = framings.get(sh.framing or "", framings["medium_wide"])
+    return ShotContext(key=f"s{scene.id}-k{k}", sentence=sentence, framing=framing, topic=ep.title_hi,
+                       purpose=scene.purpose, before=before, after=after, other_shots=others, cast=cast)
+
+
+def spec_targets(ep: Episode, scene_ids: list[int] | None, force: bool) -> list[tuple[Scene, int, Any]]:
+    """Shots that need a spec: no spec and no image_prompt (with force: every shot of the selected scenes)."""
+    out = []
+    for s in ep.scenes:
+        if s.visual.type != "image" or (scene_ids and s.id not in scene_ids):
+            continue
+        for k, sh in enumerate(s.visual.shots, 1):
+            if force or not (sh.spec or sh.image_prompt):
+                out.append((s, k, sh))
+    return out
+
+
+def model_label(model: str) -> str:
+    return "llm:" + model.split("/")[-1]
+
+
+def apply_result(sh: Any, r: Any, model: str) -> None:
+    """Write a spec result into a shot (a flagged result keeps its last spec and lists its flags)."""
+    from pipeline.schema import SpecInfo
+    from pipeline.scene_spec import cast_ids
+    old = sh.spec_info or SpecInfo()
+    sh.image_prompt = None
+    sh.spec = r.spec
+    sh.characters = cast_ids(r.spec) if r.spec else []
+    sh.spec_info = SpecInfo(writer=model_label(model), rounds=r.rounds, flags=list(r.errors),
+                            warnings=list(r.warnings), revisions=old.revisions,
+                            revised_because=old.revised_because, needs_approval=old.needs_approval)
+
+
+def write_episode_specs(ep_dir: Path, ep: Episode, targets: list, cfg: dict[str, Any], run, llm=None) -> list[str]:
+    """Run the spec writer over the target shots and save them into the episode. Returns flagged shots."""
+    from pipeline.spec_writer import write_specs
+    if not targets:
+        return []
+    cast = cast_info(ep)
+    ctxs = {}
+    for s, k, sh in targets:
+        c = shot_context(ep, s, k, cfg, cast)
+        ctxs[c.key] = (c, sh)
+    log = ep_dir / "review" / "shot_specs_llm.jsonl"
+    log.parent.mkdir(parents=True, exist_ok=True)
+    model = cfg["shot_specs"]["model"]
+    results = write_specs([c for c, _ in ctxs.values()], cfg, llm=llm, log=log, progress=run.note)
+    flagged = []
+    for key, (c, sh) in ctxs.items():
+        r = results[key]
+        apply_result(sh, r, model)
+        tag = key.replace("s", "scene ", 1).replace("-k", " shot ")
+        if r.ok:
+            run.note(f"{tag}: spec ok after {r.rounds} repair round(s), {r.sec:.0f}s"
+                     + (f"; warnings: {'; '.join(r.warnings)}" if r.warnings else ""))
+        else:
+            flagged.append(tag)
+            run.note(f"**FLAG** {tag}: spec still failing after {r.rounds} repair round(s), needs Claude/user: "
+                     + "; ".join(r.errors))
+    save_episode(ep_dir, ep)
+    return flagged
+
+
 def main(argv: list[str] | None = None) -> None:
     import argparse
-    from pipeline.common import load_config, load_episode, resolve_episode_dir, save_episode, setup_logging, stage_timer
+    from pipeline.common import load_config, load_episode, resolve_episode_dir, setup_logging, stage_timer
     from pipeline.schema import Status
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("episode")
@@ -150,6 +259,11 @@ def main(argv: list[str] | None = None) -> None:
         for n in apply_plan(ep, cfg, a.scenes, a.force):
             run.note(n)
         save_episode(ep_dir, ep)
+        if a.plan_only:
+            return
+        flagged = write_episode_specs(ep_dir, ep, spec_targets(ep, a.scenes, a.force), cfg, run)
+    if flagged:
+        print(f"Flagged (spec still failing, needs Claude/user): {', '.join(flagged)}", file=sys.stderr)
 
 
 if __name__ == "__main__":

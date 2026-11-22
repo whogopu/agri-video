@@ -224,6 +224,37 @@ shot_specs:
   max_repair_rounds: 3     # after the first answer; a shot still failing is flagged for Claude/the user
   examples: 4              # approved bake-off specs shown as examples (most similar by keywords)
   max_cast_per_shot: 2
+  example_specs: bakeoff/shots.yaml   # approved specs shown as examples (FLUX.3 Klein passed each on ≥ 2/3 seeds)
+  example_exclude: [B01]              # superseded by B01b (failed 2/3)
+  # Hindi word in the sentence → English words matched against the examples (title, teaches, slots)
+  keywords:
+    नमून: [sample, sampling, soil]
+    खुरपी: [khurpi, weeder, pit, dig]
+    गड्ढ: [pit, dig, khurpi]
+    खोद: [dig, pit, spade]
+    फावड़: [spade]
+    बाल्टी: [bucket]
+    मिट्टी: [soil]
+    लैब: [lab, technician]
+    प्रयोगशाला: [lab, technician]
+    रिपोर्ट: [report]
+    कार्ड: [report, card]
+    यूरिया: [urea, granules, broadcast]
+    खाद: [fertilizer, granules, urea]
+    DAP: [fertilizer, granules]
+    छिड़क: [broadcast, spray]
+    स्प्रे: [spray, sprayer, nozzle]
+    दवा: [spray, bottle, dose]
+    बोरी: [sack]
+    थैली: [bag]
+    सुखा: [dried, spread]
+    मिला: [mixed, spread]
+    हिस्स: [quarter, parts]
+    बीज: [seed]
+    कटाई: [harvested, stubble]
+    पत्त: [leaf, leaves]
+    पीली: [yellowing, leaf]
+    किसान: [farmer]
   # Framing per shot, chosen by code: a scene opens wide (where we are), then medium (what is done), then
   # close-up (hands, soil, card); a one-shot scene is medium-wide. Never the same framing twice in a row.
   framings:
