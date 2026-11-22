@@ -1,6 +1,6 @@
 # Timings on this Mac
 
-MacBook Air M5, 16 GB unified memory, fanless. Heavy jobs run one at a time; long jobs may slow down from thermal throttling.
+MacBook Air M4, 16 GB unified memory, fanless (since 2026-11-22; entries before that date were measured on an M5 with 16 GB). Heavy jobs run one at a time; long jobs may slow down from thermal throttling.
 
 ## Smoke tests
 

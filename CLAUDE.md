@@ -25,7 +25,7 @@ Hindi educational YouTube videos for North Indian farmers: an AI narrator explai
 
 ## Environment
 
-- MacBook Air M5, **16 GB** unified memory, fanless. Run heavy jobs **one at a time**, never in parallel.
+- MacBook Air M4, **16 GB** unified memory, fanless (moved from an M5 on 2026-11-22; timings in `docs/timings.md` before that date are M5). Run heavy jobs **one at a time**, never in parallel.
 - Python 3.12 via `uv` (`uv sync`, `uv run ...`). Isolated envs, each called as a subprocess with JSON in/out: `tts-mlx/` (production voices: mlx-audio for Maya2, `snac_lm_worker.py` for Veena/Indic-Speak), `tts/` (Parler, pins transformers 4.46.1; gated model, needs `hf auth login`), `asr/` (mlx-whisper + librosa, scores narration takes).
 - Node 20+ for Remotion (`remotion/`). `ffmpeg`/`ffprobe` via Homebrew. `mflux` 0.24.0 as a uv tool; images use FLUX.3 Image Klein q8 (`mflux-generate-flux3`, about 2 min per image, peak 7.8 GB; cast shots `mflux-generate-flux3-edit` with head-crop references, about 3 min, 9 GB), chosen 2026-11-22 by blind bake-off (`bakeoff/report.md`). Its FLUX Kommunity License is valid only below US$5M gross annual revenue. FLUX.1 schnell q8 does not fit in 16 GB.
 - Ask the user before downloading model weights > 6 GB or installing anything system-wide.

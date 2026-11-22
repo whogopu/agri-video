@@ -16,7 +16,7 @@ Three design principles drive almost every decision below:
 2. **Human checkpoints.** A person approves the script, the draft video and the final package. Nothing can skip a checkpoint.
 3. **Every stage is swappable.** Each stage is a small CLI with a clear input/output contract and a backend chosen in `config.yaml`, so a stage can move to a paid API or AWS without touching the others.
 
-An episode is produced **interactively in a Claude Code session**: Claude writes the script, picks and inspects visuals, runs the stages and reviews output. The heavy media work (TTS, image generation, rendering) runs **locally on a MacBook Air M5 (16 GB, fanless)**.
+An episode is produced **interactively in a Claude Code session**: Claude writes the script, picks and inspects visuals, runs the stages and reviews output. The heavy media work (TTS, image generation, rendering) runs **locally on a MacBook Air M4 (16 GB, fanless; an M5 until 2026-11-22)**.
 
 ---
 
