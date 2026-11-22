@@ -27,6 +27,9 @@ MacBook Air M4, 16 GB unified memory, fanless (since 2026-11-22; entries before 
 | 2026-11-22 | mflux, FLUX.3 Klein base q8 (pre-saved, 50 steps) | 1344×768 | ok | ~713 s | peak 11.2 GB; not used |
 | 2026-11-22 | vlm/vlm_worker.py text-only (`images: []`), Ministral 3 14B 4-bit | one shot spec (JSON) from a Hindi sentence + 2 example specs, 1.5k prompt tokens | ok | 60 s + 8 s load | peak 9.2 GB, 782 tokens; plan P2 |
 | 2026-11-22 | same, Qwen3.5 9B 4-bit | same | ok | 41 s + 2 s load | peak 7.1 GB, 923 tokens |
+| 2026-11-22 | **M4** mflux, FLUX.3 Klein q8 (quantized on load, `--low-ram`) | 1344×768, 16 steps, setup smoke | ok | **351 s** (≈21 s/step, load <1 min) | peak 7.6 GB; ≈2.9× the M5. The very first run after download took >30 min (cold 19 GB read + quantize, swapping); stopped and re-run |
+| 2026-11-22 | **M4** Maya2 Native Vasant (mlx-audio) | 3 sentences, setup smoke | ok | 2.1 s compute per s audio (first clip 4.8 incl. warm-up), load 11.5 s | ≈2.2× the M5 (0.9–1.0) |
+| 2026-11-22 | **M4** Veena varun (mlx-lm bf16 + SNAC) | 3 sentences, setup smoke | ok | 5.6 s compute per s audio, 137 s wall incl. load | M5 was 4.7: only ≈1.2× slower. A 4-min episode × 5 takes ≈ 1.9 h of narration vs ≈ 42 min with maya_vasant |
 | 2026-11-19 | broll index | 2 short test clips | ok | <1s | probe + 3-frame contact strip |
 | 2026-11-19 | narration, real episode (4 scenes, 30 s audio) | Rohit, MPS | ok | 59s TTS + 1s post | 1.8–2.1 s compute per s audio. Loudness −14.4 LUFS after adding the compressor (−15.4 before) |
 | 2026-11-19 | render draft (540p, scale 0.5) | 30.6 s long video | ok | 14s | 12.6 MB |
@@ -36,7 +39,7 @@ MacBook Air M4, 16 GB unified memory, fanless (since 2026-11-22; entries before 
 | 2026-11-19 | package | thumbnail still + youtube.md | ok | ~2s (cached bundle) | |
 
 Estimate for a 4-minute long video (≈680 words at Rohit pace): ≈8 min of TTS compute (+11s load). A 45-second Short: ≈1.5 min.
-Render: ≈0.45 s per second of video (a 4-min final ≈ 2 min). Images: ≈18 s each with FLUX.2 klein (until 2026-11-22); FLUX.3 Klein takes ≈2 min (≈3 min with a cast reference), so ~15 image scenes with ~2 shots each and some retries take ≈1–1.5 h.
+Render: ≈0.45 s per second of video (a 4-min final ≈ 2 min). Images: ≈18 s each with FLUX.2 klein (until 2026-11-22); FLUX.3 Klein takes ≈2 min (≈3 min with a cast reference), so ~15 image scenes with ~2 shots each and some retries take ≈1–1.5 h on the M5. **On the M4 (from 2026-11-22): ≈6 min per image (≈8–9 min with a cast reference, estimated), so ≈3–4 h of images per long episode; narration ≈2.2× slower than above.**
 
 ## Per-stage summary (phase 6 demo episode)
 
