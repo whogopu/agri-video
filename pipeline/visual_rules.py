@@ -97,7 +97,7 @@ def lint(prompt: str, rules: Rules | None = None) -> tuple[list[str], list[str]]
             a, b = max(0, m.start() - 15), min(len(text), m.end() + 25)
             bits.append("…" + text[a:b].strip() + "…")
         errors.append(
-            f"prompt names what it doesn't want ({', '.join(negs)}): {'; '.join(bits[:4])}. FLUX.2 klein has no "
+            f"prompt names what it doesn't want ({', '.join(negs)}): {'; '.join(bits[:4])}. FLUX Klein models have no "
             "negative prompt, so naming a thing tends to add it. Describe what IS there instead "
             "(e.g. 'bare wrists' for 'no wristwatch', '{setting:north_field_bg}' for 'no palm trees')")
     low = TOKEN.sub(" ", prompt or "").lower()   # only the words written in the shot; library phrases are tested

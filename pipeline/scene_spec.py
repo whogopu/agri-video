@@ -101,7 +101,7 @@ def lint(shot: dict[str, Any], label: str | None = None) -> list[str]:
                 errs.append(f"{sid}: {who}: {side} not accounted for (give its grip / where it rests)")
                 continue
             holds = h.get("holds")
-            if holds and not (_words(str(holds)) & obj_words):
+            if holds and not (_words(expand(str(holds))) & obj_words):
                 errs.append(f"{sid}: {who}: {side} holds '{holds}' but no object in objects[] matches it")
     flows = shot.get("flows") or []
     text = _all_text({k: v for k, v in shot.items() if k != "flows"})

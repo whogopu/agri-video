@@ -29,7 +29,7 @@ SPEC = {
 }
 
 
-def _episode(tmp_path, shot: dict, cast=None) -> Path:
+def _episode(tmp_path, shot: dict, cast=None, status: str = "shots_approved") -> Path:
     ep = tmp_path / "ep"
     shutil.copytree(FIXTURE, ep)
     data = json.loads((ep / "episode.json").read_text(encoding="utf-8"))
@@ -37,6 +37,7 @@ def _episode(tmp_path, shot: dict, cast=None) -> Path:
     s0.pop("image_file", None)
     s0["visual"] = {"type": "image", "shots": [{"at_segment": 0, **shot}]}
     data["cast"] = cast or []
+    data["status"] = status
     (ep / "episode.json").write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
     return ep
 
@@ -138,3 +139,54 @@ def test_validate_reports_incomplete_spec(tmp_path):
     rep, _ = validate(ep_dir, Status.visuals_ready)
     assert any("missing framing" in e for e in rep.errors)
     assert not any("no image_prompt" in e for e in rep.errors)
+
+
+def test_images_wait_for_shot_plan_checkpoint(tmp_path, monkeypatch):
+    ep_dir = _episode(tmp_path, {"spec": SPEC}, status="narrated")
+    fake = FakeBackend()
+    monkeypatch.setattr(images, "get_backend", lambda icfg: fake)
+    images.run_episode(_args(ep_dir, dry_run=True))          # dry run works before approval
+    with pytest.raises(SystemExit, match="shot-plan checkpoint"):
+        images.run_episode(_args(ep_dir))
+    assert fake.prompts == []
+
+
+@pytest.mark.parametrize("info", [{"flags": ["spec: farmer: missing posture"]}, {"needs_approval": True}])
+def test_flagged_or_unapproved_shot_is_skipped(tmp_path, monkeypatch, info):
+    ep_dir = _episode(tmp_path, {"spec": SPEC, "spec_info": info})
+    fake = FakeBackend()
+    monkeypatch.setattr(images, "get_backend", lambda icfg: fake)
+    images.run_episode(_args(ep_dir))
+    assert fake.prompts == []
+
+
+def test_validate_shot_plan_checkpoint(tmp_path):
+    from pipeline.validate import validate
+    ok_dir = _episode(tmp_path / "a", {"spec": SPEC, "framing": "medium_wide"}, status="narrated")
+    rep, _ = validate(ok_dir, Status.shots_approved)
+    assert not [e for e in rep.errors if "shot" in e], rep.errors
+    flag_dir = _episode(tmp_path / "b", {"spec": SPEC, "spec_info": {"flags": ["farmer: missing posture"]}})
+    rep, _ = validate(flag_dir, Status.shots_approved)
+    assert any("needs Claude/user" in e for e in rep.errors)
+    wait_dir = _episode(tmp_path / "c", {"spec": SPEC, "spec_info": {"needs_approval": True}})
+    rep, _ = validate(wait_dir, Status.shots_approved)
+    assert any("--approve" in e for e in rep.errors)
+    neg_dir = _episode(tmp_path / "d", {"image_prompt": "a farmer with no hat"})
+    rep, _ = validate(neg_dir, Status.shots_approved)
+    assert any("doesn't want" in e for e in rep.errors)
+
+
+def test_review_page_shows_sentence_framing_and_prompt(tmp_path):
+    from pipeline.common import load_config, load_episode
+    from pipeline.shot_specs import write_review
+    ep_dir = _episode(tmp_path, {"spec": SPEC, "framing": "medium_wide",
+                                 "spec_info": {"writer": "llm:test", "rounds": 1, "revisions": 1,
+                                               "revised_because": "closed fist"}}, status="narrated")
+    ep = load_episode(ep_dir)
+    out = write_review(ep_dir, ep, load_config())
+    text = out.read_text(encoding="utf-8")
+    assert "### Shot 1.1 · 0.0–" in text and "medium_wide" in text
+    assert ep.scenes[0].narration_display.split("।")[0] in text
+    assert "His right hand: open, fingers spread" in text            # the full rendered prompt
+    assert "revised after inspection ×1" in text and "closed fist" in text
+    assert "--set-status shots_approved" in text

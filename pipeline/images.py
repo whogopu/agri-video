@@ -25,6 +25,10 @@ the picture changes with the narration. A shot that lists `characters` (cast ids
 generated in edit mode with those characters' approved reference images, so faces and clothes stay
 the same across the whole episode and across episodes.
 
+Episode shots are generated only from status `shots_approved` on (the shot-plan checkpoint: the user has seen
+every shot's spec and prompt in review/shots.md, pipeline/shot_specs.py). A shot whose spec is flagged or waits
+for re-approval (spec_info) is skipped. --dry-run and one-off mode work at any status.
+
 Every shot must be inspected against config.yaml images.inspection_checklist (anatomy, posture,
 dress, tools, text, and identity vs the reference) and the result recorded with --inspect. The
 record stores the image's SHA-1, so regenerating clears it; validate blocks visuals_ready until
@@ -57,7 +61,7 @@ from pipeline.common import (
     save_episode, selected_scenes, setup_logging, stage_timer,
 )
 from pipeline import scene_spec
-from pipeline.schema import Episode, ImageInspection, Scene, Shot
+from pipeline.schema import Episode, ImageInspection, Scene, Shot, Status
 from pipeline.visual_rules import expand, lint, must_show, prompt_hints, shot_sentence
 
 
@@ -144,6 +148,37 @@ def shot_must_show(scene: Scene, shot: Shot) -> list[str]:
     return must_show(prompt_source(shot), sentence)
 
 
+def render_shot_prompt(ep: Episode, shot: Shot, icfg: dict[str, Any], where: str = "shot"
+                       ) -> tuple[str, list[str], list[str]]:
+    """(full prompt or "", errors, warnings) for one shot without stopping: used by shot_prompt, validate,
+    review/shots.md and the dashboard. Does not change the shot."""
+    if shot.spec:
+        ids = scene_spec.cast_ids(shot.spec)
+        if shot.characters and ids != shot.characters:
+            return "", [f"{where}: spec people with cast: {ids} differ from shot.characters {shot.characters}"], []
+        shot = shot.model_copy(update={"characters": list(ids)})
+    elif not shot.image_prompt:
+        return "", [f"{where}: no image_prompt or spec"], []
+    try:
+        refs, preamble, _ = cast_references(ep, shot)
+    except SystemExit as e:
+        return "", [f"{where}: {e}"], []
+    if not shot.spec:
+        errors, warnings = lint(f"{preamble} {shot.image_prompt}, {icfg.get('style_suffix', '')}")
+        prompt = full_prompt(shot.image_prompt, icfg, preamble) if not errors else ""
+        return prompt, [f"{where}: {e}" for e in errors], [f"{where}: {w}" for w in warnings]
+    chars = [load_character(cid) for cid in shot.characters]
+    try:
+        errors, warnings, body = scene_spec.check(scene_spec.for_cast(shot.spec, chars),
+                                                  icfg.get("style_suffix", "").strip(), where)
+    except (KeyError, TypeError, ValueError, AttributeError) as e:
+        return "", [f"{where}: spec could not be rendered ({type(e).__name__}: {e})"], []
+    p_errors, p_warnings = lint(preamble) if preamble else ([], [])
+    errors += [f"{where}: {e}" for e in p_errors]
+    warnings += [f"{where}: {w}" for w in p_warnings]
+    return ((f"{preamble} {body}" if preamble else body) if not errors else ""), errors, warnings
+
+
 def shot_prompt(ep: Episode, shot: Shot, icfg: dict[str, Any], where: str) -> tuple[str, list[Path], dict[str, str]]:
     """(full prompt, reference images, reference SHA-1s) for one shot, linted; stops the stage on errors.
     A spec's `cast:` people must match shot.characters (filled from the spec when characters is empty)."""
@@ -151,23 +186,25 @@ def shot_prompt(ep: Episode, shot: Shot, icfg: dict[str, Any], where: str) -> tu
         ids = scene_spec.cast_ids(shot.spec)
         if ids and not shot.characters:
             shot.characters = list(ids)
-        elif ids != shot.characters:
-            raise SystemExit(f"{where}: spec people with cast: {ids} differ from shot.characters {shot.characters}")
-    elif not shot.image_prompt:
-        raise SystemExit(f"{where}: no image_prompt or spec")
-    refs, preamble, ref_sha = cast_references(ep, shot)
-    if not shot.spec:
-        check_prompt(shot.image_prompt, icfg, preamble, where)
-        return full_prompt(shot.image_prompt, icfg, preamble), refs, ref_sha
-    chars = [load_character(cid) for cid in shot.characters]
-    errors, warnings, body = scene_spec.check(scene_spec.for_cast(shot.spec, chars),
-                                              icfg.get("style_suffix", "").strip(), where)
-    p_errors, p_warnings = lint(preamble) if preamble else ([], [])
-    for w in warnings + p_warnings:
+    prompt, errors, warnings = render_shot_prompt(ep, shot, icfg, where)
+    for w in warnings:
         print(f"  prompt warning {w}", file=sys.stderr)
-    if errors or p_errors:
-        raise SystemExit(f"{where}: spec rejected:\n  " + "\n  ".join(errors + p_errors))
-    return (f"{preamble} {body}" if preamble else body), refs, ref_sha
+    if errors:
+        what = "spec" if shot.spec else "image prompt"
+        raise SystemExit(f"{where}: {what} rejected:\n  " + "\n  ".join(errors))
+    refs, _, ref_sha = cast_references(ep, shot)
+    return prompt, refs, ref_sha
+
+
+def shot_blocked(sh: Shot) -> str | None:
+    """Why images must not generate this shot now, or None (pipeline/shot_specs.py sets these)."""
+    info = sh.spec_info
+    if info and info.flags:
+        return "its spec still fails the checks (needs Claude/user): " + "; ".join(info.flags)
+    if info and info.needs_approval:
+        return ("its spec was revised a second time after failed inspections and waits for the user's approval "
+                "(`pipeline.shot_specs <ep> --approve --scene N --shot K`)")
+    return None
 
 
 def load_spec_file(path: str) -> dict[str, Any]:
@@ -301,6 +338,11 @@ def run_episode(args: argparse.Namespace) -> None:
     icfg = cfg["images"]
     with (_DryRun() if args.dry_run else stage_timer(ep_dir, "images")) as run:
         ep = load_episode(ep_dir)
+        if not args.dry_run and not ep.status.at_least(Status.shots_approved):
+            raise SystemExit(f"status is {ep.status.value}: episode images wait for the shot-plan checkpoint. Run "
+                             f"`pipeline.shot_specs {args.episode}`, let the user review review/shots.md, then "
+                             f"`pipeline.validate {args.episode} --set-status shots_approved` (--dry-run and one-off "
+                             f"mode still work)")
         width, height = format_config(cfg, ep.format)["image_size"]
         backend = get_backend(icfg)
         max_attempts = int(icfg.get("max_attempts", 3))
@@ -319,6 +361,11 @@ def run_episode(args: argparse.Namespace) -> None:
                     sh.image_prompt, sh.spec = args.prompt, None
                 if args.spec:
                     sh.image_prompt, sh.spec = None, load_spec_file(args.spec)
+                blocked = shot_blocked(sh)
+                if blocked and not args.dry_run:
+                    print(f"scene {s.id} shot {k}: skipped, {blocked}", file=sys.stderr)
+                    flagged.append(f"{s.id}.{k}")
+                    continue
                 prompt, refs, ref_sha = shot_prompt(ep, sh, icfg, f"scene {s.id} shot {k}")
                 if args.dry_run:
                     who = f"  [cast {'+'.join(sh.characters)}]" if sh.characters else ""
@@ -355,7 +402,8 @@ def run_episode(args: argparse.Namespace) -> None:
                 who = f", cast {'+'.join(sh.characters)}" if sh.characters else ""
                 run.note(f"scene {s.id} shot {k}: attempt {attempt}, seed {seed}{who}, {secs:.1f}s → {attempt_file.name}")
         if flagged:
-            print(f"Flagged for the user (max attempts reached): shots {flagged}", file=sys.stderr)
+            print(f"Not generated, needs a decision (max attempts, spec flags or approval): shots {flagged}",
+                  file=sys.stderr)
     if args.dry_run:
         return
     print("Inspect EVERY shot at full size, plus zoomed crops (--crops), person by person, against:")

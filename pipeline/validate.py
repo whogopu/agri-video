@@ -249,6 +249,38 @@ def _check_shot_lengths(s: Scene, tag: str, cfg: dict, rep: Report) -> None:
             rep.warn(f"{tag} shot {k}: {b - a:.1f}s on screen (> {hi}s); split it at a sentence boundary")
 
 
+def _check_shot_plan(ep: Episode, ep_dir: Path, rep: Report) -> None:
+    """Shot-plan checkpoint (status shots_approved, 2026-11-22): every image scene has shots, and every shot
+    has a spec or prompt that renders and lints clean, with no open flags and no pending re-approval.
+    A shot whose current image already passed inspection is judged by its pixels, not re-linted."""
+    from pipeline.images import render_shot_prompt
+    cfg = load_config()
+    for s in ep.scenes:
+        if s.visual.type != "image":
+            continue
+        tag = f"scene {s.id}"
+        if not s.visual.shots:
+            rep.error(f"{tag}: image scene without shots (run pipeline.shot_specs)")
+            continue
+        _check_shot_lengths(s, tag, cfg, rep)
+        for k, sh in enumerate(s.visual.shots, 1):
+            where = f"{tag} shot {k}"
+            if sh.inspection and sh.inspection.passed and sh.image_file and (ep_dir / sh.image_file).exists():
+                continue
+            info = sh.spec_info
+            if info and info.flags:
+                rep.error(f"{where}: spec still fails its checks, needs Claude/user: {'; '.join(info.flags)}")
+                continue
+            if info and info.needs_approval:
+                rep.error(f"{where}: revised spec waits for the user's approval "
+                          f"(shot_specs --approve --scene {s.id} --shot {k})")
+            _, errors, warnings = render_shot_prompt(ep, sh, cfg["images"], where)
+            for e in errors:
+                rep.error(e)
+            for w in warnings:
+                rep.warn(w)
+
+
 def _check_visuals(ep: Episode, ep_dir: Path, rep: Report) -> None:
     from pipeline.broll import LIBRARY, entry_problems, load_index
     cfg = load_config()
@@ -263,7 +295,6 @@ def _check_visuals(ep: Episode, ep_dir: Path, rep: Report) -> None:
                 rep.error(f"{tag}: image scene without shots")
             for k, sh in enumerate(v.shots, 1):
                 _check_shot(ep, ep_dir, f"{tag} shot {k}", s.id, k, sh, rep)
-            _check_shot_lengths(s, tag, cfg, rep)
         elif v.type == "broll":
             if not v.broll_id or v.in_sec is None or v.out_sec is None:
                 rep.error(f"{tag}: broll scene needs broll_id, in_sec and out_sec")
@@ -318,6 +349,8 @@ def validate(ep_dir: Path, as_status: Status | None = None) -> tuple[Report, Epi
         _check_spoken(ep, rep)
     if status.at_least(Status.narrated):
         _check_narrated(ep, ep_dir, rep)
+    if status.at_least(Status.shots_approved):
+        _check_shot_plan(ep, ep_dir, rep)
     if status.at_least(Status.visuals_ready):
         _check_visuals(ep, ep_dir, rep)
     for st, rel in [(Status.draft_rendered, "render/draft.mp4"), (Status.final_rendered, "render/video.mp4"),

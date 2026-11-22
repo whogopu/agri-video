@@ -2,6 +2,12 @@
 
     uv run python -m pipeline.shot_specs episodes/<id> [--scene N] [--force]       # plan shots + write specs
     uv run python -m pipeline.shot_specs episodes/<id> --plan-only                 # shot plan by code, no LLM
+    uv run python -m pipeline.shot_specs episodes/<id> --review                    # rewrite review/shots.md only
+
+Checkpoint (status shots_approved, between narrated and visuals_ready): the stage writes review/shots.md with
+every shot's timing, Hindi sentence, framing, a summary and the full rendered prompt; the dashboard shows the
+same. The user approves with `validate --set-status shots_approved`; pipeline.images refuses episode shots
+before that.
 
 The spec writer is pipeline/spec_writer.py (local LLM via the vlm/ env, pipeline/local_llm.py). Every LLM
 answer is appended to review/shot_specs_llm.jsonl.
@@ -238,6 +244,99 @@ def write_episode_specs(ep_dir: Path, ep: Episode, targets: list, cfg: dict[str,
     return flagged
 
 
+def shot_times(scene: Scene, cfg: dict[str, Any]) -> list[tuple[float, float]]:
+    """(start, end) on screen of every shot, seconds from the scene start (as the render places them)."""
+    from pipeline.common import shot_starts_sec
+    lead = float(cfg["video"].get("scene_lead_in_sec", 0.0))
+    end = lead + (scene.audio.duration_sec if scene.audio else 0.0) + float(cfg["video"]["scene_padding_sec"])
+    starts = shot_starts_sec(scene, lead)
+    return list(zip(starts, starts[1:] + [end]))
+
+
+def shot_summary(sh: Any) -> list[str]:
+    """Short lines for the checkpoint: what it teaches, who does what with each hand, objects, flows."""
+    if not sh.spec:
+        return [f"free-text prompt: {(sh.image_prompt or '')[:200]}"] if sh.image_prompt else []
+    s = sh.spec
+    out = [f"**Teaches:** {s.get('teaches', '')}"]
+    if s.get("crop_stage"):
+        out.append(f"**Field:** {s['crop_stage']}")
+    for p in s.get("people") or []:
+        who = f"{p['cast']} (cast)" if p.get("cast") else f"{p.get('role', 'person')}, {p.get('gender', '?')}"
+        hands = "; ".join(f"{side.split('_')[0]} hand: {(p.get(side) or {}).get('grip', '?')}"
+                          for side in ("left_hand", "right_hand"))
+        out.append(f"**{who}:** {p.get('posture', '')}. {hands}")
+    objs = [f"{o.get('name')} ({o.get('support', '?')})" for o in s.get("objects") or []]
+    if objs:
+        out.append("**Objects:** " + "; ".join(objs))
+    for f in s.get("flows") or []:
+        out.append(f"**Flow:** {f.get('material')} ← {f.get('source')} → {f.get('landing')}")
+    return out
+
+
+def write_review(ep_dir: Path, ep: Episode, cfg: dict[str, Any]) -> Path:
+    """review/shots.md: the shot-plan checkpoint, per shot timing, sentence, framing, summary, full prompt."""
+    from pipeline.images import render_shot_prompt
+    rel = f"episodes/{ep_dir.name}"
+    scenes = [s for s in ep.scenes if s.visual.type == "image"]
+    n_shots = sum(len(s.visual.shots) for s in scenes)
+    body: list[str] = []
+    n_flag = n_rev = n_wait = 0
+    for s in scenes:
+        parts = scene_sentences(s)
+        body.append(f"\n## Scene {s.id} · {s.purpose} · {len(s.visual.shots)} shot(s)\n")
+        times = shot_times(s, cfg)
+        for k, sh in enumerate(s.visual.shots, 1):
+            a, b = times[k - 1]
+            nxt = s.visual.shots[k].at_segment if k < len(s.visual.shots) else len(parts)
+            sentence = " ".join(parts[sh.at_segment:nxt]) or " ".join(parts)
+            info = sh.spec_info
+            marks = []
+            if info and info.flags:
+                marks.append("**FLAGGED: needs Claude/user**")
+                n_flag += 1
+            if info and info.revisions:
+                marks.append(f"revised after inspection ×{info.revisions}")
+                n_rev += 1
+            if info and info.needs_approval:
+                marks.append("**waits for your approval**")
+                n_wait += 1
+            if sh.inspection:
+                marks.append("image passed" if sh.inspection.passed else "image FAILED inspection")
+            body.append(f"### Shot {s.id}.{k} · {a:.1f}–{b:.1f} s ({b - a:.1f} s) · {sh.framing or 'framing ?'}"
+                        + (" · " + " · ".join(marks) if marks else ""))
+            body.append(f"\n> {sentence}\n")
+            body += [f"- {line}" for line in shot_summary(sh)]
+            if info:
+                body.append(f"- Written by {info.writer or '?'}" + (f", {info.rounds} repair round(s)" if info.rounds else ""))
+                if info.revised_because:
+                    body.append(f"- Last revision because: {info.revised_because}")
+                for fl in info.flags:
+                    body.append(f"- ⚠ flag: {fl}")
+            prompt, errors, warnings = render_shot_prompt(ep, sh, cfg["images"], f"shot {s.id}.{k}")
+            for w in (info.warnings if info else []) or warnings:
+                body.append(f"- warning: {w}")
+            for e in errors:
+                body.append(f"- ⚠ error: {e}")
+            if prompt:
+                body.append(f"\nPrompt ({len(prompt.split())} words):\n\n```text\n{prompt}\n```\n")
+            else:
+                body.append("")
+    head = [f"# Shot plan: {ep.title_hi or ep.id}", "",
+            f"Status `{ep.status.value}` · {len(scenes)} image scenes · {n_shots} shots · {n_flag} flagged · "
+            f"{n_rev} revised · {n_wait} waiting for approval", "",
+            "**Checkpoint: shot plan.** Read each shot: is it what the sentence says, right crop stage, right "
+            "people, every hand doing something sensible? Nothing is generated until you approve.", "",
+            f"- Change a shot: `uv run python -m pipeline.shot_specs {rel} --scene N --shot K --revise \"your note\"`",
+            f"- Approve the plan: `uv run python -m pipeline.validate {rel} --set-status shots_approved`",
+            f"- Approve one re-revised shot: `uv run python -m pipeline.shot_specs {rel} --scene N --shot K --approve`",
+            "", "Timings are seconds from the scene start, as rendered (lead-in included)."]
+    out = ep_dir / "review" / "shots.md"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text("\n".join(head + body).rstrip() + "\n", encoding="utf-8")
+    return out
+
+
 def main(argv: list[str] | None = None) -> None:
     import argparse
     from pipeline.common import load_config, load_episode, resolve_episode_dir, setup_logging, stage_timer
@@ -247,11 +346,15 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--scene", type=int, action="append", dest="scenes")
     p.add_argument("--force", action="store_true", help="plan again and rewrite specs of the selected scenes")
     p.add_argument("--plan-only", action="store_true", help="shot plan by code only, no LLM")
+    p.add_argument("--review", action="store_true", help="only rewrite review/shots.md")
     p.add_argument("-v", "--verbose", action="store_true")
     a = p.parse_args(argv)
     setup_logging(a.verbose)
     ep_dir = resolve_episode_dir(a.episode)
     cfg = load_config()
+    if a.review:
+        print(write_review(ep_dir, load_episode(ep_dir), cfg))
+        return
     with stage_timer(ep_dir, "shot plan" if a.plan_only else "shot specs") as run:
         ep = load_episode(ep_dir)
         if not ep.status.at_least(Status.narrated):
@@ -259,9 +362,12 @@ def main(argv: list[str] | None = None) -> None:
         for n in apply_plan(ep, cfg, a.scenes, a.force):
             run.note(n)
         save_episode(ep_dir, ep)
-        if a.plan_only:
-            return
-        flagged = write_episode_specs(ep_dir, ep, spec_targets(ep, a.scenes, a.force), cfg, run)
+        if not a.plan_only:
+            flagged = write_episode_specs(ep_dir, ep, spec_targets(ep, a.scenes, a.force), cfg, run)
+        else:
+            flagged = []
+        out = write_review(ep_dir, ep, cfg)
+        run.note(f"checkpoint page: {out.relative_to(ep_dir)}")
     if flagged:
         print(f"Flagged (spec still failing, needs Claude/user): {', '.join(flagged)}", file=sys.stderr)
 
