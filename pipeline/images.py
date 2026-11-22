@@ -11,7 +11,7 @@
 
 Prompts may use {kind:key} tokens from assets/visual_rules.yaml (tested phrases); every prompt is linted
 before generating (pipeline/visual_rules.py): naming what you don't want ("no palm trees") is rejected,
-because FLUX.2 klein has no negative prompt and tends to draw what is named.
+because FLUX klein models have no negative prompt and tend to draw what is named.
 
 A scene holds one or more shots (visual.shots); each starts at a narration segment (sentence), so
 the picture changes with the narration. A shot that lists `characters` (cast ids, assets/cast/) is
@@ -43,7 +43,8 @@ from typing import Any, Sequence
 
 from PIL import Image
 
-from pipeline.cast import load_character, reference_path, reference_preamble, reference_problems
+from pipeline.cast import (load_character, reference_head_path, reference_path, reference_preamble,
+                           reference_problems)
 from pipeline.common import (
     REPO_ROOT, append_log, format_config, load_config, load_episode, resolve_episode_dir,
     save_episode, selected_scenes, setup_logging, stage_timer,
@@ -53,9 +54,9 @@ from pipeline.visual_rules import expand, lint, must_show, prompt_hints, shot_se
 
 
 class MfluxBackend:
-    """mflux CLI (MLX) installed as a uv tool. One process per image; peak ~3.7 GB for klein-4B q4.
-    With references it runs images.edit_command (FLUX.2 klein edit: ~40 s with one reference,
-    ~90 s with two)."""
+    """mflux CLI (MLX) installed as a uv tool. One process per image (FLUX.3 Klein q8: ~120 s, peak 7.8 GB).
+    With references it runs images.edit_command (FLUX.3 Klein edit: ~190 s with one reference,
+    ~260 s with two, peak 9.0 GB)."""
 
     def __init__(self, icfg: dict[str, Any]):
         self.cfg = icfg
@@ -68,7 +69,9 @@ class MfluxBackend:
             raise RuntimeError("images.edit_command is not set; shots with characters need an edit model")
         cmd = [command, "--model", c["model"],
                "--prompt", prompt, "--seed", str(seed), "--width", str(width), "--height", str(height),
-               "--steps", str(c["steps"]), "--output", str(out_path)]
+               "--output", str(out_path)]
+        if c.get("steps"):
+            cmd += ["--steps", str(c["steps"])]
         if references:
             cmd += ["--image-paths", *[str(r) for r in references]]
         if c.get("base_model"):
@@ -77,6 +80,7 @@ class MfluxBackend:
             cmd += ["--guidance", str(c["guidance"])]
         if c.get("quantize"):
             cmd += ["--quantize", str(c["quantize"])]
+        cmd += [str(x) for x in c.get("extra") or []]
         out_path.parent.mkdir(parents=True, exist_ok=True)
         t0 = time.monotonic()
         res = subprocess.run(cmd, capture_output=True, text=True)
@@ -211,8 +215,13 @@ def cast_references(ep: Episode, shot: Shot) -> tuple[list[Path], str, dict[str,
         if probs:
             raise SystemExit("; ".join(probs))
         chars.append(c)
-    refs = [reference_path(c) for c in chars]
-    return refs, reference_preamble(chars), {c.id: c.reference_sha1 for c in chars}
+    return [shot_reference(c) for c in chars], reference_preamble(chars), {c.id: c.reference_sha1 for c in chars}
+
+
+def shot_reference(c) -> Path:
+    """The image passed to the edit model: images.reference_crop = head (head-and-shoulders crop) or full."""
+    crop = load_config()["images"].get("reference_crop", "full")
+    return reference_head_path(c) if crop == "head" else reference_path(c)
 
 
 def run_episode(args: argparse.Namespace) -> None:
@@ -364,7 +373,7 @@ def run_oneoff(args: argparse.Namespace) -> None:
         for c in chars:
             if reference_problems(c):
                 raise SystemExit("; ".join(reference_problems(c)))
-        refs, preamble = [reference_path(c) for c in chars], reference_preamble(chars)
+        refs, preamble = [shot_reference(c) for c in chars], reference_preamble(chars)
     check_prompt(args.prompt, icfg, preamble)
     secs = get_backend(icfg).generate(full_prompt(args.prompt, icfg, preamble), seed, width, height, out, refs)
     print(f"{out}  {width}x{height} seed {seed}  {secs:.1f}s")

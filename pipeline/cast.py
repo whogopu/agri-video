@@ -9,7 +9,8 @@
 
 Each character lives in assets/cast/<id>/: character.json (schema.CastMember), ref.png (the
 approved reference, committed), candidates/ (gitignored). Shots that list a character are made with
-FLUX.2 klein in edit mode, conditioned on the reference images, and their prompt starts with
+the image model in edit mode (images.edit_command), conditioned on the references (head crop by
+default, images.reference_crop), and their prompt starts with
 reference_preamble(): name, "the person in reference image N", look and the fixed wardrobe.
 
 Synthetic people only. Never a real person's face, name or likeness (CLAUDE.md).
@@ -68,6 +69,29 @@ def file_sha1(path: Path) -> str:
 
 def reference_path(c: CastMember) -> Path | None:
     return char_dir(c.id) / c.reference if c.reference else None
+
+
+# Head and shoulders on the 1344×768 reference (reference_prompt centres a full figure on a plain wall).
+HEAD_BOX = (520 / 1344, 0.0, 840 / 1344, 320 / 768)
+
+
+def reference_head_path(c: CastMember) -> Path | None:
+    """Head-and-shoulders crop of the approved reference (ref_head.png, rebuilt when ref.png changes).
+    FLUX.3 Klein edit, 2026-11-22: with the full-figure reference the character often stood facing the
+    camera as in the reference (B01b, B02) and two references took up to 475 s; the crop kept the face as
+    well, let the prompt set the pose and took 170-260 s. Clothes come from the prompt (reference_preamble).
+    The default box fits a reference made by reference_prompt; a hand-adjusted ref_head.png (Sunita's sits
+    30 px lower) is kept until ref.png changes."""
+    ref = reference_path(c)
+    if not ref or not ref.exists():
+        return None
+    out = char_dir(c.id) / "ref_head.png"
+    if not out.exists() or out.stat().st_mtime < ref.stat().st_mtime:
+        im = Image.open(ref).convert("RGB")
+        w, h = im.size
+        box = tuple(round(v * s) for v, s in zip(HEAD_BOX, (w, h, w, h)))
+        im.crop(box).resize((768, 768), Image.LANCZOS).save(out)
+    return out
 
 
 def reference_problems(c: CastMember) -> list[str]:

@@ -746,6 +746,11 @@ class Handler(BaseHTTPRequestHandler):
                 if not img:
                     return self._json({"error": "not found"}, 404)
                 return self._file(img, root=REPO_ROOT / "bakeoff")
+            m = re.match(r"^/bakeoff-ref/([a-z0-9_]+)(/head)?$", path)
+            if m:    # approved cast reference (or its head crop), shown next to identity-test images
+                cast_root = REPO_ROOT / "assets" / "cast"
+                return self._file(cast_root / m.group(1) / ("ref_head.png" if m.group(2) else "ref.png"),
+                                  root=cast_root)
             if path == "/api/episodes":
                 eps = [e for d in sorted(EPISODES_DIR.iterdir()) if d.is_dir() and (e := ep_summary(d))]
                 return self._json(sorted(eps, key=lambda e: -e["mtime"]))

@@ -154,15 +154,26 @@ images:
   # FLUX.2 [klein] 4B, pre-quantized 4-bit (Apache-2.0, 4.6 GB, peak ~3.7 GB RAM).
   # The brief's FLUX.1 schnell q8 is 18 GB and doesn't fit 16 GB RAM; schnell q4 (9.6 GB) is the fallback:
   #   command: mflux-generate, model: mflux-community/flux-1-schnell-mflux-q4, base_model: schnell, guidance: null
-  command: mflux-generate-flux2
+  # FLUX.3 Image Klein (distilled, 16 steps by default), quantized to 8-bit on load: ~120 s per image,
+  # peak 7.8 GB. Chosen 2026-11-22 from the image bake-off (bakeoff/report.md): user blind pass 35/39 vs
+  # 6/12 for FLUX.2 klein 4B q4. FLUX Kommunity License: OK only below US$5M gross annual revenue
+  # (docs/licenses.md; user accepted capped licenses 2026-11-21).
+  # Previous model (FLUX.2 klein 4B q4, Apache-2.0, ~20 s, 3.7 GB):
+  #   command: mflux-generate-flux2, edit_command: mflux-generate-flux2-edit,
+  #   model: mflux-community/flux2-klein-4b-mflux-q4, base_model: flux2-klein-4b, steps: 4, guidance: 1.0, quantize: null
+  command: mflux-generate-flux3
   # Shots that show cast members (assets/cast/) use the same model in edit mode, conditioned on the
-  # characters' approved reference images (~40 s with one reference, ~90 s with two).
-  edit_command: mflux-generate-flux2-edit
-  model: mflux-community/flux2-klein-4b-mflux-q4
-  base_model: flux2-klein-4b
-  steps: 4
-  guidance: 1.0
-  quantize: null          # weights are already quantized
+  # characters' approved references (~190 s with one reference, ~260 s with two; peak 9.0 GB).
+  edit_command: mflux-generate-flux3-edit
+  model: flux3-image-klein
+  base_model: null
+  steps: null             # model default (16)
+  guidance: null
+  quantize: 8
+  extra: ["--low-ram"]
+  # head = head-and-shoulders crop of ref.png (cast.reference_head_path). With the full-figure reference
+  # the character copied its standing pose; faces matched equally (18/18, user, 2026-11-22). full = ref.png
+  reference_crop: head
   # image size comes from formats.<format>.image_size (multiples of 16)
   # Positive words only: klein has no negative prompt, so "no readable signs" / "no palm trees" tend to add
   # what they name (A/B 2026-11-20). Prompts are linted for this (pipeline/visual_rules.py, assets/visual_rules.yaml).
@@ -292,6 +303,12 @@ bakeoff:
       command: mflux-generate-flux3
       model: flux3-image-klein
       quantize: 8
+      extra: ["--low-ram"]
+    flux3_klein_q8_cast:     # same model in edit mode with the cast's head-crop references (identity test)
+      command: mflux-generate-flux3-edit
+      model: flux3-image-klein
+      quantize: 8
+      cast: true             # only shots with `cast:` people; prompt led by cast.reference_preamble
       extra: ["--low-ram"]
     flux3_klein_base_q8:
       command: mflux-generate-flux3

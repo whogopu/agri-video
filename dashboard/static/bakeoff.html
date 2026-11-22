@@ -48,6 +48,9 @@ textarea{width:100%;font:inherit;border:1px solid var(--line);border-radius:7px;
 details{font-size:12.5px} details pre{white-space:pre-wrap;font-family:var(--mono);font-size:12px;margin:6px 0 0}
 kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line);border-radius:4px;padding:0 4px;background:var(--panel2)}
 .empty{padding:40px;text-align:center}
+.refs{display:flex;gap:8px}
+.refs a{flex:1;text-decoration:none;color:var(--muted);font-size:12px;text-align:center}
+.refs img{display:block;width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;background:#000}
 </style>
 </head>
 <body>
@@ -96,6 +99,7 @@ function render() {
     <div class="side">
       <div class="card"><h3>Shot ${esc(it.shot)} · image ${pos + 1} of ${list.length}</h3><h2>${esc(it.title)}</h2>
         <div class="muted">Teaches: ${esc(it.teaches)}</div></div>
+      ${(it.cast || []).length ? `<div class="card"><h3>Same person as the approved reference</h3><div class="refs">${it.cast.map(c => `<a href="/bakeoff-ref/${esc(c)}" target="_blank" title="open full size"><img src="/bakeoff-ref/${esc(c)}/head" alt="${esc(c)} reference"><span>${esc(c)}</span></a>`).join('')}</div></div>` : ''}
       <div class="card"><h3>Check</h3><ul>${(it.notes || []).map(n => `<li>${esc(n)}</li>`).join('')}
         <li>every person: 2 arms, 2 hands, 5 fingers, 2 legs; nobody's hands merged</li><li>looks like rural North India; nothing readable</li></ul>
         <details><summary>Full prompt</summary><pre>${esc(it.prompt)}</pre></details></div>

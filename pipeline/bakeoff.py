@@ -34,7 +34,7 @@ BAKEOFF = REPO_ROOT / "bakeoff"
 BLIND = BAKEOFF / "blind"
 VERDICTS = ("pass", "minor", "fail")      # minor = acceptable with small flaws (counts as a pass)
 TAGS = ("hands", "anatomy", "fused people", "physics", "object/tool", "setting", "crop stage", "lesson",
-        "clothes", "readable text", "looks fake", "other")
+        "clothes", "readable text", "looks fake", "different face", "other")
 
 
 def cfg() -> dict[str, Any]:
@@ -45,14 +45,45 @@ def specs() -> dict[str, Any]:
     return scene_spec.load(REPO_ROOT / cfg()["specs"])
 
 
-def prompts() -> dict[str, str]:
+def cast_ids(shot: dict[str, Any]) -> list[str]:
+    """Recurring characters in a spec (people with `cast:`), in order = reference image order."""
+    return [p["cast"] for p in shot.get("people") or [] if p.get("cast")]
+
+
+def cast_shot(shot: dict[str, Any]) -> tuple[dict[str, Any], str, list[Path]]:
+    """For a cast model: the spec with each cast person's clothes set to the character's fixed wardrobe
+    (age/build dropped, the reference sets them), the reference preamble, and the head-crop references."""
+    import copy
+    from pipeline.cast import load_character, reference_head_path, reference_preamble, reference_problems
+    s = copy.deepcopy(shot)
+    chars = []
+    for p in s.get("people") or []:
+        if p.get("cast"):
+            c = load_character(p["cast"])
+            if reference_problems(c):
+                raise SystemExit("; ".join(reference_problems(c)))
+            chars.append(c)
+            p["clothes"] = c.wardrobe
+            p.pop("age", None)
+            p.pop("build", None)
+    return s, reference_preamble(chars), [reference_head_path(c) for c in chars]
+
+
+def prompts(cast: bool = False) -> dict[str, str]:
+    """Shot id → prompt. cast=True: only shots with recurring characters, prompt led by the reference
+    preamble (models with `cast: true` in config)."""
     data = specs()
     out: dict[str, str] = {}
     errors: list[str] = []
     for shot in data["shots"]:
+        pre = ""
+        if cast:
+            if not cast_ids(shot):
+                continue
+            shot, pre, _refs = cast_shot(shot)
         errs, _warns, prompt = scene_spec.check(shot, data.get("style", ""))
         errors += errs
-        out[shot["id"]] = prompt
+        out[shot["id"]] = (pre + " " + prompt).strip()
     if errors:
         raise SystemExit("spec errors:\n  " + "\n  ".join(errors))
     return out
@@ -78,9 +109,12 @@ def _append(path: Path, rec: dict) -> None:
         f.write(json.dumps(rec, ensure_ascii=False) + "\n")
 
 
-def build_cmd(m: dict[str, Any], prompt: str, seed: int, w: int, h: int, out: Path) -> list[str]:
+def build_cmd(m: dict[str, Any], prompt: str, seed: int, w: int, h: int, out: Path,
+              refs: list[Path] | None = None) -> list[str]:
     cmd = [m["command"], "--model", m["model"], "--prompt", prompt, "--seed", str(seed),
            "--width", str(w), "--height", str(h), "--output", str(out)]
+    if refs:
+        cmd += ["--image-paths", *[str(r) for r in refs]]
     for key, flag in (("base_model", "--base-model"), ("steps", "--steps"), ("guidance", "--guidance"),
                       ("quantize", "--quantize")):
         if m.get(key) is not None:
@@ -207,16 +241,17 @@ def run(models: list[str], shots: list[str] | None, seeds: list[int] | None, for
     import os
     c = cfg()
     w, h = c["size"]
-    ps = prompts()
+    data = {s["id"]: s for s in specs()["shots"]}
     # keep the Mac awake for the whole run (2026-11-21: idle sleep stretched one image from ~13 to ~50 min)
     subprocess.Popen(["caffeinate", "-i", "-s", "-w", str(os.getpid())],
                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    shot_ids = shots or list(ps)
     seeds = seeds or list(c["seeds"])
     for name in models:
         m = c["models"].get(name)
         if m is None:
             raise SystemExit(f"unknown model {name!r}; known: {', '.join(c['models'])}")
+        ps = prompts(cast=bool(m.get("cast")))
+        shot_ids = [s for s in (shots or list(ps)) if s in ps]
         todo = [(s, sd) for s in shot_ids for sd in seeds if force or not image_path(name, s, sd).exists()]
         print(f"== {name}: {len(todo)} image(s) to make", flush=True)
         prio = priority if priority is not None else len(todo) <= 2
@@ -230,7 +265,8 @@ def run(models: list[str], shots: list[str] | None, seeds: list[int] | None, for
             t0 = time.monotonic()
             log = out.with_suffix(".log")      # live mflux output (progress bar: tail -c 300 <log>)
             with log.open("w") as lf:
-                proc = _run_heavy(["/usr/bin/time", "-l", *build_cmd(m, ps[shot], seed, w, h, out)], lf)
+                refs = cast_shot(data[shot])[2] if m.get("cast") else None
+                proc = _run_heavy(["/usr/bin/time", "-l", *build_cmd(m, ps[shot], seed, w, h, out, refs)], lf)
             secs = time.monotonic() - t0
             text = log.read_text(errors="replace")
             res = subprocess.CompletedProcess(proc.args, proc.returncode, "", text)
@@ -253,7 +289,7 @@ def run(models: list[str], shots: list[str] | None, seeds: list[int] | None, for
 def status() -> list[dict]:
     rows = []
     for name in cfg()["models"]:
-        res = [r for r in _jsonl(out_dir(name) / "results.jsonl") if r.get("ok")]
+        res = [r for r in _jsonl(out_dir(name) / "results.jsonl") if r.get("ok") and r.get("secs")]
         first = res[0]["secs"] if res else None   # first run includes download + quantize
         rest = [r["secs"] for r in res[1:]] or ([first] if first else [])
         imgs = sorted(out_dir(name).glob("*.png")) if out_dir(name).exists() else []
@@ -278,10 +314,17 @@ def blind(models: list[str] | None = None) -> int:
     key = _key()
     data = specs()
     meta = {s["id"]: s for s in data["shots"]}
-    ps = prompts()
+    mcfg = cfg()["models"]
+    ps_by = {False: prompts(), True: None}
+
+    def ps_for(name: str) -> dict[str, str]:
+        cast = bool((mcfg.get(name) or {}).get("cast"))
+        if ps_by[cast] is None:
+            ps_by[cast] = prompts(cast=True)
+        return ps_by[cast]
     if models is None:
-        models = [n for n in cfg()["models"] if out_dir(n).exists()
-                  and {p.stem.split("-s")[0] for p in out_dir(n).glob("B*-s*.png")} >= set(ps)]
+        models = [n for n in mcfg if out_dir(n).exists()
+                  and {p.stem.split("-s")[0] for p in out_dir(n).glob("B*-s*.png")} >= set(ps_for(n))]
     key["models"] = models
     for name in models:
         for img in sorted(out_dir(name).glob("B*-s*.png")) if out_dir(name).exists() else []:
@@ -293,11 +336,19 @@ def blind(models: list[str] | None = None) -> int:
     (BLIND / "key.json").write_text(json.dumps(key, indent=1))
     ids = sorted(key["items"])
     random.Random(key["salt"]).shuffle(ids)
-    items = [{"id": i, "shot": key["items"][i]["shot"], "title": meta[key["items"][i]["shot"]]["title"],
-              "teaches": meta[key["items"][i]["shot"]]["teaches"],
-              "notes": meta[key["items"][i]["shot"]].get("inspector_notes", []),
-              "prompt": ps[key["items"][i]["shot"]]} for i in ids
-             if key["items"][i]["shot"] in meta and key["items"][i]["model"] in models]
+    items = []
+    for i in ids:
+        k = key["items"][i]
+        if k["shot"] not in meta or k["model"] not in models or k["shot"] not in ps_for(k["model"]):
+            continue
+        s = meta[k["shot"]]
+        item = {"id": i, "shot": k["shot"], "title": s["title"], "teaches": s["teaches"],
+                "notes": list(s.get("inspector_notes", [])), "prompt": ps_for(k["model"])[k["shot"]]}
+        if (mcfg.get(k["model"]) or {}).get("cast"):
+            item["cast"] = cast_ids(s)
+            item["notes"].insert(0, "SAME PERSON as the reference: face, hair, beard/moustache, build, clothes; "
+                                    "nothing added (turban, cap, glasses). Small rings/bangles = minor")
+        items.append(item)
     (BLIND / "items.json").write_text(json.dumps({"tags": TAGS, "items": items}, ensure_ascii=False, indent=1))
     return len(items)
 

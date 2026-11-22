@@ -59,6 +59,7 @@ shots:
     crop_stage: "{stage:young_wheat}"
     people:
       - role: farmer
+        cast: ramesh   # recurring character; only models with cast: true use it
         gender: man
         age: "about 45"
         build: "lean, medium height, sun-tanned skin, short black hair with some grey, thick black moustache"
@@ -87,6 +88,7 @@ shots:
     crop_stage: "{stage:harvested_stubble}"
     people:
       - role: farmer
+        cast: ramesh   # recurring character; only models with cast: true use it
         gender: man
         age: "about 45"
         build: "lean, sun-tanned skin, short black hair with some grey, thick black moustache"
@@ -114,6 +116,7 @@ shots:
     crop_stage: "{stage:harvested_stubble}"
     people:
       - role: farmer
+        cast: ramesh   # recurring character; only models with cast: true use it
         gender: man
         age: "about 45"
         build: "lean, sun-tanned skin, short black hair with some grey, thick black moustache"
@@ -167,6 +170,7 @@ shots:
     crop_stage: null
     people:
       - role: lab_technician
+        cast: sunita   # recurring character; only models with cast: true use it
         gender: woman
         age: "about 32"
         build: "slim, hair tied back in a low bun"
@@ -194,6 +198,7 @@ shots:
     crop_stage: null
     people:
       - role: farmer
+        cast: ramesh   # recurring character; only models with cast: true use it
         gender: man
         age: "about 45"
         build: "lean, sun-tanned skin, short black hair with some grey, thick black moustache"
@@ -223,6 +228,7 @@ shots:
     crop_stage: null
     people:
       - role: lab_technician
+        cast: sunita   # recurring character; only models with cast: true use it
         gender: woman
         age: "about 32"
         build: "slim, hair tied back in a low bun"
@@ -232,6 +238,7 @@ shots:
         right_hand: {holds: "soil report", grip: "thumb on top and fingers underneath, holding the left edge of the sheet"}
         left_hand: {holds: null, grip: "index finger pointing at a row of the table on the sheet"}
       - role: farmer
+        cast: ramesh   # recurring character; only models with cast: true use it
         gender: man
         age: "about 45"
         build: "lean, sun-tanned skin, short black hair with some grey, thick black moustache"

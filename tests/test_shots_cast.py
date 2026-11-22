@@ -121,3 +121,21 @@ def test_pass_notes_need_action_check():
     assert pass_notes_problem("farmer: 2 arms; action: static", False) is None
     assert "identity" in pass_notes_problem("ramesh: 2 arms; action: static", True)
     assert pass_notes_problem("ramesh: 2 arms; action: granules leave open palm; identity: match", True) is None
+
+
+def test_backend_passes_extra_flags_and_skips_unset_steps(tmp_path, monkeypatch):
+    from pipeline import images
+    seen = {}
+
+    def fake_run(cmd, **kw):
+        seen["cmd"] = cmd
+        out = Path(cmd[cmd.index("--output") + 1]); out.write_bytes(b"png")
+        return type("R", (), {"returncode": 0, "stderr": ""})()
+    monkeypatch.setattr(images.subprocess, "run", fake_run)
+    icfg = {"backend": "mflux", "command": "mflux-generate-flux3", "edit_command": "mflux-generate-flux3-edit",
+            "model": "flux3-image-klein", "steps": None, "guidance": None, "quantize": 8, "extra": ["--low-ram"]}
+    images.MfluxBackend(icfg).generate("p", 1, 64, 64, tmp_path / "a.png", [tmp_path / "ref_head.png"])
+    cmd = seen["cmd"]
+    assert cmd[0] == "mflux-generate-flux3-edit" and "--steps" not in cmd and "--guidance" not in cmd
+    assert cmd[cmd.index("--quantize") + 1] == "8" and cmd[-1] == "--low-ram"
+    assert cmd[cmd.index("--image-paths") + 1] == str(tmp_path / "ref_head.png")

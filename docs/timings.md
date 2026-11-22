@@ -20,6 +20,11 @@ MacBook Air M5, 16 GB unified memory, fanless. Heavy jobs run one at a time; lon
 | 2026-11-19 | mflux, FLUX.2 klein 4B q4, first run | download 4.6 GB + 1 image 1344×768 | ok | 111s (mostly download) | peak MLX memory 3.67 GB |
 | 2026-11-19 | mflux, FLUX.2 klein 4B q4 | 1344×768 (16:9), 4 steps | ok | **18.3s per image** incl. model load | 3 images + 1 retry, steady time, no throttling seen |
 | 2026-11-19 | mflux, FLUX.2 klein 4B q4 | 768×1344 (9:16 Short), 4 steps | ok | 18.6s | |
+| 2026-11-22 | mflux, FLUX.3 Klein q8 (quantized on load, `--low-ram`) | 1344×768, 16 steps | ok | **~120 s per image** (median of 39) | peak 7.8 GB; bake-off, see bakeoff/report.md |
+| 2026-11-22 | mflux, FLUX.3 Klein q8 edit, 1 head-crop reference | 1344×768 | ok | ~185 s (163–203) | peak 9.0 GB |
+| 2026-11-22 | mflux, FLUX.3 Klein q8 edit, 2 head-crop references | 1344×768 | ok | ~260 s (257–273) | full-figure references instead: 475 s |
+| 2026-11-22 | mflux, FLUX.3 Klein q8 edit, 1 reference, production `images` one-off | 768×1344 (Short) | ok | 140 s | |
+| 2026-11-22 | mflux, FLUX.3 Klein base q8 (pre-saved, 50 steps) | 1344×768 | ok | ~713 s | peak 11.2 GB; not used |
 | 2026-11-19 | broll index | 2 short test clips | ok | <1s | probe + 3-frame contact strip |
 | 2026-11-19 | narration, real episode (4 scenes, 30 s audio) | Rohit, MPS | ok | 59s TTS + 1s post | 1.8–2.1 s compute per s audio. Loudness −14.4 LUFS after adding the compressor (−15.4 before) |
 | 2026-11-19 | render draft (540p, scale 0.5) | 30.6 s long video | ok | 14s | 12.6 MB |
@@ -29,7 +34,7 @@ MacBook Air M5, 16 GB unified memory, fanless. Heavy jobs run one at a time; lon
 | 2026-11-19 | package | thumbnail still + youtube.md | ok | ~2s (cached bundle) | |
 
 Estimate for a 4-minute long video (≈680 words at Rohit pace): ≈8 min of TTS compute (+11s load). A 45-second Short: ≈1.5 min.
-Render: ≈0.45 s per second of video (a 4-min final ≈ 2 min). Images: ≈18 s each. A long episode with ~15 image scenes and some retries takes ≈6 min.
+Render: ≈0.45 s per second of video (a 4-min final ≈ 2 min). Images: ≈18 s each with FLUX.2 klein (until 2026-11-22); FLUX.3 Klein takes ≈2 min (≈3 min with a cast reference), so ~15 image scenes with ~2 shots each and some retries take ≈1–1.5 h.
 
 ## Per-stage summary (phase 6 demo episode)
 

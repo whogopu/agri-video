@@ -100,3 +100,17 @@ def test_round_pauses_for_queued_priority_run(tmp_path, monkeypatch):
     bakeoff.wait_for_quiet(priority=True)                 # priority run: marks itself, doesn't wait for others
     assert (tmp_path / f"{os.getpid()}.pid").exists()
     other.kill(); other.wait()
+
+
+def test_cast_prompts_use_wardrobe_and_head_references():
+    ps = bakeoff.prompts(cast=True)
+    assert set(ps) >= {"B01b", "B05", "B07"} and "B08" not in ps          # only shots with cast people
+    assert ps["B07"].startswith("Sunita is the woman in reference image 1")
+    assert "Ramesh is the man in reference image 2" in ps["B07"]
+    assert "light green cotton gamchha" in ps["B01b"] and "red-and-white checked" not in ps["B01b"]
+    shot = next(s for s in bakeoff.specs()["shots"] if s["id"] == "B07")
+    _, _, refs = bakeoff.cast_shot(shot)
+    assert [r.parent.name for r in refs] == ["sunita", "ramesh"] and all(r.name == "ref_head.png" for r in refs)
+    cmd = bakeoff.build_cmd({"command": "mflux-generate-flux3-edit", "model": "flux3-image-klein"},
+                            ps["B07"], 11, 1344, 768, REPO_ROOT / "x.png", refs)
+    assert cmd[cmd.index("--image-paths") + 1:][:2] == [str(r) for r in refs]
