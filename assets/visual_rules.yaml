@@ -23,7 +23,7 @@ settings:
       (reads as African savanna 3/3); "Punjab and Haryana plains, a straight row of tall thin eucalyptus"
       (rows of European-looking poplars). Without any background phrase, palms appeared 2/6
     must_show:
-      - "background reads as a North Indian plain: flat land, neem/eucalyptus/shisham-type trees, brick or mud houses (palms, coconut trees or painted concrete villas = South/coastal India: fail)"
+      - "background reads as Indian rural plains: flat land, brick or mud houses (palms, coconut groves or painted concrete villas = South/coastal India). Exact tree species don't matter: poplar-looking rows are fine unless the shot is about the location (user 2026-11-22)"
   soil_lab:
     text: >-
       a simple government soil testing laboratory: a long bench with a white tiled top, glass test tubes
