@@ -222,6 +222,8 @@ def user_prompt(ctx: ShotContext, examples: list[dict[str, Any]]) -> str:
     if ctx.old_spec is not None:
         lines.append("\nThe current spec for this shot:\n" + _example_json(ctx.old_spec))
         lines.append(f"Rewrite it to fix this: {ctx.note}\nKeep what already works; change what the note asks.")
+    elif ctx.note:
+        lines.append(f"\nWrite the spec for this shot. It must fix this: {ctx.note}")
     else:
         lines.append("\nWrite the spec for this shot.")
     return "\n".join(l for l in lines if l)

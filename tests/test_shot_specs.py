@@ -190,3 +190,52 @@ def test_review_page_shows_sentence_framing_and_prompt(tmp_path):
     assert "His right hand: open, fingers spread" in text            # the full rendered prompt
     assert "revised after inspection ×1" in text and "closed fist" in text
     assert "--set-status shots_approved" in text
+
+
+def _fake_llm(spec):
+    def llm(jobs, model, **kw):
+        llm.prompts = [j["prompt"] for j in jobs]
+        return {j["id"]: {"text": json.dumps(spec, ensure_ascii=False), "sec": 0.1} for j in jobs}
+    return llm
+
+
+def test_revise_after_failed_inspection_then_second_needs_approval(tmp_path):
+    from pipeline.common import StageRun, load_config, load_episode
+    from pipeline.shot_specs import approve_shot, revise_shot
+    fail = {"file_sha1": "x", "passed": False, "notes": "granules come out of a closed fist"}
+    ep_dir = _episode(tmp_path, {"spec": SPEC, "framing": "medium_wide", "inspection": fail})
+    cfg, run = load_config(), StageRun("t")
+    llm = _fake_llm(SPEC)
+    ep = load_episode(ep_dir)
+    assert revise_shot(ep_dir, ep, 1, 1, None, cfg, run, llm=llm)
+    assert "closed fist" in llm.prompts[0] and "The current spec for this shot" in llm.prompts[0]
+    info = load_episode(ep_dir).scenes[0].visual.shots[0].spec_info
+    assert info.revisions == 1 and not info.needs_approval            # first automatic revision goes through
+    assert "revised after inspection" in run.notes[-1]
+    ep = load_episode(ep_dir)
+    revise_shot(ep_dir, ep, 1, 1, None, cfg, run, llm=llm)           # still the failed inspection: second revision
+    sh = load_episode(ep_dir).scenes[0].visual.shots[0]
+    assert sh.spec_info.revisions == 2 and sh.spec_info.needs_approval
+    assert images.shot_blocked(sh)
+    ep = load_episode(ep_dir)
+    approve_shot(ep_dir, ep, 1, 1, run)
+    assert images.shot_blocked(load_episode(ep_dir).scenes[0].visual.shots[0]) is None
+
+
+def test_revise_with_user_note_needs_no_reapproval(tmp_path):
+    from pipeline.common import StageRun, load_config, load_episode
+    from pipeline.shot_specs import revise_shot
+    ep_dir = _episode(tmp_path, {"spec": SPEC, "framing": "medium_wide"})
+    llm = _fake_llm(SPEC)
+    revise_shot(ep_dir, load_episode(ep_dir), 1, 1, "make him squat", load_config(), StageRun("t"), llm=llm)
+    info = load_episode(ep_dir).scenes[0].visual.shots[0].spec_info
+    assert "make him squat" in llm.prompts[0]
+    assert info.revisions == 0 and not info.needs_approval and info.revised_because == "user note: make him squat"
+
+
+def test_revise_without_note_needs_a_failed_inspection(tmp_path):
+    from pipeline.common import StageRun, load_config, load_episode
+    from pipeline.shot_specs import revise_shot
+    ep_dir = _episode(tmp_path, {"spec": SPEC})
+    with pytest.raises(SystemExit, match="no failed inspection"):
+        revise_shot(ep_dir, load_episode(ep_dir), 1, 1, None, load_config(), StageRun("t"), llm=_fake_llm(SPEC))

@@ -3,6 +3,9 @@
     uv run python -m pipeline.shot_specs episodes/<id> [--scene N] [--force]       # plan shots + write specs
     uv run python -m pipeline.shot_specs episodes/<id> --plan-only                 # shot plan by code, no LLM
     uv run python -m pipeline.shot_specs episodes/<id> --review                    # rewrite review/shots.md only
+    uv run python -m pipeline.shot_specs episodes/<id> --scene N --shot K --revise "user note"   # rewrite one spec
+    uv run python -m pipeline.shot_specs episodes/<id> --scene N --shot K --revise               # from its failed inspection
+    uv run python -m pipeline.shot_specs episodes/<id> --scene N --shot K --approve              # user approves a 2nd revision
 
 Checkpoint (status shots_approved, between narrated and visuals_ready): the stage writes review/shots.md with
 every shot's timing, Hindi sentence, framing, a summary and the full rendered prompt; the dashboard shows the
@@ -244,6 +247,66 @@ def write_episode_specs(ep_dir: Path, ep: Episode, targets: list, cfg: dict[str,
     return flagged
 
 
+def revise_shot(ep_dir: Path, ep: Episode, scene_id: int, k: int, note: str | None, cfg: dict[str, Any], run,
+                llm=None) -> bool:
+    """Rewrite one shot's spec with the LLM. With a note: the user's change (no re-approval needed, the user
+    asked for it). Without: the shot's failed-inspection notes; the first such automatic revision goes straight
+    to `images --retry`, from the second on the shot waits for `--approve` (user decision 2026-11-22).
+    Returns True when the new spec passes the checks."""
+    from pipeline.spec_writer import write_specs
+    s = ep.scene(scene_id)
+    if s.visual.type != "image" or not 1 <= k <= len(s.visual.shots):
+        raise SystemExit(f"scene {scene_id} has no image shot {k}")
+    sh = s.visual.shots[k - 1]
+    auto = not (note or "").strip()
+    if auto:
+        if not sh.inspection or sh.inspection.passed:
+            raise SystemExit(f"scene {scene_id} shot {k} has no failed inspection to revise from; "
+                             f"give a note: --revise \"what to change\"")
+        note = f"the generated image failed inspection: {sh.inspection.notes}"
+    ctx = shot_context(ep, s, k, cfg, cast_info(ep))
+    ctx.old_spec, ctx.note = sh.spec, note
+    if not sh.spec and sh.image_prompt:
+        ctx.note += f" (the shot so far had this free-text prompt: {sh.image_prompt})"
+    log = ep_dir / "review" / "shot_specs_llm.jsonl"
+    log.parent.mkdir(parents=True, exist_ok=True)
+    r = write_specs([ctx], cfg, llm=llm, log=log, progress=run.note)[ctx.key]
+    apply_result(sh, r, cfg["shot_specs"]["model"])
+    info = sh.spec_info
+    info.revised_because = ("inspection: " if auto else "user note: ") + (sh.inspection.notes if auto else note)
+    if auto:
+        info.revisions += 1
+        info.needs_approval = info.revisions >= 2
+    save_episode(ep_dir, ep)
+    tag = f"scene {scene_id} shot {k}"
+    if not r.ok:
+        run.note(f"**FLAG** {tag}: revised spec still failing after {r.rounds} repair round(s): " + "; ".join(r.errors))
+    elif auto and info.needs_approval:
+        run.note(f"{tag}: spec revised after inspection (revision {info.revisions}); **waits for the user's "
+                 f"approval** before images --retry")
+    elif auto:
+        run.note(f"{tag}: spec revised after inspection (revision {info.revisions}); next: images --scene "
+                 f"{scene_id} --shot {k} --retry")
+    else:
+        run.note(f"{tag}: spec revised with the user's note: {note}")
+    return r.ok
+
+
+def approve_shot(ep_dir: Path, ep: Episode, scene_id: int, k: int, run) -> None:
+    """The user approved a shot whose spec was revised a second time after failed inspections."""
+    s = ep.scene(scene_id)
+    if s.visual.type != "image" or not 1 <= k <= len(s.visual.shots):
+        raise SystemExit(f"scene {scene_id} has no image shot {k}")
+    info = s.visual.shots[k - 1].spec_info
+    if not info or not info.needs_approval:
+        raise SystemExit(f"scene {scene_id} shot {k} is not waiting for approval")
+    if info.flags:
+        raise SystemExit(f"scene {scene_id} shot {k}: its spec still fails checks; fix it first: {'; '.join(info.flags)}")
+    info.needs_approval = False
+    save_episode(ep_dir, ep)
+    run.note(f"scene {scene_id} shot {k}: the user approved revision {info.revisions}")
+
+
 def shot_times(scene: Scene, cfg: dict[str, Any]) -> list[tuple[float, float]]:
     """(start, end) on screen of every shot, seconds from the scene start (as the render places them)."""
     from pipeline.common import shot_starts_sec
@@ -347,6 +410,11 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--force", action="store_true", help="plan again and rewrite specs of the selected scenes")
     p.add_argument("--plan-only", action="store_true", help="shot plan by code only, no LLM")
     p.add_argument("--review", action="store_true", help="only rewrite review/shots.md")
+    p.add_argument("--shot", type=int, help="with --revise/--approve: shot number within the scene (1-based)")
+    p.add_argument("--revise", nargs="?", const="", metavar="NOTE",
+                   help="rewrite one shot's spec: with the user's NOTE, or from its failed inspection")
+    p.add_argument("--approve", action="store_true",
+                   help="the user approves one shot that waits after a second automatic revision")
     p.add_argument("-v", "--verbose", action="store_true")
     a = p.parse_args(argv)
     setup_logging(a.verbose)
@@ -354,6 +422,17 @@ def main(argv: list[str] | None = None) -> None:
     cfg = load_config()
     if a.review:
         print(write_review(ep_dir, load_episode(ep_dir), cfg))
+        return
+    if a.revise is not None or a.approve:
+        if not (a.scenes and len(a.scenes) == 1 and a.shot):
+            p.error("--revise/--approve need one --scene N and --shot K")
+        with stage_timer(ep_dir, "shot specs (approve)" if a.approve else "shot specs (revise)") as run:
+            ep = load_episode(ep_dir)
+            if a.approve:
+                approve_shot(ep_dir, ep, a.scenes[0], a.shot, run)
+            else:
+                revise_shot(ep_dir, ep, a.scenes[0], a.shot, a.revise, cfg, run)
+            run.note(f"checkpoint page: {write_review(ep_dir, ep, cfg).relative_to(ep_dir)}")
         return
     with stage_timer(ep_dir, "shot plan" if a.plan_only else "shot specs") as run:
         ep = load_episode(ep_dir)
