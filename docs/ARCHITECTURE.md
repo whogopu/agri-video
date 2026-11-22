@@ -422,7 +422,8 @@ A shot fails if any question reports a MAJOR issue, or if an answer can't be par
   | Molmo2 8B | 0/10 | 1/10 | ~13 s | 8.6 GB |
   | **Ministral 3 14B** | **9/10** | **0/10** | ~50 s | 10.8 GB |
 
-  Ministral is the first model that mostly names the *real* defect: standing wheat, kitchen jars, steam, wristwatch + palms, palms, and the costume swap (identity: "right person wears a white lab coat"). It missed the closed-fist broadcast (called "slightly closed fist" minor) and gave a wrong reason on one right verdict (trenches with water → "standing crop"). Caveat: most of the 10 sampled fails are scene-level, and several of their old prompts still said "no palm/steam/watch", which hands the model the answer; hand and limb defects (one-armed look, third hand) are under-represented. Its one false fail came from blank `severity` entries ("... so this is not an issue"), which the parser counted as MAJOR; a blank severity now follows the model's verdict. Next step: the full 77 with Ministral (~1 h).
+  Ministral is the first model that mostly names the *real* defect: standing wheat, kitchen jars, steam, wristwatch + palms, palms, and the costume swap (identity: "right person wears a white lab coat"). It missed the closed-fist broadcast (called "slightly closed fist" minor) and gave a wrong reason on one right verdict (trenches with water → "standing crop"). Caveat: most of the 10 sampled fails are scene-level, and several of their old prompts still said "no palm/steam/watch", which hands the model the answer; hand and limb defects (one-armed look, third hand) are under-represented. Its one false fail came from blank `severity` entries ("... so this is not an issue"), which the parser counted as MAJOR; a blank severity now follows the model's verdict. *Full 77 (2026-11-21, 43 min):* **16/20 fails caught, 17/57 good shots wrongly failed (30%)**, so the 20-shot sample flattered it. By defect kind it caught: story/crop/practice 11/13, identity 5/6, setting 3/3, action/physics 5/8, hands/limbs 4/8. Missed: the closed-fist broadcast, two buckets with a bladeless khurpi, soil split into two heaps instead of four, Sunita's fuller face. The 17 false fails are mostly (a) illegible print on reports, sacks and charts called "readable" (~6, the `illegible_text_only` filter misses its phrasings; once it even wrote "not legible ... not a major issue" as MAJOR), (b) over-reading the crop stage ("rice, not wheat", "stubble too tall", ~6), and (c) palms, which the user rates minor. Two of them look like defects Claude missed: v3 `scene-18-s1-a2` has large bold Latin-like letters on the sack (the same reason `a1` failed), and v3 `scene-20-s2-a2` shows a ring and possibly a watch strap under the left cuff. **Verdict: not good enough to replace Claude or to auto-retry shots** (a 30% false-fail rate means many needless regenerations), but it is the first model whose MAJOR flags are often worth a second look.
+  After adding "not legible" to the illegible-text filter (re-scored from cache): 16/20 caught, 15/57 wrongly failed (26%).
 - *InternVL conversion notes:* no MLX build is published. `mlx_vlm convert` from `OpenGVLab/InternVL3_5-8B-HF` needs `text_config.tie_word_embeddings: false` added (the HF config omits it; the checkpoint has a separate `lm_head`) and `chat_template.jinja` copied into the output by hand, otherwise the model answers as raw text completion. Conversion took 11 s with a 9.6 GB peak.
 
 `uv run python -m pipeline.vlm_compare` builds `samples/vlm-eval/compare.html`: a scoreboard per run, then every labelled shot with Claude's note, the user's marks and each model's MAJOR/minor reasons, to check that a model names the real problem.
@@ -453,6 +454,33 @@ A shot fails if any question reports a MAJOR issue, or if an answer can't be par
 - `young_wheat`: "young wheat seedlings three weeks after sowing: each plant a small tuft of three or four thin green leaves, ankle-high…": no ears 3/3. "Ankle-high young wheat, leaves only" gave ears 2/3; "tillering, shin-high" gave ears 3/3.
 - `harvested_stubble`: "bare brown soil with short dry cut stubble stumps": 6/6.
 - `khurpi`: klein doesn't know the word and draws a shiny Western trowel 6/6. Described by shape ("a fist-length wooden handle and a dark forged iron blade shaped like a flat pointed leaf"), the blade comes out right 3/3, but the handle is long 3/3. A **prop reference** was tested as well: the best of 15 generated tool photos (side and top views, 5 wordings) went in as reference image 2 in edit mode. It gave a short handle in 1/3 at twice the cost, so props don't get references for now. Where the narration says "फावड़े या खुरपी", a spade is the safer picture; a close-up meant to show a khurpi won't read as one. Next step if it matters: a small prop LoRA (§7.6a fallbacks).
+
+### 7.6d Scene specs and the image model bake-off (`pipeline/scene_spec.py`, `pipeline/bakeoff.py`, 2026-11-21)
+
+**Why.** The aim is ~80–90% of images passing human review (minor flaws allowed). The two levers are a more complete prompt and a better local model. To separate them, every candidate model gets the same prompt and seeds.
+
+**Scene spec** (`bakeoff/shots.yaml`): a structured description written before any prompt. It holds what the shot teaches, the framing and lens, the setting and crop stage, and each person with **each hand's object and grip**. It also lists every object with what supports it, every **flow** (material, source = open hand / tilted container mouth / nozzle, path, landing) and every hand-to-object contact. `scene_spec.lint` rejects a spec with an unaccounted-for hand, a held object missing from `objects[]`, an unsupported object, a pour/scatter/spray without a flow, or a flow whose source isn't an open hand, tilted mouth or nozzle. `render` writes one natural-language prompt (framing → setting → crop → people → objects → flows → contacts → style), expands `{kind:key}` tokens and runs `visual_rules.lint` on the result. The 12 approved test shots render at 150–340 words.
+
+**Candidates** (`config.yaml: bakeoff.models`, all through mflux 0.24):
+- baseline: klein 4B q4
+- FLUX.2 klein base 4B q8
+- Z-Image and Z-Image-Turbo q8
+- FLUX.3 Image Klein and Klein base q8
+- ERNIE-Image q8
+- Krea 2 Turbo q6
+- Qwen-Image-2512 q4 (`--low-ram`)
+
+Licenses are listed in `docs/licenses.md`. FLUX.3 Klein and Krea 2 are revenue-capped community licenses, accepted by the user 2026-11-21. Excluded as non-commercial: Qwen-Image-2.1, Ideogram 4, FLUX.2 klein 9B and FLUX.1 dev; MiniMax H3-Image is too big for 16 GB. `bakeoff download` fetches only the diffusers folders mflux reads, about 230 GB in total.
+
+**Running.** `bakeoff run` makes one image per process with `/usr/bin/time -l`, recording seconds and peak memory footprint in `bakeoff/runs/<model>/results.jsonl`. Before each image it **waits while another heavy job runs** (VLM worker, mflux, TTS, whisper, render). On 2026-11-21 the first smoke run collided with a `vlm_inspect --eval` job, sending swap to 14.9/16 GB, which is why the wait was added.
+
+**Judging.** Claude inspects every image against the inspection checklist (`bakeoff inspect`; notes need `action:`). The user rates the same images blind at dashboard `/bakeoff`: images are shuffled under opaque ids and model names are hidden. Verdicts are Pass / Minor / Fail, with reason tags. `bakeoff/blind/key.json` maps ids to models and is never served. `bakeoff report` writes per-model pass rates (pass + minor), median seconds and peak GB to `bakeoff/report.md`.
+
+**Rounds.**
+1. All models × 12 shots × seed 11.
+2. The top 3 get seeds 22 and 33.
+3. Pass-rate boosters on the winner: several seeds per shot, Z-Image pose/depth ControlNet for hard actions, hand/face regional refinement.
+4. Character identity on the winner: a local LoRA via `mflux-train` vs reference edit.
 
 ### 7.7 B-roll (optional)
 The library lives in `assets/broll/`. `broll index` probes new clips (duration, size, fps, orientation), writes a three-frame contact strip to `frames/<id>.jpg`, and adds a **stub** entry. Claude then fills in descriptions (English and Hindi), tags (crop, activity, setting, season, shot type), usable segments, quality notes, `people_visible`, source and **license**. A clip with any field missing is **unusable**: `broll check` fails, `validate` rejects it, and `list` marks it. Most episodes use generated images only; the visuals skill skips B-roll entirely when no complete clips exist.

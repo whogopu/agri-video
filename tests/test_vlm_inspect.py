@@ -97,3 +97,8 @@ def test_blank_severity_follows_verdict():
     other = {"what": "the flask meniscus is uneven", "severity": ""}
     assert judge("full", {"issues": [item, other], "verdict": "pass"})[0] is False
     assert judge("full", {"issues": [other], "verdict": "fail"})[0] is True
+
+
+def test_not_legible_text_is_dropped():
+    from pipeline.vlm_inspect import illegible_text_only
+    assert illegible_text_only("The background charts have some text, but it is not legible enough to be considered readable")

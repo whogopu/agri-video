@@ -182,6 +182,7 @@ images:
     crops: false           # v1 2x-zoom questions; off: they failed most good shots (eval 2026-11-20)
   inspection_checklist:
     - "Hands & arms: every person has exactly 2 arms and 2 hands, each hand connected to its own arm; no extra, missing or floating hands. Both hands should normally be VISIBLE and doing something natural; a person whose second arm is hidden behind the body or clothing looks one-armed and fails (exception: the person is cropped by the frame edge or it's a close-up of hands only)"
+    - "Trace every hand to a shoulder (user blind ratings 2026-11-21): for each hand, follow wrist → forearm → sleeve → shoulder of ONE person. A sleeve hanging at the side while 'his' hand holds something elsewhere = third hand (fail). A hand emerging between the thighs, under a knee or out of the torso = fail. An object hanging on the wrist of the throwing/working hand while the other hand is empty = fused object (fail). Counting hands is not enough"
     - "Separate people: hands, arms and bodies of different people never merge or fuse. Where people touch or pass an object (a hand-over, a handshake), every hand is complete and clearly separate, with a visible gap or the object between them; you can tell whose hand is whose by following each arm"
     - "Fingers: every visible hand has 5 fingers (or fewer only when naturally hidden), natural joints, no fused, extra or melted fingers"
     - "Legs & feet: every person has exactly 2 legs and 2 feet, connected and the right size"
@@ -236,3 +237,88 @@ costs:
   claude_web_search_usd_per_1k: 10.0
   usd_to_inr: 88.0                 # for showing Claude and electricity in one currency; update as needed
   electricity_inr_per_kwh: 8.0     # your tariff
+
+# Image model bake-off (pipeline/bakeoff.py, bakeoff/shots.yaml; plan 2026-11-21). Every model gets the same
+# rendered scene-spec prompt and seeds. Settings from each model card; mflux quantizes on load (`quantize`).
+# Licenses: all Apache-2.0 except flux3_* (FLUX Kommunity, commercial use < US$5M revenue) and krea2_*
+# (Krea community license, commercial use < US$1M revenue); user accepted the revenue-capped ones 2026-11-21.
+bakeoff:
+  specs: bakeoff/shots.yaml
+  out_dir: bakeoff/runs
+  size: [1344, 768]
+  seeds: [11]                # round 1: one seed per shot for every model; round 2 adds seeds for the top models
+  cooldown_sec: 10           # fanless Air: short pause between images
+  models:
+    # Local pre-quantized copies (`save_quantize` → mflux-save on first use, ~/mflux-models/). Quantizing on load
+    # kept the 16-bit text encoder in memory and swapped hard (Z-Image q6: 12 GB, 44 s/step vs 6.8 GB, 21 s/step).
+    # Bit depth chosen so transformer + text encoder stay near 10 GB on this 16 GB Mac.
+    klein4b_q4:              # current production model (baseline)
+      command: mflux-generate-flux2
+      model: mflux-community/flux2-klein-4b-mflux-q4
+      base_model: flux2-klein-4b
+      steps: 4
+      guidance: 1.0
+    klein_base4b_q8:         # first 3 images were quantized on load (10.6 GB peak, 12-19 min/image)
+      command: mflux-generate-flux2
+      model: /Users/gopal/mflux-models/flux2-klein-base-4b-q8
+      base_model: flux2-klein-base-4b
+      save_quantize: 8
+      steps: 50
+      guidance: 4.0
+      extra: ["--low-ram"]
+    zimage_q8:               # quantized on load: 14.0 GB peak, swapped, 1749 s (B01 only; superseded by zimage_q6)
+      command: mflux-generate-z-image
+      model: z-image
+      quantize: 8
+      steps: 40
+      guidance: 4.0
+      extra: ["--low-ram"]
+    zimage_q6:
+      command: mflux-generate-z-image
+      model: /Users/gopal/mflux-models/z-image-q6
+      base_model: z-image
+      save_quantize: 6
+      steps: 40
+      guidance: 4.0
+      extra: ["--low-ram"]
+    zimage_turbo_q6:
+      command: mflux-generate-z-image-turbo
+      model: /Users/gopal/mflux-models/z-image-turbo-q6
+      base_model: z-image-turbo
+      save_quantize: 6
+      steps: 9
+      extra: ["--low-ram"]
+    flux3_klein_q8:          # quantized on load still fit: 7.7 GB peak, 161 s
+      command: mflux-generate-flux3
+      model: flux3-image-klein
+      quantize: 8
+      extra: ["--low-ram"]
+    flux3_klein_base_q8:
+      command: mflux-generate-flux3
+      model: /Users/gopal/mflux-models/flux3-image-klein-base-q8
+      base_model: flux3-image-klein-base
+      save_quantize: 8
+      steps: 50
+      extra: ["--low-ram"]
+    ernie_q6:
+      command: mflux-generate-ernie-image
+      model: /Users/gopal/mflux-models/ernie-image-q6
+      base_model: ernie-image
+      save_quantize: 6
+      steps: 50
+      guidance: 4.0
+      extra: ["--low-ram"]
+    krea2_turbo_q5:          # 12B
+      command: mflux-generate-krea2
+      model: /Users/gopal/mflux-models/krea-2-q5
+      base_model: krea-2
+      save_quantize: 5
+      extra: ["--low-ram"]
+    qwen2512_q4:             # 20B + 7B text encoder: ~14 GB even at q4; expect some swap
+      command: mflux-generate-qwen
+      model: /Users/gopal/mflux-models/qwen-image-2512-q4
+      base_model: qwen-image-2512
+      save_quantize: 4
+      steps: 50
+      guidance: 4.0
+      extra: ["--low-ram"]

@@ -197,7 +197,7 @@ def parse_json(text: str) -> dict | None:
 
 
 _TEXTY = re.compile(r"text|writing|written|letter|word|script|character|sign|label|scribbl|gibberish", re.I)
-_ILLEGIBLE = re.compile(r"illegib|gibberish|scribbl|squiggl|unreadable|not readable|cannot be read|can't be read|"
+_ILLEGIBLE = re.compile(r"illegib|gibberish|scribbl|squiggl|unreadable|not readable|not legible|cannot be read|can't be read|"
                         r"nonsens|garbled|meaningless|jumbled|distorted (?:text|letters|writing)|"
                         r"blurr?(?:ed|y) (?:text|letters|writing)|not (?:a )?real (?:text|words|letters)", re.I)
 

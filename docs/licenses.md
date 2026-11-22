@@ -47,3 +47,10 @@ Rule: company project, so **no non-commercial licenses**. Check before adopting 
 | **Molmo2 8B** (`mlx-community/Molmo2-8B-4bit`) | local image inspection candidate | Apache-2.0 | yes | 2026-11-21 | 6.4 GB (4-bit), user approved download |
 | **Ministral 3 14B Instruct 2512** (`mlx-community/Ministral-3-14B-Instruct-2512-4bit`) | local image inspection candidate (best so far) | Apache-2.0 | yes | 2026-11-21 | 8.4 GB (4-bit), user approved download |
 | Qwen3.8-27B, Gemma 4 26B/31B | — | Apache-2.0 | yes, but don't fit | 2026-11-20 | 15.6–19 GB at 4-bit: too big for 16 GB alongside macOS |
+| black-forest-labs/FLUX.2-klein-base-4B | image bake-off candidate | Apache-2.0 | yes | 2026-11-21 | via mflux (`flux2-klein-base-4b`); the 9B klein models are FLUX NCL (non-commercial): excluded |
+| Tongyi-MAI/Z-Image, Z-Image-Turbo | image bake-off candidates | Apache-2.0 | yes | 2026-11-21 | via mflux |
+| baidu/ERNIE-Image | image bake-off candidate | Apache-2.0 | yes | 2026-11-21 | via mflux |
+| Qwen/Qwen-Image-2512, Qwen-Image-Edit-2511 | image bake-off candidate (edit model reserved for identity tests) | Apache-2.0 | yes | 2026-11-21 | **Qwen-Image-2.1 / 2.1-Turbo are Qwen Research License (non-commercial): excluded** |
+| **black-forest-labs/flux-3-image-klein, -base** | image bake-off candidate | FLUX Kommunity License v1.0 (gated) | **only below US$5M gross annual revenue (incl. affiliates)** | 2026-11-21 | user accepted revenue-capped licenses 2026-11-21; re-check before commercial scale; fine-tuning/redistribution not covered |
+| **krea/Krea-2-Turbo, Krea-2-Raw** | image bake-off candidate | Krea community license (gated; inference code Apache-2.0) | **only below US$1M annual revenue (incl. affiliates)** | 2026-11-21 | user accepted 2026-11-21; enterprise license above the cap |
+| Ideogram 4, MiniMax H3-Image | not used | Ideogram Non-Commercial / MiniMax community (excludes US, EU, UK, KR) | no | 2026-11-21 | excluded; H3 (33B) also too large for 16 GB |

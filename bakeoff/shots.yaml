@@ -1,0 +1,400 @@
+# Image model bake-off: scene specs (approved shot list 2026-11-21)
+#
+# A scene spec is the structured description Claude writes BEFORE any prompt. pipeline/scene_spec.py lints it
+# (every hand, held object and moving material accounted for) and renders one natural-language prompt that
+# every model in the bake-off receives unchanged, so differences come from the model, not the prompt.
+# Write only what IS in the picture (no negations; visual_rules lint runs on the rendered prompt).
+# {kind:key} tokens expand to tested phrases from assets/visual_rules.yaml.
+#
+# Slots
+#   teaches          what the viewer should learn from this picture (lint)
+#   framing          shot size, camera height/angle, lens, how much of each body is in frame (lint)
+#   setting          place, season, time of day, light, background (lint)
+#   crop_stage       what is growing / bare / harvested, or null for indoor shots
+#   people[]         role, gender (man|woman), age, build, clothes, posture, gaze;
+#                    left_hand / right_hand: {holds, grip} -> every hand accounted for (lint)
+#   objects[]        name, count, state, support (what it rests on / who holds it) (lint)
+#   flows[]          material, source (open hand / tilted container mouth / nozzle), path, landing
+#                    (lint: required when anything pours, scatters or sprays)
+#   contacts[]       where hands touch objects or other people, in one plain sentence each
+#   inspector_notes  known failure modes, for inspection only (never sent to the model)
+
+style: "photorealistic documentary photograph, natural colours, realistic skin texture, sharp focus"
+
+shots:
+
+  - id: B01
+    title: "broadcast urea from an open hand"
+    source: "v3 scene 1 (failed 3x: closed fist, upright bucket pouring, heap)"
+    teaches: "urea is broadcast thinly and evenly over a young crop, from an open hand"
+    framing: "medium-wide shot at eye level, 35 mm lens, the farmer's whole body from head to feet in frame, three-quarter view from his right side"
+    setting: "a North Indian field on a clear winter morning, low soft sunlight from the left; {setting:north_field_bg}"
+    crop_stage: "{stage:young_wheat}"
+    people:
+      - role: farmer
+        gender: man
+        age: "about 45"
+        build: "lean, medium height, sun-tanned skin, short black hair with some grey, thick black moustache"
+        clothes: "a loose white cotton kurta, a white dhoti, a red-and-white checked gamcha over his left shoulder, brown leather chappals"
+        posture: "walking slowly along a crop row, right foot stepping forward"
+        gaze: "looking at the soil ahead of him"
+        left_hand: {holds: "steel bucket", grip: "the bucket's thin wire handle hooked over his bent left forearm near the elbow, his left hand relaxed in front of his stomach"}
+        right_hand: {holds: null, grip: "his right arm swung out to the side at shoulder height, the hand wide open and turned downward, five fingers spread"}
+    objects:
+      - {name: "stainless-steel bucket", count: 1, state: "upright, three-quarters full of white granules", support: "hanging from his left forearm by its wire handle"}
+    flows:
+      - {material: "small white urea granules", source: "leaving the spread fingers of his open right hand", path: "a thin wide fan through the air to his right", landing: "scattered thinly and evenly over the soil between the young wheat rows"}
+    contacts:
+      - "the wire handle of the bucket rests in the crook of his left elbow"
+    inspector_notes:
+      - "granules start at the OPEN right hand; any stream from the bucket mouth = fail (bucket is upright)"
+      - "landing spread thin, not a heap; wheat has leaves only, no ears"
+
+  - id: B01b
+    title: "broadcast urea from an open hand (v2 wording)"
+    source: "B01 failed 3/3 seeds on FLUX.3 Klein: bucket hooked on the throwing forearm, granules in a narrow stripe"
+    teaches: "urea is broadcast thinly and evenly over a young crop, from an open hand"
+    framing: "medium-wide shot at eye level, 35 mm lens, the farmer's whole body from head to feet in frame, three-quarter view from his right side"
+    setting: "a North Indian field on a clear winter morning, low soft sunlight from the left; {setting:north_field_bg}"
+    crop_stage: "{stage:young_wheat}"
+    people:
+      - role: farmer
+        gender: man
+        age: "about 45"
+        build: "lean, medium height, sun-tanned skin, short black hair with some grey, thick black moustache"
+        clothes: "a loose white cotton kurta, a white dhoti, a red-and-white checked gamcha over his left shoulder, brown leather chappals"
+        posture: "walking slowly along a crop row, right foot stepping forward"
+        gaze: "looking at the soil ahead of him"
+        left_hand: {holds: "steel bucket", grip: "his left arm hangs down straight at his left side, the fingers of his left hand closed around the bucket's wire handle, the bucket hanging beside his left knee"}
+        right_hand: {holds: null, grip: "his empty right arm swung out to his right at shoulder height, far from the bucket, the right hand wide open and turned downward, five fingers spread"}
+    objects:
+      - {name: "stainless-steel bucket", count: 1, state: "upright, three-quarters full of white granules", support: "carried low in his left hand by its wire handle, beside his left knee"}
+    flows:
+      - {material: "small white urea granules", source: "flung from the spread fingers of his open right hand", path: "a wide airy spray of thousands of separate tiny grains, spreading out like a fan in the air, sparse and scattered", landing: "a thin even sprinkle of single white grains dotted over a wide patch of soil between the young wheat rows"}
+    contacts:
+      - "only his left hand touches the bucket; his right hand is open and empty in the air"
+    inspector_notes:
+      - "bucket in the LEFT hand, arm hanging; the throwing right hand is empty and away from the bucket"
+      - "granules a wide scattered fan of separate grains starting at the open right hand; a narrow stripe or a stream = minor; from the bucket = fail"
+      - "landing spread thin, not a heap; wheat has leaves only, no ears"
+
+  - id: B02
+    title: "walking across stubble carrying a spade"
+    source: "v3 scene 9 shot 2 (4 attempts)"
+    teaches: "go out into the harvested field with a spade to take soil samples"
+    framing: "high wide shot from slightly above, 35 mm lens, the farmer small in the lower third of the frame, whole body visible, the field filling most of the picture"
+    setting: "a large flat harvested field on a clear morning; {setting:north_field_bg}"
+    crop_stage: "{stage:harvested_stubble}"
+    people:
+      - role: farmer
+        gender: man
+        age: "about 45"
+        build: "lean, sun-tanned skin, short black hair with some grey, thick black moustache"
+        clothes: "a white cotton kurta, white pyjama trousers, a red-and-white checked gamcha over his shoulder, brown leather chappals"
+        posture: "walking across the field mid-stride"
+        gaze: "looking ahead across the field"
+        right_hand: {holds: "spade", grip: "fingers wrapped around the end of the spade's long wooden handle, the handle resting on his right shoulder, the flat iron blade behind his back"}
+        left_hand: {holds: "steel bucket", grip: "holding a small empty steel bucket by its wire handle, arm hanging straight at his side"}
+    objects:
+      - {name: "spade with a long wooden handle and one flat iron blade", count: 1, state: "carried, blade clean", support: "handle on his right shoulder, held by his right hand"}
+      - {name: "{prop:steel_bucket_clean}", count: 1, state: "empty", support: "hanging from his left hand by its handle"}
+    flows: []
+    contacts:
+      - "his right hand grips the spade handle near his shoulder; his left hand holds the bucket's wire handle"
+    inspector_notes:
+      - "one spade = one blade + one handle continuous through the hand; bucket count 1"
+      - "small figure: still count arms and legs in a zoomed crop"
+
+  - id: B03
+    title: "squatting, digging a V-shaped pit with a khurpi"
+    source: "v3 scene 16 (khurpi drawn as a spade / scraper)"
+    teaches: "dig a small V-shaped pit about 15 cm deep with a khurpi to take the sample"
+    framing: "medium close-up at the farmer's eye level while he squats, 50 mm lens, his whole squatting body and the pit in front of him in frame"
+    setting: "a harvested field on a clear morning, soft sunlight from the left; {setting:north_field_bg}"
+    crop_stage: "{stage:harvested_stubble}"
+    people:
+      - role: farmer
+        gender: man
+        age: "about 45"
+        build: "lean, sun-tanned skin, short black hair with some grey, thick black moustache"
+        clothes: "a white cotton kurta, a white dhoti tucked up above the knees, brown leather chappals"
+        posture: "squatting flat-footed on the soil, knees bent, forearms forward over his knees"
+        gaze: "looking down into the pit"
+        right_hand: {holds: "hand weeder", grip: "his fist wrapped around the short wooden handle of the hand weeder, the blade pushed into the side of the pit"}
+        left_hand: {holds: null, grip: "resting flat on the soil beside the pit, fingers spread for balance"}
+    objects:
+      - {name: "{prop:khurpi}", count: 1, state: "blade half inside the soil", support: "held by his right hand"}
+      - {name: "small V-shaped pit about one hand deep with a little heap of loose brown soil beside it", count: 1, state: "freshly dug", support: "in the ground in front of his feet"}
+    flows: []
+    contacts:
+      - "his right fist grips the weeder handle just behind the blade; his left hand rests flat on the soil"
+    inspector_notes:
+      - "khurpi: short fist-length handle and a dark pointed leaf blade; long handle = scraper (minor), shiny trowel = fail"
+      - "squat balanced, knees bend forward"
+
+  - id: B04
+    title: "kneeling, drawing a line through spread soil to quarter it"
+    source: "v3 scene 13 (3 attempts)"
+    teaches: "spread the mixed soil in a round flat layer and divide it into four parts with a line"
+    framing: "medium shot from slightly above, 50 mm lens, the farmer kneeling on the left and the plastic sheet in front of him filling the lower half of the frame"
+    setting: "a shaded farmyard of packed earth beside a plastered brick wall, soft daylight"
+    crop_stage: null
+    people:
+      - role: farmer
+        gender: man
+        age: "about 45"
+        build: "lean, sun-tanned skin, short black hair with some grey, thick black moustache"
+        clothes: "a white cotton kurta, white pyjama trousers"
+        posture: "kneeling on both knees at the edge of the plastic sheet, leaning forward"
+        gaze: "looking down at the soil"
+        right_hand: {holds: null, grip: "the straight edge of his flat right hand pressed into the soil, drawing one straight groove through the middle of the round layer"}
+        left_hand: {holds: null, grip: "resting flat on his left knee"}
+    objects:
+      - {name: "clean white plastic sheet", count: 1, state: "spread flat", support: "lying on the ground"}
+      - {name: "round flat layer of loose brown soil about two hands thick", count: 1, state: "with one straight groove drawn through its middle", support: "on the plastic sheet"}
+    flows: []
+    contacts:
+      - "the edge of his right hand touches the soil inside the groove; his left hand rests on his knee"
+    inspector_notes:
+      - "one straight groove, soil round and even; hands complete; kneeling legs plausible"
+
+  - id: B05
+    title: "lab technician pouring dried soil from an open cloth bag"
+    source: "v3 scene 15 shot 2 (bag drawn tied shut, nothing pouring)"
+    teaches: "at the lab the dried soil sample is poured out to be weighed and tested"
+    framing: "medium shot at eye level, 50 mm lens, the technician from the waist up behind the lab bench"
+    setting: "{setting:soil_lab}; daylight from a window on the right"
+    crop_stage: null
+    people:
+      - role: lab_technician
+        gender: woman
+        age: "about 32"
+        build: "slim, hair tied back in a low bun"
+        clothes: "a plain light-blue salwar kameez with a white lab coat over it"
+        posture: "standing behind the bench, leaning slightly over it"
+        gaze: "looking at the dish"
+        right_hand: {holds: "cloth bag", grip: "holding the small cloth bag by its bottom corner, the bag tilted so its open mouth points down into the dish"}
+        left_hand: {holds: "cloth bag", grip: "fingers supporting the bag just below its open mouth"}
+    objects:
+      - {name: "small white cloth sample bag with its drawstring untied and its mouth wide open", count: 1, state: "tilted, mouth down", support: "held in both her hands above the dish"}
+      - {name: "shallow round steel dish", count: 1, state: "half filled with dry brown soil", support: "standing on the bench"}
+    flows:
+      - {material: "dry crumbly brown soil", source: "pouring out of the open mouth of the tilted cloth bag", path: "a short steady stream straight down", landing: "landing in the steel dish and forming a small mound"}
+    contacts:
+      - "her right hand holds the bag's bottom corner, her left fingers support it below the open mouth"
+    inspector_notes:
+      - "bag mouth must be open and tilted, stream starts at the mouth; a tied bag = fail"
+
+  - id: B06
+    title: "measuring granules from a sack with a bowl while holding a report"
+    source: "v3 scene 19 shot 2"
+    teaches: "measure fertilizer according to the soil report"
+    framing: "medium shot at the farmer's eye level while he crouches, 50 mm lens, his whole crouching body, the sack and the bucket in frame"
+    setting: "a farmyard of packed earth beside a plastered brick house, morning light"
+    crop_stage: null
+    people:
+      - role: farmer
+        gender: man
+        age: "about 45"
+        build: "lean, sun-tanned skin, short black hair with some grey, thick black moustache"
+        clothes: "a white cotton kurta, white pyjama trousers, a red-and-white checked gamcha over his shoulder, brown leather chappals"
+        posture: "crouching on his heels between an open sack and a bucket"
+        gaze: "glancing at the report sheet"
+        left_hand: {holds: "soil report", grip: "holding the report sheet by its edge at chest height, the printed side facing him"}
+        right_hand: {holds: "steel bowl", grip: "holding a small steel bowl by its rim, tilted over the bucket"}
+    objects:
+      - {name: "open white woven plastic fertilizer sack, its top rolled down, full of white granules, its printing faded to soft blurred patches of colour", count: 1, state: "open, standing", support: "standing on the ground on his left"}
+      - {name: "{prop:steel_bucket_clean}", count: 1, state: "a few granules at the bottom", support: "standing on the ground in front of him"}
+      - {name: "{prop:soil_report}", count: 1, state: "held up", support: "in his left hand"}
+      - {name: "small steel bowl", count: 1, state: "tilted, holding white granules", support: "in his right hand"}
+    flows:
+      - {material: "white fertilizer granules", source: "pouring from the tilted rim of the small steel bowl", path: "a short stream straight down", landing: "falling into the bucket"}
+    contacts:
+      - "left hand on the report's edge; right hand on the rim of the bowl over the bucket"
+    inspector_notes:
+      - "two hands doing two different jobs, both visible; stream from the tilted bowl's rim; report printed, unreadable"
+
+  - id: B07
+    title: "technician hands the farmer his soil report"
+    source: "new: two-person hand-over (fused-hands risk)"
+    teaches: "the lab gives the farmer his soil health report and explains it"
+    framing: "medium shot at eye level, 50 mm lens, both people visible from the waist up, facing each other at a slight angle toward the camera"
+    setting: "{setting:soil_lab}; daylight from a window on the right"
+    crop_stage: null
+    people:
+      - role: lab_technician
+        gender: woman
+        age: "about 32"
+        build: "slim, hair tied back in a low bun"
+        clothes: "a plain light-blue salwar kameez with a white lab coat over it"
+        posture: "standing on the left, turned toward the farmer"
+        gaze: "looking at the report, mouth slightly open as she explains"
+        right_hand: {holds: "soil report", grip: "thumb on top and fingers underneath, holding the left edge of the sheet"}
+        left_hand: {holds: null, grip: "index finger pointing at a row of the table on the sheet"}
+      - role: farmer
+        gender: man
+        age: "about 45"
+        build: "lean, sun-tanned skin, short black hair with some grey, thick black moustache"
+        clothes: "a white cotton kurta, a red-and-white checked gamcha over his left shoulder"
+        posture: "standing on the right, facing her, leaning slightly forward"
+        gaze: "looking down at the report, attentive"
+        left_hand: {holds: "soil report", grip: "thumb on top and fingers underneath, holding the right edge of the sheet"}
+        right_hand: {holds: null, grip: "hanging relaxed at his side"}
+    objects:
+      - {name: "{prop:soil_report}", count: 1, state: "held flat and level between them", support: "her right hand on its left edge, his left hand on its right edge, a hand's width of paper between their hands"}
+    flows: []
+    contacts:
+      - "her right hand on the left edge of the sheet and his left hand on the right edge, a clear gap of paper between them"
+    inspector_notes:
+      - "zoom on the sheet: four separate hands in total, none merged; report printed, unreadable"
+
+  - id: B08
+    title: "spraying with a knapsack sprayer, wearing protection"
+    source: "new: PPE + sprayer"
+    teaches: "while spraying, wear full sleeves, gloves and a cloth over nose and mouth, and point the nozzle at the crop"
+    framing: "medium-wide shot at eye level, 35 mm lens, the farmer's whole body from head to knees in frame, side view from his left"
+    setting: "a North Indian field on a calm clear morning with soft light; {setting:north_field_bg}"
+    crop_stage: "a knee-high mustard crop in yellow flower, in rows"
+    people:
+      - role: farmer
+        gender: man
+        age: "about 40"
+        build: "medium build, sun-tanned skin, short black hair, thick black moustache"
+        clothes: "a long-sleeved buttoned cotton shirt, full-length trousers, green rubber gloves on both hands, a folded white cotton cloth tied over his nose and mouth, rubber boots"
+        posture: "walking slowly along the crop row"
+        gaze: "looking at the crop where he is spraying"
+        left_hand: {holds: "sprayer handle", grip: "gloved fingers wrapped around the black pump lever at his left side"}
+        right_hand: {holds: "spray lance", grip: "gloved fist holding the trigger grip of the long metal spray lance, pointing it forward and down at the mustard plants"}
+    objects:
+      - {name: "white plastic knapsack sprayer tank", count: 1, state: "worn on his back", support: "two padded straps over both shoulders"}
+      - {name: "long thin metal spray lance with a nozzle at its tip, connected to the tank by a thin hose", count: 1, state: "pointed down at the crop", support: "held in his right hand"}
+    flows:
+      - {material: "fine white spray mist", source: "coming out of the nozzle at the tip of the lance", path: "a small cone", landing: "settling on the mustard leaves just in front of him"}
+    contacts:
+      - "the tank straps lie over both his shoulders; his right glove on the lance grip; his left glove on the pump lever"
+    inspector_notes:
+      - "PPE complete: full sleeves, two gloves, cloth over nose and mouth"
+      - "hose continuous from tank to lance; mist starts at the nozzle"
+
+  - id: B09
+    title: "two farmers examining a yellowing wheat leaf"
+    source: "new: two-person interaction"
+    teaches: "look closely at leaves: yellowing from the tip can mean the crop needs nitrogen"
+    framing: "medium close shot at eye level, 50 mm lens, two men from the chest up crouching close together, the leaf between them in sharp focus"
+    setting: "a North Indian field on a winter morning with soft light; {setting:north_field_bg}"
+    crop_stage: "young green cereal plants a month after sowing, shin-high, long green leaves only, in rows"
+    people:
+      - role: older farmer
+        gender: man
+        age: "about 60"
+        build: "thin, white hair, short white beard, a white turban"
+        clothes: "a white kurta and a grey woollen shawl around his shoulders"
+        posture: "crouching on the left"
+        gaze: "looking at the leaf"
+        right_hand: {holds: "wheat leaf", grip: "holding the tip of one long leaf between thumb and forefinger, the leaf still attached to its plant"}
+        left_hand: {holds: null, grip: "resting on his left knee"}
+      - role: younger farmer
+        gender: man
+        age: "about 35"
+        build: "medium build, short black hair, thick black moustache"
+        clothes: "a checked cotton shirt with sleeves rolled to the elbow"
+        posture: "crouching on the right, leaning in toward the leaf"
+        gaze: "looking at the leaf"
+        right_hand: {holds: null, grip: "index finger pointing at the yellow tip of the leaf, a finger's width away from it"}
+        left_hand: {holds: null, grip: "resting on his right knee"}
+    objects:
+      - {name: "one long cereal leaf, green at its base and pale yellow toward its tip", count: 1, state: "attached to its plant", support: "its tip held by the older man's fingers"}
+    flows: []
+    contacts:
+      - "the older man's thumb and forefinger hold the leaf tip; the younger man's pointing finger stays a little away from it"
+    inspector_notes:
+      - "four hands, two people, no merging near the leaf; leaf is one continuous blade"
+
+  - id: B10
+    title: "pouring liquid from a bottle into its measuring cap"
+    source: "new: liquid + small-object grip"
+    teaches: "measure the exact dose with the measuring cap before mixing it in the sprayer"
+    framing: "close-up at chest height, 85 mm lens, the farmer's two hands, forearms and the sprayer tank in frame, his face out of frame above"
+    setting: "the edge of a field in soft morning light, a blurred green crop behind"
+    crop_stage: null
+    people:
+      - role: farmer
+        gender: man
+        age: "about 40"
+        build: "sun-tanned forearms"
+        clothes: "a long-sleeved blue cotton shirt, green rubber gloves on both hands"
+        posture: "standing behind the sprayer tank, hands in front of his chest"
+        gaze: null
+        right_hand: {holds: "bottle", grip: "gloved hand holding a small white plastic bottle by its body, tilted so its open neck points down into the cap"}
+        left_hand: {holds: "measuring cap", grip: "gloved thumb and fingers holding a small clear plastic measuring cap upright, level"}
+    objects:
+      - {name: "small white plastic bottle of liquid with a plain label of blurred colour patches", count: 1, state: "open, tilted", support: "in his right hand"}
+      - {name: "small clear plastic measuring cap", count: 1, state: "upright, half filled with pale green liquid", support: "in his left hand"}
+      - {name: "white plastic knapsack sprayer tank with its lid off", count: 1, state: "standing open", support: "standing on the ground below his hands"}
+    flows:
+      - {material: "a thin stream of pale green liquid", source: "flowing from the open neck of the tilted bottle", path: "a short thin stream", landing: "into the measuring cap"}
+    contacts:
+      - "right gloved hand around the bottle's body; left gloved fingers around the measuring cap"
+    inspector_notes:
+      - "stream continuous from bottle neck into cap; liquid surface in the cap level; label unreadable"
+
+  - id: B11
+    title: "still life: bucket and khurpi on paddy stubble"
+    source: "v3 scene 9 shot 1 (2 attempts)"
+    teaches: "what you need for sampling: a clean bucket and a khurpi"
+    framing: "close-up at ground level, 50 mm lens, the bucket and the hand weeder in the foreground, the field running to the horizon behind"
+    setting: "a harvested paddy field on a clear morning; {setting:north_field_bg}"
+    crop_stage: "short dry rice stubble in rows on bare brown soil"
+    people: []
+    objects:
+      - {name: "{prop:steel_bucket_clean}", count: 1, state: "standing upright", support: "standing on the soil"}
+      - {name: "{prop:khurpi}", count: 1, state: "lying flat", support: "lying on the soil beside the bucket"}
+    flows: []
+    contacts: []
+    inspector_notes:
+      - "exactly one bucket and one khurpi; bucket dry inside; North Indian background"
+
+  - id: B12
+    title: "three farmers on a charpai, one shows seed in his open hand"
+    source: "new: group anatomy, seated limbs"
+    teaches: "farmers compare the seed they will sow"
+    framing: "medium-wide shot at seated eye level, 35 mm lens, three men sitting side by side on one charpai, all three whole bodies in frame"
+    setting: "a village courtyard of packed earth in the shade of a large neem tree, plastered brick houses behind, soft afternoon light"
+    crop_stage: null
+    people:
+      - role: farmer showing seed
+        gender: man
+        age: "about 50"
+        build: "lean, short grey hair, thick grey moustache"
+        clothes: "a white kurta-pyjama"
+        posture: "sitting in the middle of the charpai, feet on the ground"
+        gaze: "looking down at the seeds in his hand"
+        right_hand: {holds: "seeds", grip: "held out in front of him, turned up and cupped, holding a small heap of golden wheat seeds"}
+        left_hand: {holds: null, grip: "resting on his left thigh"}
+      - role: farmer on the left
+        gender: man
+        age: "about 40"
+        build: "medium build, black hair, black moustache"
+        clothes: "a light-brown kurta and white pyjama"
+        posture: "sitting on the left end of the charpai, leaning toward the middle"
+        gaze: "looking at the seeds"
+        right_hand: {holds: null, grip: "resting on the wooden frame of the charpai beside him"}
+        left_hand: {holds: null, grip: "resting on his left knee"}
+      - role: farmer on the right
+        gender: man
+        age: "about 65"
+        build: "thin, white hair, short white beard, a white turban"
+        clothes: "a white kurta and a grey woollen shawl"
+        posture: "sitting on the right end of the charpai, upright"
+        gaze: "looking at the seeds with a slight smile"
+        right_hand: {holds: "wooden walking stick", grip: "holding a wooden walking stick planted on the ground beside his right foot"}
+        left_hand: {holds: null, grip: "resting in his lap"}
+    objects:
+      - {name: "charpai, a wooden-framed cot strung with woven jute rope", count: 1, state: "standing on four wooden legs", support: "on the ground"}
+      - {name: "wooden walking stick", count: 1, state: "upright", support: "held by the man on the right, its tip on the ground"}
+      - {name: "small heap of golden wheat seeds", count: 1, state: "dry grains", support: "in the cupped right hand of the man in the middle"}
+    flows: []
+    contacts:
+      - "the middle man's cupped right hand holds the seeds; the right man's hand grips the top of his stick"
+    inspector_notes:
+      - "three people, six hands, six legs, all on the charpai; seated knees bend correctly; seeds look like wheat grains"

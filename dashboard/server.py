@@ -731,6 +731,21 @@ class Handler(BaseHTTPRequestHandler):
                 return self._file(STATIC_DIR / "index.html")
             if path.startswith("/static/"):
                 return self._file(STATIC_DIR / path[len("/static/"):], root=STATIC_DIR)
+            if path == "/bakeoff":
+                return self._file(STATIC_DIR / "bakeoff.html")
+            if path == "/api/bakeoff/items":
+                from pipeline import bakeoff
+                p = bakeoff.BLIND / "items.json"
+                data = json.loads(p.read_text()) if p.exists() else {"tags": bakeoff.TAGS, "items": []}
+                data["ratings"] = bakeoff.latest_ratings()
+                return self._json(data)
+            m = re.match(r"^/bakeoff-img/([0-9a-f]{10})$", path)
+            if m:
+                from pipeline import bakeoff
+                img = bakeoff.blind_image(m.group(1))
+                if not img:
+                    return self._json({"error": "not found"}, 404)
+                return self._file(img, root=REPO_ROOT / "bakeoff")
             if path == "/api/episodes":
                 eps = [e for d in sorted(EPISODES_DIR.iterdir()) if d.is_dir() and (e := ep_summary(d))]
                 return self._json(sorted(eps, key=lambda e: -e["mtime"]))
@@ -800,6 +815,13 @@ class Handler(BaseHTTPRequestHandler):
                 nj = Job(j.episode, j.stage, j.label, j.cmd, j.opts, estimate(j.stage, j.episode, j.opts)
                          if j.stage in STAGE_BY_KEY else j.est)
                 return self._json(RUNNER.add(nj).public())
+            if path == "/api/bakeoff/rate":
+                from pipeline import bakeoff
+                return self._json(bakeoff.record_rating(str(body.get("id", "")), str(body.get("verdict", "")),
+                                                        list(body.get("tags") or []), str(body.get("note") or "")))
+            if path == "/api/bakeoff/rebuild":
+                from pipeline import bakeoff
+                return self._json({"items": bakeoff.blind()})
             if path == "/api/validate":
                 ep_id, as_ = body.get("episode", ""), body.get("as")
                 if not SAFE_ID.match(ep_id) or (as_ and as_ not in STATUSES):

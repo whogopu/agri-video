@@ -34,3 +34,9 @@ dashboard/runs/
 # locally converted vision models (pipeline/vlm_inspect.py trial)
 vlm/models/
 
+# image model bake-off: generated images, logs, blind key/ratings
+bakeoff/runs/
+bakeoff/logs/
+bakeoff/blind/
+bakeoff/crops/
+.DS_Store

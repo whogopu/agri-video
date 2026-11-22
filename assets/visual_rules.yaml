@@ -111,6 +111,7 @@ actions:
     must_show:
       - "granules leave an OPEN hand (or the tilted mouth of a container), never a closed fist or a hand gripping a handle"
       - "they land spread thinly over a wide area, not in one heap"
+      - "the bucket is carried low in the OTHER hand by its handle, arm hanging; never hooked on the throwing forearm (FLUX.3 Klein did that 3/3 when the prompt said 'handle hooked over his forearm'; user fails it, 2026-11-22)"
   pour_from_tilted:
     text: >-
       tilts the container so its mouth points down, and the material pours out of the tilted mouth in a short stream
